@@ -287,23 +287,24 @@ export function Header() {
       className="fixed inset-x-0 top-0 z-50"
       onMouseLeave={scheduleClose}
     >
-      {/* No gap above the bar when scrolled: a transparent strip there would show
-          whatever is scrolling underneath, which reads as a white band the moment
-          a light section passes behind it. */}
-      <div className="rail">
-        <div className="relative flex h-16 items-center justify-between gap-2 lg:h-[72px] xl:gap-4">
-          {/* The white surface is its own layer, so becoming solid animates
-              opacity alone. The bar keeps one height and the content never
-              moves, which is what makes the change read as smooth — animating
-              height/padding/border on the bar itself forces layout every frame
-              and visibly stutters. */}
+      <div className="rail pt-3 lg:pt-4">
+        <div className="relative flex h-14 items-center justify-between gap-2 lg:h-[68px] xl:gap-4">
+          {/* The glass pill lives on its own layer and only cross-fades in.
+              The bar keeps one height and the content never moves between the
+              two states — animating height, padding, margin or backdrop-filter
+              on the bar itself forces layout every frame and visibly stutters,
+              so everything that changes here is paint-only. */}
           <div
             aria-hidden="true"
             className={cx(
-              "pointer-events-none absolute inset-y-0 -left-3 -right-3 rounded-b-3xl border-b border-line/70 bg-white shadow-[0_16px_44px_-18px_rgba(6,14,43,0.4)] transition-opacity duration-300 ease-in-out lg:-left-6 lg:-right-6",
+              "pointer-events-none absolute inset-y-0 -left-3 -right-3 transition-opacity duration-300 ease-in-out lg:-left-6 lg:-right-6",
               solid ? "opacity-100" : "opacity-0",
             )}
-          />
+          >
+            <div className="size-full rounded-full border border-white/60 bg-white/88 shadow-[0_16px_44px_-18px_rgba(6,14,43,0.4)] backdrop-blur-2xl backdrop-saturate-150" />
+            {/* Highlight along the top edge — the detail that sells the glass. */}
+            <div className="absolute inset-x-0 top-0 h-px rounded-full bg-gradient-to-r from-transparent via-white/75 to-transparent" />
+          </div>
 
           <Logo onDark={!solid} className="relative" />
 

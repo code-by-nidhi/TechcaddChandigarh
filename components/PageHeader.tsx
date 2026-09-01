@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Breadcrumbs, Eyebrow, Rail } from "./ui";
+import { HeroReveal } from "./motion/Reveal";
 
 /**
  * The navy banner every inner page opens with — keeps the hero gradient as the
@@ -34,24 +35,28 @@ export function PageHeader({
         <rect width="100%" height="100%" fill="url(#page-grid)" />
       </svg>
 
-      <Rail>
-        {breadcrumbs ? <Breadcrumbs items={breadcrumbs} onDark /> : null}
-        {eyebrow ? (
-          <Eyebrow onDark className={breadcrumbs ? "mt-6" : ""}>
-            {eyebrow}
-          </Eyebrow>
+      <HeroReveal className="rail">
+        {breadcrumbs ? (
+          <div data-hero-item>
+            <Breadcrumbs items={breadcrumbs} onDark />
+          </div>
         ) : null}
-        <h1 className="mt-6 max-w-4xl font-display text-3xl leading-[1.1] font-extrabold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+        {eyebrow ? (
+          <div data-hero-item className={breadcrumbs ? "mt-6" : ""}>
+            <Eyebrow onDark>{eyebrow}</Eyebrow>
+          </div>
+        ) : null}
+        <h1 data-hero-item className="mt-6 max-w-4xl font-display text-3xl leading-[1.1] font-extrabold tracking-tight text-balance sm:text-4xl lg:text-5xl">
           {title}
         </h1>
         {body ? (
-          <p className="mt-6 max-w-2xl leading-relaxed text-pretty text-brand-100/85 lg:text-lg">
+          <p data-hero-item className="mt-6 max-w-2xl leading-relaxed text-pretty text-brand-100/85 lg:text-lg">
             {body}
           </p>
         ) : null}
 
         {meta ? (
-          <dl className="mt-10 flex flex-wrap gap-x-10 gap-y-5">
+          <dl data-hero-item className="mt-10 flex flex-wrap gap-x-10 gap-y-5">
             {meta.map((item) => (
               <div key={item.label}>
                 <dt className="text-[11px] font-bold uppercase tracking-widest text-brand-200/70">
@@ -65,8 +70,12 @@ export function PageHeader({
           </dl>
         ) : null}
 
-        {children ? <div className="mt-9">{children}</div> : null}
-      </Rail>
+        {children ? (
+          <div data-hero-item className="mt-9">
+            {children}
+          </div>
+        ) : null}
+      </HeroReveal>
     </section>
   );
 }

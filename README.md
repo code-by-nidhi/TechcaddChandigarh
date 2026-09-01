@@ -33,52 +33,82 @@ reference), `panel-surface`, `rail`, `card-hover`, `skeleton` / `skeleton-dark`,
 
 [components/Header.tsx](components/Header.tsx) has two states, driven by scroll position:
 
-- **At the top** — transparent, 72px tall, white text over the hero.
-- **Scrolled past 24px** — a white bar flush to the top edge (`rounded-b-3xl`, 68px tall, inset
-  horizontally, with a soft shadow), dark text, and the Book Demo button flips from white to brand
-  blue. Opening a menu or the mobile drawer forces the same state.
+The bar has two states:
 
-There is deliberately **no gap above the scrolled bar**. A transparent strip there shows whatever
-is scrolling underneath, so the moment a light section passed behind it a white band appeared
-across the top of the viewport. The bar is flush at `top: 0` instead, and carries only a bottom
-border — side borders would push the logo 1px off the rail.
+- **At the top** — fully transparent over the navy hero: white wordmark, white links, white
+  Book Demo pill.
+- **Scrolled past 32px** — a **floating glass pill**: `rounded-full`, frosted with
+  `backdrop-blur-2xl` `backdrop-saturate-150` over `white/88`, a light border and a hairline
+  highlight along the top edge. The wordmark and links turn navy and Book Demo turns brand blue.
+  Opening a mega menu forces the same state so the panel reads against the bar.
 
-**The state change animates opacity only.** The white surface is a separate absolutely-positioned
-layer that cross-fades `opacity-0 → opacity-100`; the bar keeps one height and the content never
-moves. Animating height, margin, padding, border-width and `backdrop-filter` on the bar itself —
-as an earlier version did — forces layout on every frame and visibly stutters. The wordmark is two
-stacked copies (navy, plus a `brightness-0 invert` knock-out) cross-fading on the same 300ms
-`ease-in-out` curve, which avoids the muddy midpoint of animating `filter` from `none`.
+**The change is a cross-fade with zero layout movement.** The pill is a separate
+absolutely-positioned layer whose opacity animates `0 → 1`; the bar keeps one height and the
+content never shifts. Everything that changes — opacity, colour, shadow — is paint-only.
+Animating height, padding, margin, border-width or `backdrop-filter` on the bar itself, as an
+earlier version did, forces layout on every frame and visibly stutters. Verified by sampling
+geometry through the transition: height, logo position and nav position are identical in every
+frame while opacity ramps smoothly.
+
+The wordmark is two stacked copies — navy, plus a `brightness-0 invert` knock-out — cross-fading
+on the same 300ms `ease-in-out` curve as the pill, which avoids the muddy midpoint of animating
+`filter` from `none`. Every state-driven transition in the header shares that one duration and
+curve so they move as a single change.
+
+The header sits on the **same `rail` as every section**, so the logo lines up exactly with the
+hero heading in both states (verified at 1280 / 1440 / 1920). The pill bleeds out past the rail
+with negative offsets while the content stays on the rail line.
 
 The scroll listener uses **hysteresis** — solid above 32px, clear below 8px — so creeping across a
 single threshold cannot flip the bar back and forth.
 
-The header sits on the **same `rail` as every section**, so the logo lines up exactly with the
-hero heading and every section heading (verified at 1280 / 1440 / 1920). The capsule bleeds out
-past the rail with a negative margin and adds back the same amount as padding — bleed and inner
-padding are kept equal, which is what preserves that alignment while still letting the pill float
-clear of the content column. Capping the bar at the content width is also what keeps the gaps
-either side of the nav small (22–40px) instead of absorbing all the leftover space.
+## Motion
 
-The wordmark is the official artwork at [public/assets/logo.png](public/assets/logo.png). It is
-navy on transparent, so on the navy header it is knocked out to white with `brightness-0 invert`
-rather than shipping a second file — the mark is one flat colour, so the result is exact.
+GSAP with ScrollTrigger, wrapped in four primitives in
+[components/motion/Reveal.tsx](components/motion/Reveal.tsx):
 
-The `AI` item renders as a gradient blue pill with a glow, as on the reference nav.
+| Component | Used for |
+| --- | --- |
+| `<Reveal>` | Fade-and-rise as a section scrolls in; `stagger` sequences direct children |
+| `<HeroReveal>` | Plays on mount for above-the-fold content, stepping through `[data-hero-item]` |
+| `<CountUp>` | Counts stat figures up when they enter view, preserving suffixes like `15K+` |
+| `<Parallax>` | Scrub-linked drift for decorative layers (the hero grid) |
 
-Mega panels are one wide centred sheet under the bar, in three shapes declared per item in
-[data/nav.ts](data/nav.ts):
+Every one bails out early when `prefers-reduced-motion: reduce` is set, and each uses
+`gsap.context()` so effects are reverted on unmount. Animations run `once`, so scrolling back up
+does not replay them.
 
-| `panel.kind` | Used by | Looks like |
-| --- | --- | --- |
-| `columns` | AI, Courses, After 12th, Resources | Numbered columns with a subtitle, rule and link list |
-| `tiles` | Certificate Programs, Branches | 4-across grid of icon cards |
-| `cards` | About | Link column, divider, three preview cards |
+Because `gsap.from` sets the start state after hydration, the server HTML renders fully visible —
+crawlers and no-JS visitors see the content. Verified by walking the whole page in both motion
+modes: no element is left stranded below full opacity.
 
-`columns` and `tiles` close with a quote strip and a CTA link. Below `xl` the whole thing
-collapses into an accordion drawer that flattens every panel shape into labelled link groups.
-Verified free of horizontal overflow at 320, 360, 768, 1024 and 1280px; Book Demo hides below
-380px so the wordmark keeps its room.
+## Hero visual
+
+[components/sections/HeroVisual.tsx](components/sections/HeroVisual.tsx) is a pearlescent torus
+framing the technology stack, with two stat cards floating off its edge.
+
+Drawn as SVG rather than shipped as an image so it stays crisp at any size and uses the brand
+palette directly. The tech chips live **inside the SVG** so their labels scale with the artwork
+instead of drifting out of the opening at small sizes; their row widths are declared rather than
+measured, so the server and client lay them out identically. The stat cards are real HTML on top,
+so those figures stay selectable text and read from `site.stats`.
+
+Motion (skipped under `prefers-reduced-motion`): the ring rotates slowly, carrying its gradient
+round with it so a highlight travels over the surface, and a blurred specular arc counter-rotates.
+The chips deliberately stay still — they are content, so they have to remain upright and readable.
+
+## Skeleton loading
+
+`loading.tsx` at 21 route segments, composed from the shapes in
+[components/Skeleton.tsx](components/Skeleton.tsx) — `PageHeaderSkeleton` (navy banner),
+`SectionHeadingSkeleton`, `CardGridSkeleton`, `RowsSkeleton`, `DetailSkeleton`, `ArticleSkeleton`.
+They mirror the real layout so nothing jumps on swap, and use the `skeleton` / `skeleton-dark`
+shimmer utilities from `globals.css`.
+
+Note that these rarely appear in production: every route is statically prerendered, so navigation
+resolves instantly and there is nothing to suspend on. They show when a payload is genuinely slow
+to arrive — confirmed by forcing a suspension, which rendered the correct boundary
+(`aria-label="Loading courses"`, 33 placeholder bars).
 
 ## Content model
 

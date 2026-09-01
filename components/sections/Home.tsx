@@ -15,6 +15,7 @@ import { CourseCard } from "@/components/CourseCard";
 import { Accordion } from "@/components/Accordion";
 import { QuickDemoForm } from "@/components/EnquiryForm";
 import { ButtonLink, Eyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
+import { CountUp, Reveal } from "@/components/motion/Reveal";
 
 /* ---------------------------------- About ---------------------------------- */
 
@@ -89,7 +90,7 @@ export function ProcessSection() {
           body="Four stages, in the same order for every student, with a person accountable at each one."
         />
 
-        <ol className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <Reveal as="ol" stagger className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {processSteps.map((step, i) => (
             <li key={step.step} className="relative">
               {i < processSteps.length - 1 ? (
@@ -105,7 +106,7 @@ export function ProcessSection() {
               <p className="mt-2.5 text-sm leading-relaxed text-muted">{step.body}</p>
             </li>
           ))}
-        </ol>
+        </Reveal>
       </Rail>
     </section>
   );
@@ -129,7 +130,7 @@ export function CategoriesSection() {
           </ButtonLink>
         </div>
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {courseCategories.map((category) => {
             const count = coursesByCategory(category.id).length;
             return (
@@ -175,7 +176,7 @@ export function CategoriesSection() {
               <Icon name="arrow-right" className="size-4" />
             </ButtonLink>
           </div>
-        </div>
+        </Reveal>
       </Rail>
     </section>
   );
@@ -193,11 +194,11 @@ export function FeaturedSection() {
           title="What most students are enrolling in"
           body="Every one of these runs with lab hours, a live client project and placement support."
         />
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {featuredCourses.slice(0, 9).map((course) => (
             <CourseCard key={course.id} course={course} />
           ))}
-        </div>
+        </Reveal>
         <div className="mt-12 text-center">
           <ButtonLink href="/courses" variant="secondary" size="lg">
             Browse all courses
@@ -220,7 +221,7 @@ export function DifferenceSection() {
           title="The techcadd difference"
           body="Four things we do differently, and how you can verify each one before you enrol."
         />
-        <div className="mt-14 grid gap-4 lg:grid-cols-2">
+        <Reveal stagger className="mt-14 grid gap-4 lg:grid-cols-2">
           {differences.map((item) => (
             <div key={item.title} className="rounded-2xl border border-line bg-white p-7">
               <div className="flex items-start justify-between gap-4">
@@ -234,7 +235,7 @@ export function DifferenceSection() {
               <p className="mt-3 leading-relaxed text-muted">{item.body}</p>
             </div>
           ))}
-        </div>
+        </Reveal>
       </Rail>
     </section>
   );
@@ -262,7 +263,7 @@ export function TestimonialsSection() {
           </div>
         </div>
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial) => (
             <figure
               key={testimonial.name}
@@ -283,7 +284,7 @@ export function TestimonialsSection() {
               </figcaption>
             </figure>
           ))}
-        </div>
+        </Reveal>
 
         <div className="mt-12 text-center">
           <ButtonLink href="/reviews" variant="secondary">
@@ -309,7 +310,7 @@ export function IncludedSection() {
             title="Five things in every program"
             body="No upsells at the end of the course. These are part of what you already paid for."
           />
-          <ul className="space-y-3">
+          <Reveal as="ul" stagger className="space-y-3">
             {includedItems.map((item, i) => (
               <li
                 key={item.title}
@@ -326,7 +327,7 @@ export function IncludedSection() {
                 </span>
               </li>
             ))}
-          </ul>
+          </Reveal>
         </div>
       </Rail>
     </section>
@@ -422,7 +423,7 @@ export function BlogSection() {
           </ButtonLink>
         </div>
 
-        <div className="mt-14 grid gap-4 lg:grid-cols-3">
+        <Reveal stagger className="mt-14 grid gap-4 lg:grid-cols-3">
           {recentPosts.map((post) => (
             <article
               key={post.slug}
@@ -451,7 +452,7 @@ export function BlogSection() {
               </span>
             </article>
           ))}
-        </div>
+        </Reveal>
       </Rail>
     </section>
   );

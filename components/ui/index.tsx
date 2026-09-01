@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 import { Icon } from "./Icon";
+import { CountUp } from "../motion/Reveal";
 
 export { Icon };
 
@@ -310,7 +311,7 @@ export function Stat({
           onDark ? "text-white" : "text-foreground",
         )}
       >
-        {value}
+        <CountUp value={value} />
       </p>
       <p className={cx("mt-1 text-sm", onDark ? "text-brand-100/70" : "text-muted")}>{label}</p>
     </div>

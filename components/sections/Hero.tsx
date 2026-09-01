@@ -1,84 +1,77 @@
 import Link from "next/link";
 import { site } from "@/data/site";
-import { heroStats, trustPoints } from "@/data/content";
 import { courseSlug } from "@/data/courses";
-import { ButtonLink, Icon, Stat } from "@/components/ui";
+import { ButtonLink, Icon } from "@/components/ui";
+import { HeroReveal, Reveal } from "@/components/motion/Reveal";
+import { HeroCircuit } from "./HeroCircuit";
 
 export function Hero() {
   return (
-    <section className="hero-surface relative isolate overflow-hidden pt-24 pb-16 text-white lg:pt-28 lg:pb-24">
-      {/* Faint grid, drawn rather than imported */}
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.15]"
-      >
-        <defs>
-          <pattern id="hero-grid" width="56" height="56" patternUnits="userSpaceOnUse">
-            <path d="M56 0H0V56" fill="none" stroke="white" strokeWidth="0.5" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#hero-grid)" />
-      </svg>
+    /**
+     * Locked to one viewport. `svh` rather than `vh` so a mobile browser's
+     * collapsing address bar cannot push the section past the fold. The bottom
+     * padding reserves the band the circuit hub sits in, so the artwork and the
+     * copy never land on top of each other.
+     */
+    <section className="hero-surface relative isolate flex h-[100svh] max-h-[100svh] flex-col justify-center overflow-hidden pt-[clamp(5rem,11vh,7rem)] pb-[clamp(8rem,24vh,15rem)] text-white">
+      <HeroCircuit className="pointer-events-none absolute inset-0 -z-10 size-full opacity-40 sm:opacity-75 lg:opacity-100" />
 
       <div className="rail">
-        <p className="fade-up inline-flex items-center gap-2.5 rounded-full bg-white/10 py-1.5 pr-4 pl-1.5 text-xs font-medium ring-1 ring-inset ring-white/15 backdrop-blur-sm">
-          <span className="rounded-full bg-accent-400 px-2.5 py-1 text-[11px] font-bold text-hero-950">
-            NEW
-          </span>
-          Agentic AI &amp; Generative AI batches now open in {site.city}
-        </p>
+        <HeroReveal className="mx-auto max-w-2xl text-center">
+          <p
+            data-hero-item
+            className="inline-flex items-center gap-2 rounded-full bg-white/10 py-1 pr-3.5 pl-1 text-[11px] font-medium ring-1 ring-inset ring-white/15 backdrop-blur-sm"
+          >
+            <span className="rounded-full bg-accent-yellow px-2 py-0.5 text-[10px] font-bold text-hero-950">
+              NEW
+            </span>
+            Agentic AI &amp; Generative AI batches now open in {site.city}
+          </p>
 
-        <h1 className="fade-up mt-8 max-w-4xl font-display text-4xl leading-[1.08] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-[4rem]">
-          Build the skills that turn you into a{" "}
-          <span className="relative whitespace-nowrap">
-            <span className="relative z-10 text-accent-400">job-ready engineer</span>
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 320 12"
-              className="absolute -bottom-1 left-0 h-2.5 w-full text-accent-glow/50"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M2 9c60-6 120-8 316-5"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="4"
-                strokeLinecap="round"
-              />
-            </svg>
-          </span>{" "}
-          in AI &amp; software engineering
-        </h1>
+          <h1
+            data-hero-item
+            className="mt-6 font-display text-[min(1.75rem,4.6vh)] leading-[1.12] font-extrabold tracking-tight text-balance sm:text-[min(2.25rem,5vh)] lg:text-[min(2.5rem,5.4vh)]"
+          >
+            Build the skills that turn you into a{" "}
+            <span className="relative whitespace-nowrap">
+              <span className="relative z-10 text-accent-yellow">job-ready engineer</span>
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 320 12"
+                className="absolute -bottom-0.5 left-0 h-2 w-full text-accent-yellow/45"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M2 9c60-6 120-8 316-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </span>{" "}
+            in AI &amp; software engineering
+          </h1>
 
-        <p className="fade-up mt-7 max-w-2xl text-base leading-relaxed text-pretty text-brand-100/85 lg:text-lg">
-          Students learn AI, cloud and full-stack systems with industry mentors, hands-on projects
-          and {site.stats.partners} hiring partners. Training in {site.city} since {site.founded}.
-        </p>
+          <p
+            data-hero-item
+            className="mx-auto mt-5 max-w-lg text-sm leading-relaxed text-pretty text-brand-100/85 lg:text-base"
+          >
+            Students learn AI, cloud and full-stack systems with industry mentors, hands-on projects
+            and <span className="font-semibold text-accent-yellow">{site.stats.partners} hiring partners</span>. Training in {site.city} since{" "}
+            {site.founded}.
+          </p>
 
-        <div className="fade-up mt-9 flex flex-wrap items-center gap-4">
-          <ButtonLink href="/contact#enquire" variant="onDark" size="lg">
-            Start your career
-            <Icon name="arrow-right" className="size-4" />
-          </ButtonLink>
-          <ButtonLink href="/courses" variant="onDarkGhost" size="lg">
-            Explore courses
-          </ButtonLink>
-        </div>
-
-        <ul className="fade-up mt-8 flex flex-wrap gap-x-6 gap-y-2.5 text-sm text-brand-100/75">
-          {trustPoints.map((point) => (
-            <li key={point} className="inline-flex items-center gap-2">
-              <Icon name="check" className="size-4 text-accent-400" />
-              {point}
-            </li>
-          ))}
-        </ul>
-
-        <div className="fade-up mt-14 grid gap-4 sm:grid-cols-3">
-          {heroStats.map((stat) => (
-            <Stat key={stat.label} value={stat.value} label={stat.label} onDark />
-          ))}
-        </div>
+          <div data-hero-item className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <ButtonLink href="/contact#enquire" variant="onDark" size="md">
+              Start your career
+              <Icon name="arrow-right" className="size-4" />
+            </ButtonLink>
+            <ButtonLink href="/courses" variant="onDarkGhost" size="md">
+              Explore courses
+            </ButtonLink>
+          </div>
+        </HeroReveal>
       </div>
     </section>
   );
@@ -115,7 +108,7 @@ const orbits = [
 
 export function OrbitStrip() {
   return (
-    <section className="rail grid grid-cols-2 gap-x-4 gap-y-10 py-20 sm:gap-x-8 lg:grid-cols-4">
+    <Reveal as="section" stagger className="rail grid grid-cols-2 gap-x-4 gap-y-10 py-20 sm:gap-x-8 lg:grid-cols-4">
       {orbits.map((orbit) => (
         <Link key={orbit.title} href={orbit.href} className="group mx-auto w-full max-w-[13rem]">
           <span className="relative grid aspect-square w-full place-items-center rounded-full border border-line bg-subtle p-6 text-center transition-all duration-500 group-hover:border-brand-600/30 group-hover:bg-brand-50">
@@ -132,6 +125,6 @@ export function OrbitStrip() {
           </span>
         </Link>
       ))}
-    </section>
+    </Reveal>
   );
 }
