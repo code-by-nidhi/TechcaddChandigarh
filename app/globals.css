@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens — mirrored from the techcadd brand system.
+   --------------------------------------------------------------------------- */
+@theme {
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-inter);
+  --font-mono: var(--font-inter);
+
+  /* Surfaces */
+  --color-background: #fff;
+  --color-foreground: #0f172a;
+  --color-muted: #64748b;
+  --color-subtle: #f8fafc;
+  --color-line: #e2e8f0;
+
+  /* Brand blue */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-900: #1e3a8a;
+
+  /* Deep navy / hero */
+  --color-ink: #2a2c5e;
+  --color-panel: #0b1030;
+  --color-hero-950: #060e2b;
+  --color-hero-900: #0b1a4d;
+  --color-hero-800: #123285;
+  --color-hero-600: #1c53d1;
+  --color-hero-glow: #2f7dff;
+  --color-logo: #0c1f6c;
+
+  /* Accents */
+  --color-accent-400: #22d3ee;
+  --color-accent-500: #0ea5e9;
+  --color-accent-glow: #00d4ff;
+  --color-accent-yellow: #ffd23f;
+
+  /* "Up" scale — light sections on navy text */
+  --color-up-ink: #0b1a4d;
+  --color-up-muted: #48557a;
+  --color-up-line: #ccd6ea;
+  --color-up-accent: #1c53d1;
+  --color-up-bright: #2f7dff;
+  --color-up-soft: #a9c4ff;
+  --color-up-gold: #ffd23f;
+
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-600);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Signature surfaces
+   --------------------------------------------------------------------------- */
+@utility hero-surface {
+  background-color: var(--color-hero-950);
+  background-image:
+    radial-gradient(
+      75% 65% at 85% 6%,
+      color-mix(in oklab, var(--color-hero-glow) 42%, transparent) 0,
+      transparent 62%
+    ),
+    radial-gradient(
+      60% 55% at 8% 100%,
+      color-mix(in oklab, var(--color-hero-600) 32%, transparent) 0,
+      transparent 65%
+    ),
+    linear-gradient(
+      135deg,
+      var(--color-hero-950) 0,
+      var(--color-hero-900) 42%,
+      var(--color-hero-800) 78%,
+      var(--color-hero-600) 100%
+    );
+}
+
+@utility panel-surface {
+  background-color: var(--color-panel);
+  background-image: radial-gradient(
+    70% 60% at 50% 0%,
+    color-mix(in oklab, var(--color-hero-glow) 18%, transparent) 0,
+    transparent 70%
+  );
+}
+
+/* The 1304px content rail used site-wide. */
+@utility rail {
+  margin-inline: auto;
+  width: 100%;
+  max-width: 1304px;
+  padding-inline: 1rem;
+
+  @media (width >= 64rem) {
+    padding-inline: 2rem;
+  }
+}
+
+@utility card-hover {
+  transition:
+    transform 0.3s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)),
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -20px color-mix(in oklab, var(--color-hero-900) 35%, transparent);
+    border-color: color-mix(in oklab, var(--color-brand-600) 30%, transparent);
+  }
+}
+
+/* Skeleton shimmer, matching the reference loading states. */
+@utility skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-line);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.7), transparent);
+    animation: shimmer 3.2s infinite;
+  }
+}
+
+@utility skeleton-dark {
+  background-color: rgb(255 255 255 / 0.08);
+
+  &::after {
+    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.14), transparent);
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility marquee-track {
+  animation: marquee 40s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility fade-up {
+  animation: fade-up 0.6s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)) both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
