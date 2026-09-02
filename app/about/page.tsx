@@ -17,7 +17,6 @@ import {
   learnDomains,
   learnerSegments,
   learnSteps,
-  recognitions,
   teachChips,
 } from "@/data/about";
 
@@ -645,57 +644,6 @@ export default function AboutPage() {
         </Rail>
       </section>
 
-      {/* --------------------------- Awards & recognition --------------------------- */}
-      <section className="py-20 lg:py-28">
-        <Rail>
-          <div className="mx-auto max-w-3xl text-center">
-            <Eyebrow>Awards, Recognition &amp; Accreditation</Eyebrow>
-            <h2
-              data-reveal-words
-              className="mt-4 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance text-ink sm:text-4xl lg:text-5xl"
-            >
-              <Words
-                segments={[
-                  { text: "Recognition built through learning, innovation and industry engagement" },
-                ]}
-                step={45}
-              />
-            </h2>
-            <p data-reveal style={revealDelay(3)} className="mt-5 text-base leading-relaxed text-muted lg:text-lg">
-              {site.shortName}&rsquo;s credibility is supported not only by its training programs
-              but also by its participation in industry-academia initiatives, campus placements,
-              workshops, technology events and institutional collaborations.
-            </p>
-          </div>
-
-          <ul className="mt-12 grid gap-6 lg:mt-16 lg:grid-cols-2">
-            {recognitions.map((item, i) => (
-              <li
-                key={item.title}
-                data-reveal
-                style={revealDelay(i, 90)}
-                className="group flex gap-5 rounded-2xl border border-line bg-subtle p-7 transition-all duration-300 hover:-translate-y-1 hover:border-brand-600/30 hover:shadow-[0_24px_48px_-32px_rgba(15,23,42,0.45)] lg:p-8"
-              >
-                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-600 text-white shadow-[0_14px_32px_-14px_rgba(37,99,235,0.9)] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6">
-                  <Icon name={item.icon} className="size-6" />
-                </span>
-                <div className="min-w-0">
-                  <h3 className="font-display text-lg font-bold tracking-tight text-ink">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted">{item.body}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          <p data-reveal className="mx-auto mt-10 max-w-3xl text-center text-xs leading-relaxed text-muted">
-            The recognitions above are drawn from publicly available information, institutional
-            announcements and {site.shortName}&rsquo;s own published profiles.
-          </p>
-        </Rail>
-      </section>
-
       {/* --------------------------------- Our journey --------------------------------- */}
       <section className="relative isolate overflow-hidden bg-panel py-20 text-white lg:py-28">
         <PanelGlow />
@@ -846,6 +794,7 @@ export default function AboutPage() {
             {[
               { href: "/about/founder", label: "Meet the founder" },
               { href: "/about/mission-vision", label: "Mission & vision" },
+              { href: "/about/accreditations-awards", label: "Accreditations & awards" },
               { href: "/branches", label: "Our centres" },
               { href: "/placement", label: "Placement support" },
             ].map((item, i) => (

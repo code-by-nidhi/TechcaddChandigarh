@@ -85,7 +85,7 @@ export const navItems: NavItem[] = [
       links: [
         { label: "About techcadd", href: "/about" },
         { label: "Mission and Vision", href: "/about/mission-vision" },
-        { label: "Accreditations & Awards", href: "/about#accreditations" },
+        { label: "Accreditations & Awards", href: "/about/accreditations-awards" },
         { label: "College Partnerships", href: "/college-partnerships" },
         { label: "Founder", href: "/about/founder" },
       ],

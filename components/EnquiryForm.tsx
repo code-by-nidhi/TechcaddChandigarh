@@ -173,3 +173,40 @@ export function QuickDemoForm() {
     </form>
   );
 }
+
+/** Same single-field form as `QuickDemoForm`, styled for a light background. */
+export function QuickDemoFormLight() {
+  const [status, setStatus] = useState<"idle" | "sent">("idle");
+
+  return status === "sent" ? (
+    <p className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-5 py-3 text-sm font-medium text-brand-700 ring-1 ring-inset ring-brand-600/15">
+      <Icon name="check" className="size-4" />
+      Thanks — a counsellor will call you shortly.
+    </p>
+  ) : (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        setStatus("sent");
+      }}
+      className="flex w-full flex-col gap-3 sm:flex-row"
+    >
+      <label className="sr-only" htmlFor="quick-phone-light">
+        Mobile number
+      </label>
+      <input
+        id="quick-phone-light"
+        name="phone"
+        type="tel"
+        required
+        inputMode="numeric"
+        placeholder="Your mobile number"
+        className="h-13 flex-1 rounded-full border border-line bg-white px-6 text-sm text-foreground outline-none transition-colors placeholder:text-muted/70 focus:border-brand-600"
+      />
+      <Button type="submit" size="lg" className="shrink-0">
+        Book Demo
+        <Icon name="arrow-right" className="size-4" />
+      </Button>
+    </form>
+  );
+}
