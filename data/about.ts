@@ -155,12 +155,17 @@ export const differencePoints = [
 
 export interface LearnDomain {
   name: string;
+  icon: string;
+  /** One line on what this group is for, shown under the domain name. */
+  blurb: string;
   items: string[];
 }
 
 export const learnDomains: LearnDomain[] = [
   {
     name: "Technology",
+    icon: "sparkles",
+    blurb: "The systems side — intelligence, infrastructure and everything that has to stay up.",
     items: [
       "AI",
       "Machine Learning",
@@ -172,14 +177,20 @@ export const learnDomains: LearnDomain[] = [
   },
   {
     name: "Development",
+    icon: "code",
+    blurb: "Writing the software — from a first script to a deployed product.",
     items: ["Python", "Full Stack", "MERN", "Web Development", "Mobile App Development"],
   },
   {
     name: "Digital & Creative",
+    icon: "megaphone",
+    blurb: "How the work looks and how it reaches an audience.",
     items: ["Digital Marketing", "UI/UX", "Graphic Designing", "Video Editing", "Animation"],
   },
   {
     name: "Professional & Technical Skills",
+    icon: "briefcase",
+    blurb: "The workplace tools that sit alongside a technical role.",
     items: ["Advanced Excel", "CAD/CAM", "Accounting", "Other career-focused programs"],
   },
 ];

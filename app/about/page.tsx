@@ -3,7 +3,7 @@ import Link from "next/link";
 import { CtaSection } from "@/components/sections/Home";
 import { MediaFrame } from "@/components/MediaFrame";
 import { DemandGapChart } from "@/components/sections/DemandGapChart";
-import { Icon, Rail } from "@/components/ui";
+import { ButtonLink, Icon, Rail } from "@/components/ui";
 import { CountUp, Parallax } from "@/components/motion/Reveal";
 import { RevealScope } from "@/components/motion/RevealScope";
 import { Words, revealDelay, wordDelay } from "@/components/motion/Words";
@@ -497,53 +497,140 @@ export default function AboutPage() {
       {/* ----------------------------- What you can learn ----------------------------- */}
       <section className="py-20 lg:py-28">
         <Rail>
-          <div className="max-w-3xl">
-            <Eyebrow>What you can learn</Eyebrow>
-            <h2
-              data-reveal-words
-              className="mt-4 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance text-ink sm:text-4xl lg:text-5xl"
-            >
-              <Words segments={[{ text: "Building skills across technology domains" }]} />
-            </h2>
-            <p data-reveal style={revealDelay(2)} className="mt-5 text-base leading-relaxed text-muted">
-              Whether a learner wants to code an application, analyse data, build an AI solution,
-              secure a network, manage cloud infrastructure, design a digital experience, create
-              visual content or grow a business online, {site.shortName} provides multiple learning
-              pathways.
-            </p>
+          <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end">
+            <div className="max-w-3xl">
+              <Eyebrow>What you can learn</Eyebrow>
+              <h2
+                data-reveal-words
+                className="mt-4 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance text-ink sm:text-4xl lg:text-5xl"
+              >
+                <Words segments={[{ text: "Building skills across technology domains" }]} />
+              </h2>
+              <p data-reveal style={revealDelay(2)} className="mt-5 text-base leading-relaxed text-muted">
+                Whether a learner wants to code an application, analyse data, build an AI solution,
+                secure a network, manage cloud infrastructure, design a digital experience, create
+                visual content or grow a business online, {site.shortName} provides multiple
+                learning pathways.
+              </p>
+            </div>
+            <div data-reveal style={revealDelay(3)} className="lg:justify-self-end">
+              <ButtonLink href="/courses" variant="secondary">
+                Browse the full catalogue
+                <Icon name="arrow-right" className="size-4" />
+              </ButtonLink>
+            </div>
           </div>
 
-          <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {learnDomains.map((domain, i) => (
-              <div
-                key={domain.name}
-                data-reveal
-                style={revealDelay(i, 90)}
-                className="group rounded-2xl border border-line bg-subtle p-7 transition-all duration-300 hover:-translate-y-1 hover:border-brand-600/40 hover:shadow-[0_24px_48px_-32px_rgba(15,23,42,0.5)]"
-              >
-                <h3 className="font-display text-lg font-bold tracking-tight text-ink">
-                  {domain.name}
-                </h3>
-                <span
-                  aria-hidden="true"
-                  className="mt-4 block h-0.5 w-10 rounded-full bg-gradient-to-r from-accent-400 to-brand-600 transition-all duration-500 group-hover:w-16"
-                />
-                <ul className="mt-5 space-y-2.5">
-                  {domain.items.map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-start gap-2.5 text-sm leading-relaxed text-foreground"
-                    >
+          {/*
+            A bento rather than four equal cards: one wide dark tile carries the
+            weight, and every tile pins its footer with `mt-auto` so the taller
+            cells fill instead of leaving a hole under a short list.
+          */}
+          <div className="mt-14 grid gap-5 lg:mt-16 lg:grid-cols-3 lg:grid-rows-2">
+            {learnDomains.map((domain, i) => {
+              const dark = i === 0;
+              const place = [
+                "lg:col-span-2 lg:col-start-1 lg:row-start-1",
+                "lg:col-start-3 lg:row-start-1 lg:row-span-2",
+                "lg:col-start-1 lg:row-start-2",
+                "lg:col-start-2 lg:row-start-2",
+              ][i];
+
+              return (
+                <article
+                  key={domain.name}
+                  data-reveal
+                  style={revealDelay(i, 90)}
+                  className={`group relative isolate flex flex-col overflow-hidden rounded-3xl p-7 transition-all duration-500 lg:p-8 ${place} ${
+                    dark
+                      ? "panel-surface text-white"
+                      : "border border-line bg-subtle hover:-translate-y-1 hover:border-brand-600/35 hover:shadow-[0_30px_60px_-38px_rgba(15,23,42,0.55)]"
+                  }`}
+                >
+                  {dark ? (
+                    <>
+                      <span aria-hidden="true" className="panel-dots absolute inset-0 -z-10" />
                       <span
                         aria-hidden="true"
-                        className="mt-[7px] size-1.5 shrink-0 rounded-full bg-brand-600"
+                        className="drift-slow absolute -top-24 -right-16 -z-10 size-72 rounded-full bg-accent-500/20 blur-[90px]"
                       />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
+                    </>
+                  ) : null}
+
+                  {/* Oversized index, sunk into the corner */}
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute -top-4 right-4 -z-10 font-display text-[7rem] leading-none font-bold tracking-tight ${
+                      dark ? "text-white/[0.07]" : "text-ink/[0.05]"
+                    }`}
+                  >
+                    0{i + 1}
+                  </span>
+
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={`grid size-12 shrink-0 place-items-center rounded-xl transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6 ${
+                        dark
+                          ? "bg-white/12 text-accent-400 ring-1 ring-white/15"
+                          : "bg-brand-600 text-white shadow-[0_14px_32px_-14px_rgba(37,99,235,0.9)]"
+                      }`}
+                    >
+                      <Icon name={domain.icon} className="size-6" />
+                    </span>
+                    <h3
+                      className={`font-display text-xl font-bold tracking-tight lg:text-2xl ${
+                        dark ? "text-white" : "text-ink"
+                      }`}
+                    >
+                      {domain.name}
+                    </h3>
+                  </div>
+
+                  <p
+                    className={`mt-4 max-w-md text-sm leading-relaxed ${
+                      dark ? "text-white/65" : "text-muted"
+                    }`}
+                  >
+                    {domain.blurb}
+                  </p>
+
+                  <ul className="mt-6 flex flex-wrap gap-2">
+                    {domain.items.map((item) => (
+                      <li
+                        key={item}
+                        className={`rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors duration-300 ${
+                          dark
+                            ? "border border-white/15 bg-white/[0.07] text-white/85 hover:border-white/35 hover:bg-white/15"
+                            : "border border-line bg-background text-foreground group-hover:border-brand-600/25"
+                        }`}
+                      >
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div
+                    className={`mt-8 flex items-center justify-between gap-4 border-t pt-5 lg:mt-auto lg:pt-6 ${
+                      dark ? "border-white/12" : "border-line"
+                    }`}
+                  >
+                    <span
+                      className={`font-mono text-[11px] tracking-[0.18em] uppercase ${
+                        dark ? "text-accent-400" : "text-brand-600"
+                      }`}
+                    >
+                      {domain.items.length} focus areas
+                    </span>
+                    <Icon
+                      name="arrow-up-right"
+                      className={`size-4 transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 ${
+                        dark ? "text-white/45" : "text-muted"
+                      }`}
+                    />
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </Rail>
       </section>
@@ -773,30 +860,43 @@ export default function AboutPage() {
       </section>
 
       {/* --------------------------------- Our belief --------------------------------- */}
-      <section className="bg-subtle py-20 lg:py-28">
+      <section className="relative isolate overflow-hidden bg-subtle py-20 lg:py-28">
+        <div
+          aria-hidden="true"
+          className="drift-slow pointer-events-none absolute -top-32 -left-40 -z-10 size-[40rem] rounded-full bg-brand-500/10 blur-[140px]"
+        />
+
         <Rail>
-          <Eyebrow>Our belief</Eyebrow>
-          <div className="mt-8 grid gap-10 lg:mt-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
-            <h2 data-reveal-words className="font-display tracking-tight text-ink">
-              {[
-                { text: "Technology changes.", accent: false },
-                { text: "Skills evolve.", accent: false },
-                { text: "Learning never stops.", accent: true },
-              ].map((line, i) => (
-                <span
-                  key={line.text}
-                  className={`block border-b border-line py-4 text-3xl leading-tight font-bold text-balance first:pt-0 last:border-0 last:pb-0 sm:text-4xl lg:text-5xl ${
-                    line.accent ? "text-brand-600" : ""
-                  }`}
-                >
-                  <Words segments={[{ text: line.text }]} step={70} delay={i * 220} />
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-end lg:gap-16">
+            <div>
+              <Eyebrow>Our belief</Eyebrow>
+              <h2 className="mt-7 font-display text-4xl leading-[1.04] font-bold tracking-tight text-ink sm:text-5xl lg:text-[4.25rem]">
+                <span data-reveal-words className="block">
+                  <Words segments={[{ text: "Technology changes." }]} step={70} />
                 </span>
-              ))}
-            </h2>
+                <span data-reveal-words className="block">
+                  <Words segments={[{ text: "Skills evolve." }]} step={70} delay={200} />
+                </span>
+                {/*
+                  Not word-split: `background-clip: text` and the per-word
+                  `filter: blur()` fight each other, so this line rises as a
+                  block instead.
+                */}
+                <span
+                  data-reveal
+                  style={revealDelay(5, 100)}
+                  className="block bg-gradient-to-r from-brand-600 via-brand-500 to-accent-400 bg-clip-text text-transparent"
+                >
+                  Learning never stops.
+                </span>
+              </h2>
+            </div>
+
+            {/* Sits against the foot of the type block, so no column of dead space */}
             <div
               data-reveal
-              style={revealDelay(3, 160)}
-              className="space-y-5 border-l-2 border-brand-600/30 pl-6 text-base leading-relaxed text-muted lg:mt-6 lg:text-[17px]"
+              style={revealDelay(6, 110)}
+              className="space-y-5 border-l-2 border-brand-600/30 pl-6 text-base leading-relaxed text-muted lg:pb-4 lg:text-[17px]"
             >
               <p>
                 We believe that meaningful technology education should not end when a course ends.
@@ -807,58 +907,99 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
+        </Rail>
 
+        {/* The brand's three words, full bleed — the section's visual signature. */}
+        <div className="relative mt-16 border-y border-line bg-background py-7 lg:mt-20 lg:py-9">
+          {/* The track repeats; the phrase is announced once instead. */}
+          <p className="sr-only">Learn. Implement. Grow.</p>
+          <div
+            aria-hidden="true"
+            className="flex overflow-hidden select-none [mask-image:linear-gradient(90deg,transparent,black_6%,black_94%,transparent)]"
+          >
+            {/*
+              Twelve items = four cycles, so the two halves the -50% translate
+              swaps between are identical and the track still outruns an
+              ultra-wide viewport.
+            */}
+            <div className="marquee-track flex shrink-0 items-center gap-10 pr-10 lg:gap-14 lg:pr-14">
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => {
+              const word = ["Learn.", "Implement.", "Grow."][n % 3];
+              return (
+                <span key={n} className="flex shrink-0 items-center gap-10 lg:gap-14">
+                  <span
+                    className={`font-display text-4xl font-bold tracking-tight whitespace-nowrap lg:text-6xl ${
+                      n % 3 === 1
+                        ? "text-transparent [-webkit-text-stroke:1.5px_var(--color-ink)]"
+                        : "text-ink"
+                    }`}
+                  >
+                    {word}
+                  </span>
+                  <span className="size-2 shrink-0 rounded-full bg-gradient-to-br from-brand-600 to-accent-400" />
+                </span>
+              );
+            })}
+            </div>
+          </div>
+        </div>
+
+        <Rail>
+          {/* Closing lockup — one bar, not a floating box */}
           <div
             data-reveal
-            className="mx-auto mt-16 max-w-3xl overflow-hidden rounded-3xl border border-line bg-background text-center shadow-[0_30px_70px_-40px_rgba(15,23,42,0.4)] lg:mt-20"
+            className="mt-14 overflow-hidden rounded-3xl border border-line bg-background shadow-[0_30px_70px_-46px_rgba(15,23,42,0.45)] lg:mt-16"
           >
             <span
               aria-hidden="true"
               data-reveal-line
               style={revealDelay(2)}
-              className="block h-1 bg-gradient-to-r from-brand-600 via-brand-500 to-accent-400"
+              className="block h-1 origin-left bg-gradient-to-r from-brand-600 via-brand-500 to-accent-400"
             />
-            <div className="px-7 py-12 sm:px-12 lg:py-16">
-              <Eyebrow>{`${site.shortName} today`}</Eyebrow>
-              <p className="mt-7 flex flex-col items-center justify-center gap-3 font-display text-2xl font-bold tracking-tight text-ink sm:flex-row sm:gap-6 lg:text-3xl">
-                <span>Learn.</span>
-                <span aria-hidden="true" className="hidden h-6 w-px bg-line sm:block" />
-                <span>Implement.</span>
-                <span aria-hidden="true" className="hidden h-6 w-px bg-line sm:block" />
-                <span>Grow.</span>
-              </p>
-              <p className="mx-auto mt-7 max-w-xl text-sm leading-relaxed text-muted lg:text-base">
-                With a focus on practical technology education, emerging skills, industry engagement
-                and career development, {site.shortName} continues its journey towards creating a
-                stronger ecosystem of future-ready technology professionals.
-              </p>
-              <div className="mt-10 border-t border-line pt-8">
-                <p className="text-xs tracking-[0.14em] text-muted uppercase">{site.tagline}</p>
-                <p className="mt-2 font-display text-2xl font-bold tracking-tight text-ink">
+            <div className="grid gap-10 p-8 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-16 lg:p-12">
+              <div>
+                <p className="font-mono text-xs tracking-[0.22em] text-brand-600 uppercase">
+                  {site.shortName} today
+                </p>
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-muted lg:text-[17px]">
+                  With a focus on practical technology education, emerging skills, industry
+                  engagement and career development, {site.shortName} continues its journey towards
+                  creating a stronger ecosystem of future-ready technology professionals.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-brand-600">
+                  {[
+                    { href: "/about/founder", label: "Meet the founder" },
+                    { href: "/about/mission-vision", label: "Mission & vision" },
+                    { href: "/branches", label: "Our centres" },
+                    { href: "/placement", label: "Placement support" },
+                  ].map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className="group inline-flex items-center gap-1.5 hover:underline"
+                    >
+                      {item.label}
+                      <Icon
+                        name="arrow-up-right"
+                        className="size-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-line pt-8 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-12">
+                <p className="font-display text-3xl font-bold tracking-tight text-ink">
                   {site.shortName}
                 </p>
-                <p className="mt-2 text-sm text-muted">Where Your Tech Journey Begins.</p>
+                <p className="mt-3 text-xs tracking-[0.14em] text-muted uppercase">
+                  {site.tagline}
+                </p>
+                <p className="mt-4 font-display text-lg leading-snug font-medium tracking-tight text-balance text-ink">
+                  Where Your Tech Journey Begins.
+                </p>
               </div>
             </div>
-          </div>
-
-          <div className="mt-12 flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm font-semibold text-brand-600">
-            {[
-              { href: "/about/founder", label: "Meet the founder" },
-              { href: "/about/mission-vision", label: "Mission & vision" },
-              { href: "/branches", label: "Our centres" },
-              { href: "/placement", label: "Placement support" },
-            ].map((item, i) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                data-reveal
-                style={revealDelay(i, 70)}
-                className="hover:underline"
-              >
-                {item.label}
-              </Link>
-            ))}
           </div>
         </Rail>
       </section>
