@@ -1,8 +1,8 @@
 import { Hero, OrbitStrip } from "@/components/sections/Hero";
+import { NeuralCourseNetwork } from "@/components/sections/NeuralCourseNetwork";
 import {
   AboutSection,
   BlogSection,
-  CategoriesSection,
   CtaSection,
   DifferenceSection,
   FaqSection,
@@ -32,7 +32,7 @@ export default function HomePage() {
       <OrbitStrip />
       <AboutSection />
       <ProcessSection />
-      <CategoriesSection />
+      <NeuralCourseNetwork />
       <FeaturedSection />
       <DifferenceSection />
       <TestimonialsSection />

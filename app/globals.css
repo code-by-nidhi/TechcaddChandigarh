@@ -457,11 +457,96 @@
   );
 }
 
+/* Floating glass cards — Course Showcase. `--tilt` keeps each card's static
+   rotation intact through the animation; hovering drops the animation
+   entirely so the lift transform below isn't fighting a running keyframe. */
+@keyframes float-card {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--tilt, 0deg));
+  }
+  50% {
+    transform: translateY(-16px) rotate(var(--tilt, 0deg));
+  }
+}
+
+@utility float-card {
+  animation: float-card 6s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0s);
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s ease,
+    border-color 0.4s ease,
+    background-color 0.4s ease;
+
+  &:hover {
+    animation: none;
+    transform: translateY(-10px) scale(1.045) rotate(var(--tilt, 0deg));
+    background-color: rgb(255 255 255 / 0.09);
+    border-color: rgb(255 255 255 / 0.22);
+  }
+}
+
+/* Star field + orbit lines — Career Universe. */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@utility twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+  animation-delay: var(--twinkle-delay, 0s);
+}
+
+@keyframes pulse-line {
+  0%,
+  100% {
+    stroke-opacity: 0.2;
+  }
+  50% {
+    stroke-opacity: 0.75;
+  }
+}
+
+@utility pulse-line {
+  animation: pulse-line 3.5s ease-in-out infinite;
+  animation-delay: var(--pulse-delay, 0s);
+}
+
+/* Data flowing along a connection — animates `stroke-dashoffset` only, so it
+   never fights a `stroke-opacity` set inline from React (hover state uses
+   that property directly, per-render, since it needs to react to which node
+   is hovered, not just loop on a timer). */
+@keyframes neural-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+@utility neural-flow {
+  stroke-dasharray: 1.5 3;
+  animation: neural-flow 2.4s linear infinite;
+  animation-delay: var(--flow-delay, 0s);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .drift-slow,
   .drift-slow-reverse,
   .float-slow,
-  .scroll-hint {
+  .float-card,
+  .scroll-hint,
+  .twinkle,
+  .pulse-line,
+  .neural-flow {
     animation: none;
+  }
+
+  .float-card {
+    transform: rotate(var(--tilt, 0deg));
   }
 }

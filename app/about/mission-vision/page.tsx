@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/PageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { Eyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
+import { CountUp, Reveal } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -89,6 +90,31 @@ const valuesEcosystem = [
   { icon: "award", label: "Student Success", x: 17.7, y: 39.5 },
 ];
 
+/** The outcome of the mission stated in numbers — real site stats, not new claims. */
+const workforceStages = [
+  {
+    icon: "code",
+    title: "Learn on current tools",
+    body: "Real labs, real projects, and trainers who still practise what they teach.",
+    stat: site.stats.technologies,
+    statLabel: "Technologies taught",
+  },
+  {
+    icon: "layers",
+    title: "Build a portfolio that speaks",
+    body: "Live projects and industrial training that mirror how technology is applied in a real workplace.",
+    stat: site.stats.alumni,
+    statLabel: "Alumni who've done it",
+  },
+  {
+    icon: "briefcase",
+    title: "Step into a career, not just a certificate",
+    body: "Career guidance, mock interviews and placement support that continue until you are placed.",
+    stat: site.stats.placement,
+    statLabel: "Placement rate",
+  },
+];
+
 export default function MissionVisionPage() {
   return (
     <>
@@ -104,33 +130,45 @@ export default function MissionVisionPage() {
       />
 
       {/* --------------------------------- Mission & vision --------------------------------- */}
-      <section className="bg-subtle py-16 lg:py-24">
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-brand-50/70 via-white to-white py-20 lg:py-28">
+        <div
+          aria-hidden="true"
+          className="drift-slow pointer-events-none absolute -top-24 -right-24 -z-10 size-[28rem] rounded-full bg-brand-400/15 blur-[110px]"
+        />
+        <div
+          aria-hidden="true"
+          className="drift-slow-reverse pointer-events-none absolute -bottom-32 -left-24 -z-10 size-[24rem] rounded-full bg-accent-400/10 blur-[110px]"
+        />
         <Rail>
-          <ul className="grid gap-6 lg:grid-cols-2">
+          <Reveal as="ul" stagger className="grid gap-6 lg:grid-cols-2">
             {pillars.map((pillar) => (
               <li
                 key={pillar.title}
-                className="flex h-full flex-col rounded-2xl border border-line bg-white p-7 lg:p-8"
+                className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-white/70 bg-white/70 p-8 shadow-[0_40px_80px_-40px_rgba(37,99,235,0.35)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_50px_90px_-35px_rgba(37,99,235,0.45)] lg:p-10"
               >
-                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-brand-600 text-white">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-gradient-to-br from-brand-400/25 to-transparent blur-2xl"
+                />
+                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-[0_16px_30px_-12px_rgba(37,99,235,0.6)]">
                   <Icon name={pillar.icon} className="size-6" />
                 </span>
-                <h2 className="mt-5 font-display text-xl font-bold tracking-tight text-ink">
+                <h2 className="mt-6 font-display text-2xl font-bold tracking-tight text-ink">
                   {pillar.title}
                 </h2>
-                <div className="mt-4 space-y-4 text-sm leading-relaxed text-muted">
+                <div className="mt-4 space-y-4 text-[15px] leading-relaxed text-muted">
                   {pillar.paragraphs.map((paragraph) => (
                     <p key={paragraph}>{paragraph}</p>
                   ))}
                 </div>
               </li>
             ))}
-          </ul>
+          </Reveal>
         </Rail>
       </section>
 
       {/* ------------------------------- Four commitments ------------------------------- */}
-      <section className="py-16 lg:py-24">
+      <section className="relative py-20 lg:py-28">
         <Rail>
           <SectionHeading
             align="center"
@@ -138,39 +176,47 @@ export default function MissionVisionPage() {
             title="Four commitments we hold ourselves to"
             body="Written plainly, so you can hold us to them too."
           />
-          <div className="mt-14 grid gap-4 sm:grid-cols-2">
+          <Reveal as="ul" stagger className="mt-16 grid gap-5 sm:grid-cols-2">
             {values.map((value) => (
-              <div key={value.title} className="rounded-2xl border border-line bg-subtle p-7">
-                <span className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+              <li
+                key={value.title}
+                className="group rounded-[24px] border border-line bg-white p-7 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.25)] transition-all duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-[0_30px_60px_-30px_rgba(37,99,235,0.3)] lg:p-8"
+              >
+                <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 text-brand-600 transition-colors duration-300 group-hover:from-brand-500 group-hover:to-brand-700 group-hover:text-white">
                   <Icon name={value.icon} className="size-5" />
                 </span>
-                <h3 className="mt-5 font-display text-lg font-bold tracking-tight">{value.title}</h3>
+                <h3 className="mt-5 font-display text-lg font-bold tracking-tight text-ink">
+                  {value.title}
+                </h3>
                 <p className="mt-3 leading-relaxed text-muted">{value.body}</p>
-              </div>
+              </li>
             ))}
-          </div>
+          </Reveal>
         </Rail>
       </section>
 
-      {/* ---------------------------- Industry impact timeline ---------------------------- */}
-      <section className="bg-subtle py-16 lg:py-24">
+      {/* ---------------------------- Industry impact journey ---------------------------- */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-white via-brand-50/50 to-white py-20 lg:py-28">
         <Rail>
           <SectionHeading
             align="center"
             eyebrow="Our impact"
-            title="Industry Impact Timeline"
+            title="An interactive industry impact journey"
             body="How our commitments and teaching philosophy translate into a real learning journey."
           />
 
           <div className="relative mt-16">
             <span
               aria-hidden="true"
-              className="absolute top-7 right-[10%] left-[10%] hidden border-t border-dashed border-line lg:block"
+              className="absolute top-7 right-[8%] left-[8%] hidden h-px bg-gradient-to-r from-brand-100 via-brand-400 to-accent-400 lg:block"
             />
-            <ol className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
+            <Reveal as="ol" stagger className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-5 lg:gap-6">
               {impactTimeline.map((point) => (
-                <li key={point.title} className="group lg:flex lg:flex-col lg:items-center lg:text-center">
-                  <span className="grid size-14 place-items-center rounded-full border border-line bg-white font-display text-base font-bold tracking-tight text-brand-600 shadow-[0_12px_28px_-16px_rgba(15,23,42,0.55)] transition-all duration-300 group-hover:border-brand-600/40 group-hover:bg-brand-600 group-hover:text-white">
+                <li
+                  key={point.title}
+                  className="group lg:flex lg:flex-col lg:items-center lg:text-center"
+                >
+                  <span className="grid size-14 place-items-center rounded-full border border-line bg-white font-display text-base font-bold tracking-tight text-brand-600 shadow-[0_16px_32px_-16px_rgba(37,99,235,0.4)] transition-all duration-300 group-hover:scale-110 group-hover:border-transparent group-hover:bg-gradient-to-br group-hover:from-brand-500 group-hover:to-brand-700 group-hover:text-white">
                     {point.step}
                   </span>
                   <h3 className="mt-5 font-display text-base font-bold tracking-tight text-ink">
@@ -179,24 +225,34 @@ export default function MissionVisionPage() {
                   <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">{point.body}</p>
                 </li>
               ))}
-            </ol>
+            </Reveal>
           </div>
         </Rail>
       </section>
 
       {/* ------------------------------- Values ecosystem ------------------------------- */}
-      <section className="py-16 lg:py-24">
+      <section className="relative isolate overflow-hidden py-20 lg:py-28">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_45%,rgba(37,99,235,0.08),transparent_70%)]"
+        />
         <Rail>
           <SectionHeading
             align="center"
             eyebrow="How it all connects"
-            title="The techcadd values ecosystem"
+            title="A connected values network"
             body="Every commitment above feeds back into one another — none of them work in isolation."
           />
 
           {/* Circular diagram — desktop and tablet */}
-          <div className="relative mx-auto mt-16 hidden aspect-square w-full max-w-xl md:block">
+          <Reveal className="relative mx-auto mt-16 hidden aspect-square w-full max-w-xl md:block">
             <svg viewBox="0 0 100 100" className="absolute inset-0 size-full" aria-hidden="true">
+              <defs>
+                <linearGradient id="mv-line" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stopColor="var(--color-brand-400)" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="var(--color-brand-600)" stopOpacity="0.15" />
+                </linearGradient>
+              </defs>
               {valuesEcosystem.map((node) => (
                 <line
                   key={node.label}
@@ -204,14 +260,15 @@ export default function MissionVisionPage() {
                   y1={50}
                   x2={node.x}
                   y2={node.y}
-                  className="stroke-line"
-                  strokeWidth={0.6}
+                  stroke="url(#mv-line)"
+                  strokeWidth={0.7}
+                  strokeLinecap="round"
                 />
               ))}
             </svg>
 
             <div
-              className="absolute grid place-items-center rounded-full bg-brand-600 p-6 text-center text-white shadow-[0_20px_45px_-20px_rgba(37,99,235,0.6)]"
+              className="absolute grid place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 p-6 text-center text-white shadow-[0_30px_60px_-20px_rgba(37,99,235,0.55)] ring-4 ring-brand-100"
               style={{ left: "50%", top: "50%", width: "34%", transform: "translate(-50%, -50%)" }}
             >
               <span className="font-display text-sm leading-tight font-bold tracking-tight sm:text-base">
@@ -222,7 +279,7 @@ export default function MissionVisionPage() {
             {valuesEcosystem.map((node) => (
               <div
                 key={node.label}
-                className="absolute grid place-items-center gap-1.5 rounded-full border border-line bg-white p-4 text-center shadow-[0_12px_28px_-16px_rgba(15,23,42,0.35)]"
+                className="absolute grid place-items-center gap-1.5 rounded-full border border-line bg-white/90 p-4 text-center shadow-[0_16px_36px_-18px_rgba(15,23,42,0.35)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-[0_20px_40px_-16px_rgba(37,99,235,0.4)]"
                 style={{
                   left: `${node.x}%`,
                   top: `${node.y}%`,
@@ -236,11 +293,11 @@ export default function MissionVisionPage() {
                 </span>
               </div>
             ))}
-          </div>
+          </Reveal>
 
           {/* Stacked list — mobile */}
           <div className="mt-14 md:hidden">
-            <div className="mx-auto grid size-16 place-items-center rounded-full bg-brand-600 text-center text-white">
+            <div className="mx-auto grid size-16 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 text-center text-white shadow-[0_20px_40px_-16px_rgba(37,99,235,0.5)]">
               <span className="font-display text-[11px] leading-tight font-bold tracking-tight">
                 Techcadd
                 <br />
@@ -262,17 +319,64 @@ export default function MissionVisionPage() {
         </Rail>
       </section>
 
+      {/* -------------------------- Future-ready workforce -------------------------- */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-white via-brand-50/60 to-white py-20 lg:py-28">
+        <div
+          aria-hidden="true"
+          className="drift-slow-reverse pointer-events-none absolute top-0 right-1/4 -z-10 size-[26rem] rounded-full bg-brand-400/12 blur-[120px]"
+        />
+        <Rail>
+          <SectionHeading
+            align="center"
+            eyebrow="The outcome"
+            title="A future-ready workforce, not just graduates"
+            body="This is what “employability over enrolment” looks like when you measure it."
+          />
+
+          {/* No `Reveal` wrapper here on purpose: `CountUp` below runs its own
+              ScrollTrigger, and nesting it inside Reveal's transform-animating
+              parent made the two fight — the parent's tween would freeze
+              mid-fade. The counting numbers already give this grid its own
+              entrance moment. */}
+          <div className="mt-16 grid gap-6 lg:grid-cols-3">
+            {workforceStages.map((stage, i) => (
+              <div
+                key={stage.title}
+                className="group relative flex h-full flex-col items-center overflow-hidden rounded-[28px] border border-white/70 bg-white/70 p-8 text-center shadow-[0_30px_60px_-35px_rgba(37,99,235,0.3)] backdrop-blur-xl transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_40px_75px_-30px_rgba(37,99,235,0.4)]"
+              >
+                <span className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 font-display text-sm font-bold text-white shadow-[0_14px_28px_-12px_rgba(37,99,235,0.6)]">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="mt-4 inline-flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+                  <Icon name={stage.icon} className="size-5" />
+                </span>
+                <h3 className="mt-4 font-display text-lg font-bold tracking-tight text-ink">
+                  {stage.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">{stage.body}</p>
+                <p className="mt-6 font-display text-4xl font-extrabold tracking-tight text-brand-600">
+                  <CountUp value={stage.stat} />
+                </p>
+                <p className="mt-1 text-xs font-semibold tracking-wide text-muted uppercase">
+                  {stage.statLabel}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Rail>
+      </section>
+
       {/* ----------------------------------- Transition ----------------------------------- */}
       <section className="bg-subtle py-16 lg:py-24">
         <Rail>
-          <div className="mx-auto max-w-[800px] overflow-hidden rounded-3xl border border-line bg-white text-center shadow-[0_30px_70px_-40px_rgba(15,23,42,0.4)]">
+          <Reveal className="mx-auto max-w-[800px] overflow-hidden rounded-[32px] border border-line bg-white text-center shadow-[0_40px_90px_-40px_rgba(37,99,235,0.35)]">
             <span
               aria-hidden="true"
-              className="block h-1 bg-gradient-to-r from-brand-600 via-brand-500 to-accent-400"
+              className="block h-1.5 bg-gradient-to-r from-brand-600 via-brand-500 to-accent-400"
             />
             <div className="px-7 py-12 sm:px-12 lg:py-14">
               <Eyebrow>Where this is heading</Eyebrow>
-              <h2 className="mt-5 font-display text-2xl font-bold tracking-tight text-balance text-ink sm:text-3xl lg:text-4xl">
+              <h2 className="mt-5 bg-gradient-to-r from-brand-700 via-brand-600 to-accent-500 bg-clip-text font-display text-2xl font-bold tracking-tight text-balance text-transparent sm:text-3xl lg:text-4xl">
                 From learning technology to creating technology.
               </h2>
               <div className="mx-auto mt-6 max-w-2xl space-y-4 text-left leading-relaxed text-muted">
@@ -288,7 +392,7 @@ export default function MissionVisionPage() {
                 </p>
               </div>
             </div>
-          </div>
+          </Reveal>
         </Rail>
       </section>
 
