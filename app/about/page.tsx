@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { QuickDemoFormLight } from "@/components/EnquiryForm";
+import { MediaFrame } from "@/components/MediaFrame";
 import { ScrambleButton } from "@/components/ScrambleButton";
-import { ButtonLink, Eyebrow as UiEyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
+import { ButtonLink, Eyebrow as UiEyebrow, Icon, Rail } from "@/components/ui";
 import { CountUp, Reveal } from "@/components/motion/Reveal";
 import { RevealScope } from "@/components/motion/RevealScope";
 import { Words, revealDelay } from "@/components/motion/Words";
@@ -157,14 +159,6 @@ const LEARNER_LINE_ROWS = [
   { y: 78, xs: [16.7, 50, 83.3] },
 ];
 
-const missionPoints = ["Practical by design", "Priced for access", "Always current"];
-
-const visionLines = [
-  { text: "A confident learner today.", accent: false },
-  { text: "A capable professional tomorrow.", accent: false },
-  { text: "A stronger digital economy, together.", accent: true },
-];
-
 const journeySteps = [
   {
     step: "01",
@@ -254,86 +248,57 @@ const learnDomains = [
   },
 ];
 
-const bentoItems = [
+const approachPrinciples = [
   {
-    icon: "code",
-    title: "Practical Training",
-    body: "Every course runs on lab hours and live builds, not just lecture slides — so the skill is real before the certificate is.",
-    span: "lg:col-span-2 lg:row-span-2",
-    big: true,
-  },
-  {
-    icon: "layers",
-    title: "Real Projects",
-    body: "Work that mirrors an actual client brief.",
-    span: "",
-  },
-  {
-    icon: "users",
-    title: "Industry Mentors",
-    body: "Guided by trainers who still practise the craft.",
-    span: "",
-  },
-  {
-    icon: "clock",
-    title: "Flexible Learning",
-    body: "Campus or online, weekday or weekend batches, without paying twice to switch.",
-    span: "",
-  },
-  {
-    icon: "briefcase",
-    title: "Internship Opportunities",
-    body: "Structured internship tracks with real deliverables.",
-    span: "",
-  },
-  {
-    icon: "target",
-    title: "Placement Assistance",
-    body: "Hiring drives, resume reviews and interview prep that continue until you are placed — not until the course ends.",
-    span: "lg:col-span-2",
-  },
-  {
-    icon: "award",
-    title: "Recognised Certifications",
-    body: "Credentials that hold up with recruiters.",
-    span: "",
-  },
-  {
+    step: "01",
+    title: "Relevance",
+    body: "Learn technologies and skills that connect with evolving industry requirements.",
     icon: "compass",
-    title: "Career Guidance",
-    body: "Honest advice on the track that actually fits you.",
-    span: "",
+  },
+  {
+    step: "02",
+    title: "Application",
+    body: "Turn concepts into practical skills through projects, exercises and hands-on learning.",
+    icon: "code",
+  },
+  {
+    step: "03",
+    title: "Growth",
+    body: "Develop the mindset and adaptability required to keep learning in a rapidly changing technology landscape.",
+    icon: "chart",
   },
 ];
 
-const impactStats = [
-  { value: "15K+", label: "Learners Trained" },
-  { value: "50+", label: "Career-Oriented Courses" },
-  { value: "120+", label: "Hiring Partners" },
-  { value: "1000+", label: "Projects Built" },
+const accreditations = [
+  {
+    step: "01",
+    title: "ISO 9001 Certified",
+    body: `${site.shortName}'s public LinkedIn profile describes the organization as an ISO 9001-certified and government-registered IT institute.`,
+    icon: "shield",
+  },
+  {
+    step: "02",
+    title: "Academic Collaboration",
+    body: `Publicly available information also records ${site.shortName}'s collaboration with educational institutions for skill development, workshops and experiential learning initiatives.`,
+    icon: "graduation-cap",
+  },
+  {
+    step: "03",
+    title: "Industry-Academia Engagement",
+    body: `${site.shortName} has participated in institutional initiatives and placement activities, including a joint campus placement drive hosted by I.K. Gujral Punjab Technical University in November 2025.`,
+    icon: "briefcase",
+  },
+  {
+    step: "04",
+    title: "Technology & Innovation Initiatives",
+    body: `${site.shortName} has participated in AI and robotics-focused initiatives, including demonstrations involving its AI robotic dog Chi-Chi at educational and technology events.`,
+    icon: "sparkles",
+  },
 ];
-
-const futureDomains = [
-  { icon: "sparkles", label: "Artificial Intelligence" },
-  { icon: "chart", label: "Data Science" },
-  { icon: "shield", label: "Cyber Security" },
-  { icon: "cloud", label: "Cloud Computing" },
-  { icon: "code", label: "Full Stack Development" },
-];
-
-const ctaTrust = ["Free career counselling", "No registration fee", "Placement support included"];
 
 /* ---------------------------------------------------------------------------
    Small shared pieces
    --------------------------------------------------------------------------- */
-
-function CheckIcon() {
-  return (
-    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600">
-      <Icon name="check" className="size-3.5" />
-    </span>
-  );
-}
 
 /** The dark decorative wash shared by the panel sections. */
 function PanelGlow() {
@@ -466,7 +431,7 @@ export default function AboutPage() {
               <div className="mt-9 grid grid-cols-3 gap-4 border-t border-line pt-7">
                 <div>
                   <p className="font-display text-2xl font-bold tracking-tight text-brand-600">
-                    <CountUp value={`${new Date().getFullYear() - site.founded}+`} />
+                    <CountUp value={`${new Date().getFullYear() - 2016}+`} />
                   </p>
                   <p className="mt-1 text-xs text-muted">Years building careers</p>
                 </div>
@@ -1005,74 +970,346 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* ---------------------------------- Mission ---------------------------------- */}
-      <section className="relative isolate overflow-hidden py-20 lg:py-28">
-        <div
-          aria-hidden="true"
-          className="drift-slow pointer-events-none absolute top-1/4 -right-40 -z-10 size-[36rem] rounded-full bg-brand-500/8 blur-[130px]"
-        />
-        <Rail>
-          <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center lg:gap-16">
-            <div>
-              <UiEyebrow>Our mission</UiEyebrow>
-              <h2 className="mt-5 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance text-ink sm:text-4xl lg:text-[2.75rem]">
-                Making Quality Tech Education Accessible
+      {/* ------------------------------- Our approach ------------------------------- */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#050b1d] to-[#081b3a] py-20 text-white lg:py-28">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+              backgroundSize: "44px 44px",
+              maskImage: "radial-gradient(70% 60% at 50% 30%, #000 40%, transparent 100%)",
+            }}
+          />
+          <div className="drift-slow absolute top-0 left-1/4 size-[36rem] rounded-full bg-[#1e88ff]/12 blur-[160px]" />
+          <div className="drift-slow-reverse absolute right-0 bottom-0 size-[30rem] rounded-full bg-[#00d4ff]/10 blur-[150px]" />
+          {ECOSYSTEM_PARTICLES.map((p, i) => (
+            <span
+              key={i}
+              className="twinkle absolute size-1 rounded-full bg-accent-400"
+              style={{ left: `${p.x}%`, top: `${p.y}%`, ["--twinkle-delay" as string]: `${p.delay}s` }}
+            />
+          ))}
+        </div>
+
+        <Rail className="relative">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="font-mono text-xs font-bold tracking-[0.22em] text-[#00d4ff] uppercase">
+              Our approach
+            </p>
+            <h2 className="mt-4 font-display text-3xl leading-[1.15] font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+              Practical. Future-
+              <br />
+              Focused.{" "}
+              <span className="bg-gradient-to-r from-[#1e88ff] to-[#00d4ff] bg-clip-text text-transparent">
+                Career-Oriented.
+              </span>
+            </h2>
+            <p className="mt-5 text-base leading-relaxed text-white/60">
+              {site.shortName}&rsquo;s approach is built around three principles.
+            </p>
+          </div>
+
+          <div className="relative mt-16 lg:mt-20">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute top-11 right-[16%] left-[16%] hidden lg:block"
+            >
+              <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-gradient-to-r from-[#1e88ff]/15 via-[#1e88ff]/40 to-[#00d4ff]/15">
+                <div className="line-sweep absolute inset-y-0 w-1/3 rounded-full bg-gradient-to-r from-[#1e88ff] to-[#00d4ff]" />
+              </div>
+              {[0, 50, 100].map((pct, i) => (
+                <span
+                  key={pct}
+                  className="twinkle absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] shadow-[0_0_12px_rgba(0,212,255,0.6)] ring-2 ring-[#081b3a]"
+                  style={{ left: `${pct}%`, ["--twinkle-delay" as string]: `${i * 0.4}s` }}
+                />
+              ))}
+            </div>
+
+            <ol className="relative grid gap-8 lg:grid-cols-3">
+              {approachPrinciples.map((item, i) => (
+                <li
+                  key={item.step}
+                  data-reveal
+                  style={revealDelay(i, 110)}
+                  className="group relative flex h-full flex-col overflow-hidden rounded-[24px] border border-[rgba(0,212,255,0.2)] bg-[rgba(15,46,109,0.75)] p-7 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:border-[#00d4ff] hover:shadow-[0_30px_60px_-20px_rgba(0,212,255,0.35)]"
+                >
+                  <div className="flex items-start justify-between">
+                    <span className="grid size-12 place-items-center rounded-2xl bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] text-white shadow-[0_10px_24px_-6px_rgba(0,212,255,0.6)]">
+                      <Icon name={item.icon} className="size-6" />
+                    </span>
+                    <span className="font-display text-3xl font-bold text-white/15">{item.step}</span>
+                  </div>
+                  <h3 className="mt-6 font-display text-xl font-bold tracking-tight">{item.title}</h3>
+                  <p className="mt-2.5 text-sm leading-relaxed text-white/65">{item.body}</p>
+                  <span aria-hidden="true" className="mt-6 block h-1 w-full overflow-hidden rounded-full bg-white/10">
+                    <span className="block h-full w-2/5 rounded-full bg-gradient-to-r from-[#1e88ff] to-[#00d4ff]" />
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </Rail>
+      </section>
+
+      {/* ----------------------------- Industry engagement ----------------------------- */}
+      <section className="relative isolate overflow-hidden bg-white py-20 lg:py-28">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div className="absolute top-0 right-0 size-[28rem] rounded-full bg-brand-400/8 blur-[130px]" />
+          <div
+            className="absolute top-1/4 right-8 hidden size-40 opacity-40 lg:block"
+            style={{
+              backgroundImage: "radial-gradient(rgba(37,99,235,0.35) 1px, transparent 0)",
+              backgroundSize: "14px 14px",
+            }}
+          />
+        </div>
+
+        <Rail className="relative">
+          <div className="grid items-center gap-16 lg:grid-cols-2 lg:gap-16">
+            <div className="relative">
+              <div
+                aria-hidden="true"
+                className="drift-slow pointer-events-none absolute -top-8 -left-8 size-56 rounded-full bg-brand-400/15 blur-[90px]"
+              />
+              <MediaFrame
+                reveal
+                caption={`Screen-side during the Agentic AI workshop near ${site.city}`}
+                icon="sparkles"
+                className="relative aspect-[4/3] lg:aspect-[5/4]"
+                sizes="(min-width: 1024px) 42vw, 92vw"
+              />
+              <div className="absolute top-6 -left-4 flex items-center gap-2.5 rounded-2xl bg-white/80 px-4 py-3 shadow-[0_20px_45px_-20px_rgba(15,23,42,0.35)] backdrop-blur-md">
+                <span className="grid size-9 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                  <Icon name="graduation-cap" className="size-4.5" />
+                </span>
+                <span className="text-xs font-semibold whitespace-nowrap text-ink sm:text-sm">
+                  Industry Interaction
+                </span>
+              </div>
+              <div className="absolute top-1/2 -right-4 flex -translate-y-1/2 items-center gap-2.5 rounded-2xl bg-white/80 px-4 py-3 shadow-[0_20px_45px_-20px_rgba(15,23,42,0.35)] backdrop-blur-md">
+                <span className="grid size-9 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                  <Icon name="users" className="size-4.5" />
+                </span>
+                <span className="text-xs font-semibold whitespace-nowrap text-ink sm:text-sm">
+                  Real-World Exposure
+                </span>
+              </div>
+            </div>
+
+            <div className="relative border-l-2 border-brand-100 pl-7">
+              <p className="font-mono text-xs font-bold tracking-[0.22em] text-brand-600 uppercase">
+                Industry engagement
+              </p>
+              <h2 className="mt-4 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance text-ink sm:text-4xl">
+                Connecting education with industry
               </h2>
               <Reveal className="mt-6 space-y-5 text-base leading-relaxed text-muted lg:text-[17px]">
                 <p>
-                  A good career shouldn&rsquo;t depend on which college a learner could afford, or
-                  which city they grew up in. Our mission is to make practical, industry-relevant
-                  technology education available on those terms — priced for the students who need
-                  it most, not the ones who can already afford to wait.
+                  A major part of {site.shortName}&rsquo;s broader ecosystem is its engagement with
+                  educational institutions and industry-oriented initiatives. Public records show{" "}
+                  {site.shortName} participating in campus placement activities and technology
+                  workshops with educational institutions, providing students with opportunities
+                  for industry interaction and practical exposure.
                 </p>
                 <p>
-                  That means keeping fees honest, keeping the curriculum current enough to be worth
-                  paying for, and building training around outcomes we can be held to — not
-                  promises that sound good in a brochure.
+                  These interactions help strengthen the bridge between what students learn and
+                  how technology is applied professionally.
                 </p>
               </Reveal>
-              <ul className="mt-8 flex flex-wrap gap-3">
-                {missionPoints.map((point) => (
-                  <li
-                    key={point}
-                    className="rounded-full border border-line bg-background px-4 py-2 text-xs font-semibold text-foreground"
-                  >
-                    {point}
-                  </li>
-                ))}
-              </ul>
+              <ButtonLink href="/college-partnerships" size="lg" className="mt-8">
+                Explore Industry Connect
+                <Icon name="arrow-right" className="size-4" />
+              </ButtonLink>
             </div>
+          </div>
+        </Rail>
+      </section>
 
-            {/* No `Reveal` wrapper: the two `CountUp`s below run their own
-                ScrollTrigger, and nesting them inside a GSAP-animated parent
-                has previously frozen the parent's fade mid-transition. */}
+      {/* ------------------------- Awards, recognition & accreditation ------------------------- */}
+      <section className="relative isolate overflow-hidden bg-white py-20 lg:py-28">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div className="absolute top-1/3 left-1/2 size-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-400/8 blur-[160px]" />
+          <div className="absolute -top-24 -left-24 hidden size-72 rounded-full border border-brand-100 lg:block" />
+          <div className="absolute -right-24 -bottom-24 hidden size-72 rounded-full border border-brand-100 lg:block" />
+        </div>
+
+        <Rail className="relative">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="font-mono text-xs font-bold tracking-[0.22em] text-brand-600 uppercase">
+              Awards, recognition & accreditation
+            </p>
+            <h2 className="mt-4 font-display text-3xl leading-[1.15] font-bold tracking-tight text-balance text-ink sm:text-4xl lg:text-[2.75rem]">
+              Recognition built through learning, innovation and{" "}
+              <span className="bg-gradient-to-r from-[#1e88ff] to-[#00d4ff] bg-clip-text text-transparent">
+                industry engagement
+              </span>
+            </h2>
+            <p className="mx-auto mt-5 max-w-2xl text-base leading-relaxed text-muted">
+              {site.shortName}&rsquo;s credibility is supported not only by its training programs
+              but also by its participation in industry-academia initiatives, campus placements,
+              workshops, technology events and institutional collaborations.
+            </p>
+          </div>
+
+          <ul className="mt-14 grid gap-6 sm:grid-cols-2 lg:mt-16">
+            {accreditations.map((item, i) => (
+              <li
+                key={item.step}
+                data-reveal
+                style={revealDelay(i, 90)}
+                className="group relative overflow-hidden rounded-[24px] border border-[rgba(30,136,255,0.12)] bg-white p-7 shadow-[0_15px_40px_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-300 hover:shadow-[0_30px_60px_-20px_rgba(30,136,255,0.25)]"
+              >
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -top-3 right-4 font-display text-6xl font-extrabold text-brand-50 select-none"
+                >
+                  {item.step}
+                </span>
+                <div className="relative flex items-start gap-4">
+                  <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] text-white shadow-[0_10px_24px_-8px_rgba(30,136,255,0.6)]">
+                    <Icon name={item.icon} className="size-5" />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="font-display text-lg font-bold tracking-tight text-ink">
+                      {item.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted">{item.body}</p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <p className="mx-auto mt-10 max-w-2xl text-center text-xs leading-relaxed text-muted italic">
+            The recognitions above are drawn from publicly available information, institutional
+            announcements and {site.shortName}&rsquo;s own published profiles.
+          </p>
+        </Rail>
+      </section>
+
+      {/* --------------------------------- Our belief --------------------------------- */}
+      <section className="relative isolate overflow-hidden bg-white py-20 lg:py-28">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 -left-24 size-[28rem] rounded-full bg-[#1e88ff]/8 blur-[130px]" />
+          <div className="absolute -right-24 -bottom-24 size-[26rem] rounded-full bg-[#00d4ff]/8 blur-[120px]" />
+          <div
+            className="absolute top-1/3 right-10 hidden size-48 opacity-50 lg:block"
+            style={{
+              backgroundImage: "radial-gradient(rgba(30,136,255,0.3) 1px, transparent 0)",
+              backgroundSize: "16px 16px",
+            }}
+          />
+          <span className="absolute top-20 left-[8%] hidden size-16 rotate-12 rounded-2xl border border-brand-100 lg:block" />
+          <span className="absolute right-[10%] bottom-24 hidden size-20 -rotate-6 rounded-full border border-brand-100 lg:block" />
+        </div>
+
+        <Rail className="relative">
+          <UiEyebrow>Our belief</UiEyebrow>
+
+          <div className="mt-8 grid gap-12 lg:mt-12 lg:grid-cols-2 lg:gap-16">
+            <h2 className="font-display tracking-tight">
+              {[
+                { text: "Technology changes.", accent: false },
+                { text: "Skills evolve.", accent: false },
+                { text: "Learning never stops.", accent: true },
+              ].map((line, i) => (
+                <span
+                  key={line.text}
+                  data-reveal
+                  style={revealDelay(i, 140)}
+                  className={`block border-b border-line py-4 text-4xl leading-[1.1] font-extrabold text-balance first:pt-0 last:border-0 last:pb-0 sm:text-5xl lg:text-[4rem] ${
+                    line.accent
+                      ? "bg-gradient-to-r from-[#00d4ff] to-[#1e88ff] bg-clip-text text-transparent"
+                      : "text-[#081b3a]"
+                  }`}
+                >
+                  {line.text}
+                </span>
+              ))}
+            </h2>
+
             <div
               data-reveal
-              className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/70 p-8 shadow-[0_40px_80px_-40px_rgba(37,99,235,0.35)] backdrop-blur-xl lg:p-10"
+              style={revealDelay(3, 100)}
+              className="relative self-start rounded-[24px] border border-[rgba(30,136,255,0.12)] bg-[#f8fafc]/70 p-8 shadow-[0_20px_50px_-30px_rgba(15,23,42,0.25)] backdrop-blur-md lg:mt-6"
             >
               <span
                 aria-hidden="true"
-                className="pointer-events-none absolute -top-16 -right-16 size-40 rounded-full bg-gradient-to-br from-brand-400/25 to-transparent blur-2xl"
+                className="absolute inset-y-6 left-0 w-1 rounded-full bg-gradient-to-b from-[#00d4ff] to-[#1e88ff] shadow-[0_0_14px_rgba(0,212,255,0.5)]"
               />
-              <span className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-[0_16px_30px_-12px_rgba(37,99,235,0.6)]">
-                <Icon name="target" className="size-6" />
+              <div className="space-y-5 pl-4 text-base leading-relaxed text-muted lg:text-[17px]">
+                <p>
+                  We believe that meaningful technology education should not end when a course
+                  ends.
+                </p>
+                <p>
+                  It should give learners the knowledge to understand, the skills to build, the
+                  confidence to perform and the curiosity to keep growing.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative mx-auto mt-24 max-w-3xl lg:mt-28">
+            <div className="absolute -top-6 -left-6 z-20 hidden items-center gap-2.5 rounded-full border border-line bg-white/90 px-4 py-2.5 shadow-[0_20px_40px_-20px_rgba(15,23,42,0.3)] backdrop-blur-md sm:flex">
+              <span className="grid size-7 place-items-center rounded-full bg-brand-50 text-brand-600">
+                <Icon name="briefcase" className="size-3.5" />
               </span>
-              <p className="mt-7 font-display text-xl leading-snug font-bold tracking-tight text-balance text-ink lg:text-2xl">
-                Practical, affordable and industry-relevant — so a learner&rsquo;s career depends on
-                their effort, not their starting point.
-              </p>
-              <div className="mt-8 grid grid-cols-2 gap-4 border-t border-line pt-6">
-                <div>
-                  <p className="font-display text-2xl font-bold tracking-tight text-brand-600">
-                    <CountUp value={site.stats.alumni} />
-                  </p>
-                  <p className="mt-1 text-xs text-muted">Learners reached</p>
+              <span className="text-xs font-semibold whitespace-nowrap text-ink">Industry Ready</span>
+            </div>
+            <div className="absolute -top-6 -right-6 z-20 hidden items-center gap-2.5 rounded-full border border-line bg-white/90 px-4 py-2.5 shadow-[0_20px_40px_-20px_rgba(15,23,42,0.3)] backdrop-blur-md lg:flex">
+              <span className="grid size-7 place-items-center rounded-full bg-brand-50 text-brand-600">
+                <Icon name="target" className="size-3.5" />
+              </span>
+              <span className="text-xs font-semibold whitespace-nowrap text-ink">Practical Skills</span>
+            </div>
+            <div className="absolute -right-4 -bottom-6 z-20 hidden items-center gap-2.5 rounded-full border border-line bg-white/90 px-4 py-2.5 shadow-[0_20px_40px_-20px_rgba(15,23,42,0.3)] backdrop-blur-md sm:flex">
+              <span className="grid size-7 place-items-center rounded-full bg-brand-50 text-brand-600">
+                <Icon name="rocket" className="size-3.5" />
+              </span>
+              <span className="text-xs font-semibold whitespace-nowrap text-ink">Career Growth</span>
+            </div>
+
+            <div
+              data-reveal
+              className="group relative overflow-hidden rounded-[28px] border border-[rgba(30,136,255,0.12)] bg-white text-center shadow-[0_40px_80px_-40px_rgba(15,23,42,0.3)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_50px_90px_-35px_rgba(30,136,255,0.35)]"
+            >
+              <span
+                aria-hidden="true"
+                className="block h-1.5 bg-gradient-to-r from-[#1e88ff] via-brand-500 to-[#00d4ff]"
+              />
+              <div className="px-7 py-12 sm:px-12 lg:py-16">
+                <UiEyebrow>{`${site.shortName} today`}</UiEyebrow>
+                <div className="mt-9 grid grid-cols-3 divide-x divide-line gap-4 sm:gap-8">
+                  {[
+                    { label: "Learn", icon: "layers" },
+                    { label: "Implement", icon: "code" },
+                    { label: "Grow", icon: "chart" },
+                  ].map((item) => (
+                    <div key={item.label} className="flex flex-col items-center gap-3">
+                      <span className="grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] text-white shadow-[0_14px_28px_-10px_rgba(30,136,255,0.55)]">
+                        <Icon name={item.icon} className="size-6" />
+                      </span>
+                      <span className="font-display text-lg font-bold tracking-tight text-ink sm:text-xl">
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <p className="font-display text-2xl font-bold tracking-tight text-brand-600">
-                    <CountUp value={site.stats.rating} />
+                <p className="mx-auto mt-9 max-w-xl text-sm leading-relaxed text-muted lg:text-base">
+                  With a focus on practical technology education, emerging skills, industry
+                  engagement and career development, {site.shortName} continues its journey
+                  towards creating a stronger ecosystem of future-ready technology professionals.
+                </p>
+                <div className="mt-10 border-t border-line pt-8">
+                  <p className="text-xs tracking-[0.14em] text-muted uppercase">{site.tagline}</p>
+                  <p className="mt-2 font-display text-2xl font-bold tracking-tight text-ink">
+                    {site.shortName}
                   </p>
-                  <p className="mt-1 text-xs text-muted">Average rating</p>
+                  <p className="mt-2 text-sm text-muted">Where Your Tech Journey Begins.</p>
                 </div>
               </div>
             </div>
@@ -1080,204 +1317,64 @@ export default function AboutPage() {
         </Rail>
       </section>
 
-      {/* ---------------------------------- Vision ---------------------------------- */}
-      <section className="relative isolate overflow-hidden bg-panel py-20 text-white lg:py-28">
-        <PanelGlow />
-        <Rail className="relative">
-          <div className="mx-auto max-w-3xl text-center">
-            <UiEyebrow onDark>Our vision</UiEyebrow>
-            <h2 className="mt-5 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-              Building India&rsquo;s Future Technology Workforce
-            </h2>
-            <Reveal className="mt-6 space-y-5 text-base leading-relaxed text-white/70 lg:text-lg">
-              <p>
-                India&rsquo;s digital economy is growing faster than the pipeline of people ready to
-                run it. We want {site.shortName} learners to be the ones who close that gap — not
-                by chasing every new technology trend, but by building the judgment to learn
-                whichever one shows up next.
-              </p>
-              <p>
-                That is the long-term measure we hold ourselves to: not how many students enrol,
-                but how many become confident, capable contributors to the technology economy this
-                country is building.
-              </p>
-            </Reveal>
-          </div>
-
-          <Reveal className="mx-auto mt-16 max-w-2xl lg:mt-20">
-            {visionLines.map((line) => (
-              <p
-                key={line.text}
-                className={`border-b border-white/10 py-4 text-center text-2xl leading-tight font-bold text-balance first:pt-0 last:border-0 last:pb-0 sm:text-3xl lg:text-4xl ${
-                  line.accent ? "text-accent-400" : "text-white"
-                }`}
-              >
-                {line.text}
-              </p>
-            ))}
-          </Reveal>
-        </Rail>
-      </section>
-
-      {/* --------------------------- Why students choose us (bento) --------------------------- */}
-      <section className="relative isolate overflow-hidden bg-panel py-20 text-white lg:py-28">
-        <PanelGlow />
-        <Rail className="relative">
-          <SectionHeading
-            align="center"
-            onDark
-            eyebrow="Why students choose us"
-            title={`What makes ${site.shortName} different?`}
-            body="Eight things that show up in every batch, not just the ones we advertise."
-          />
-
-          <ul className="mt-16 grid auto-rows-[minmax(160px,auto)] gap-4 lg:mt-20 lg:grid-cols-4">
-            {bentoItems.map((item, i) => (
-              <li
-                key={item.title}
-                data-reveal
-                style={revealDelay(i, 70)}
-                className={`group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-white/12 bg-white/[0.06] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/25 hover:bg-white/[0.1] lg:p-7 ${item.span}`}
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-10 -right-10 size-32 rounded-full bg-gradient-to-br from-accent-400/15 to-transparent blur-2xl transition-opacity duration-300 group-hover:opacity-100"
-                />
-                <span className="inline-flex size-11 items-center justify-center rounded-2xl bg-white/10 text-accent-400">
-                  <Icon name={item.icon} className={item.big ? "size-6" : "size-5"} />
-                </span>
-                <div className="mt-auto pt-6">
-                  <h3
-                    className={`font-display font-bold tracking-tight ${item.big ? "text-2xl lg:text-3xl" : "text-base"}`}
-                  >
-                    {item.title}
-                  </h3>
-                  <p
-                    className={`mt-2 leading-relaxed text-white/65 ${item.big ? "max-w-sm text-[15px] lg:text-base" : "text-sm"}`}
-                  >
-                    {item.body}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Rail>
-      </section>
-
-      {/* --------------------------------- Our impact --------------------------------- */}
-      <section className="relative isolate overflow-hidden py-20 lg:py-28">
+      {/* ------------------------------ Ready to get started ------------------------------ */}
+      <section className="relative isolate overflow-hidden bg-subtle py-20 lg:py-28">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(37,99,235,0.07),transparent_70%)]"
+          className="drift-slow pointer-events-none absolute top-1/3 -right-32 -z-10 size-[30rem] rounded-full bg-brand-400/10 blur-[130px]"
         />
         <Rail>
-          <SectionHeading
-            align="center"
-            eyebrow="Our impact"
-            title="Numbers we can be held to"
-            body="Not a claim on a poster — the same figures behind every other stat on this page."
-          />
-
-          {/* No `Reveal` wrapper: `CountUp` runs its own ScrollTrigger, and
-              nesting it inside a GSAP-animated parent has previously frozen
-              the parent's fade mid-transition (see mission-vision page). The
-              counting numbers already give this grid its own entrance. */}
-          <dl className="mt-16 grid grid-cols-2 gap-x-6 gap-y-12 lg:mt-20 lg:grid-cols-4 lg:gap-8">
-            {impactStats.map((stat) => (
-              <div key={stat.label} className="relative text-center">
-                <span
-                  aria-hidden="true"
-                  className="absolute top-1/2 -right-3 hidden h-16 w-px -translate-y-1/2 bg-line lg:block last:lg:hidden"
-                />
-                <dd className="bg-gradient-to-br from-brand-700 via-brand-600 to-accent-500 bg-clip-text font-display text-4xl font-extrabold tracking-tight text-transparent sm:text-5xl">
-                  <CountUp value={stat.value} />
-                </dd>
-                <dt className="mt-2 text-sm font-medium text-muted">{stat.label}</dt>
-              </div>
-            ))}
-          </dl>
-        </Rail>
-      </section>
-
-      {/* ----------------------------- Preparing for the future ----------------------------- */}
-      <section className="relative isolate overflow-hidden bg-hero-950 py-20 text-white lg:py-28">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-          <div className="panel-dots absolute inset-0 opacity-60" />
-          <div className="drift-slow absolute top-0 left-1/2 size-[40rem] -translate-x-1/2 rounded-full bg-accent-500/10 blur-[150px]" />
-        </div>
-        <Rail className="relative">
-          <SectionHeading
-            align="center"
-            onDark
-            eyebrow="What's next"
-            title="Preparing Learners For The Future Of Technology"
-            body="Curriculum reviews aren't an annual event here — they're a response to what the industry is doing right now."
-          />
-
-          {/* No `Reveal` wrapper here: each chip already carries its own
-              infinite `float-slow` CSS animation on `transform`, and having
-              GSAP tween the same property from a scroll trigger occasionally
-              left the whole list stuck at opacity 0 — the two animations
-              fighting over one element. The chips are already below the
-              fold, so a plain render loses little. */}
-          <ul className="mt-14 flex flex-wrap items-center justify-center gap-3 lg:mt-16 lg:gap-4">
-            {futureDomains.map((domain) => (
-              <li
-                key={domain.label}
-                className="float-slow inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.06] px-5 py-3 backdrop-blur-sm transition-all duration-300 hover:border-accent-400/50 hover:bg-white/[0.1]"
-              >
-                <Icon name={domain.icon} className="size-4.5 text-accent-400" />
-                <span className="text-sm font-semibold tracking-tight">{domain.label}</span>
-              </li>
-            ))}
-          </ul>
-        </Rail>
-      </section>
-
-      {/* ------------------------------------ CTA ------------------------------------ */}
-      <section className="hero-surface relative isolate overflow-hidden py-20 text-white lg:py-28">
-        <div
-          aria-hidden="true"
-          className="drift-slow pointer-events-none absolute -top-32 right-0 size-[34rem] rounded-full bg-accent-500/14 blur-[140px]"
-        />
-        <Rail className="relative">
-          <div className="mx-auto max-w-2xl text-center">
-            <UiEyebrow onDark className="mb-5">
-              Ready when you are
-            </UiEyebrow>
-            <h2 className="font-display text-3xl font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
-              Start Building Your Tech Career Today
+          <div className="relative mx-auto max-w-2xl text-center">
+            <span
+              aria-hidden="true"
+              className="absolute top-1/2 -left-14 hidden size-9 -translate-y-1/2 rounded-full border border-brand-200 lg:block"
+            />
+            <p className="font-mono text-xs font-bold tracking-[0.22em] text-brand-600 uppercase">
+              Ready to get started?
+            </p>
+            <h2 className="mt-4 font-display text-4xl leading-[1.1] font-bold tracking-tight text-balance text-ink sm:text-5xl">
+              Start building your career today.
             </h2>
-            <p className="mt-6 leading-relaxed text-white/70 lg:text-lg">
-              Join thousands of learners who have transformed their careers through practical,
-              industry-focused training.
+            <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-muted lg:text-lg">
+              Talk to a counsellor today. One call is usually enough to know which track fits
+              your degree, your schedule and the job you want.
             </p>
 
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-              <ButtonLink href="/courses" variant="onDark" size="lg">
-                Explore courses
-                <Icon name="arrow-right" className="size-4" />
-              </ButtonLink>
-              <ScrambleButton href="/contact#enquire" className="h-13 px-7 text-[15px]">
-                Book free counselling
-              </ScrambleButton>
+            <div className="mx-auto mt-9 max-w-md">
+              <QuickDemoFormLight />
             </div>
 
-            <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-              {ctaTrust.map((item) => (
-                <li key={item} className="flex items-center gap-2 text-sm text-white/70">
-                  <CheckIcon />
-                  {item}
-                </li>
-              ))}
-            </ul>
-
-            <p className="mt-10 text-sm text-white/50">
-              Prefer to talk first?{" "}
-              <Link href={site.contact.phoneHref} className="font-semibold text-white underline decoration-white/30 underline-offset-4 hover:decoration-white">
-                {site.contact.phone}
+            <div className="mt-6 flex justify-center">
+              <Link
+                href={site.contact.phoneHref}
+                className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-brand-600 to-brand-500 py-3 pr-6 pl-4 text-white shadow-[0_16px_32px_-12px_rgba(37,99,235,0.55)] transition-all duration-300 hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.65)]"
+              >
+                <span className="grid size-9 place-items-center rounded-full bg-white/15 transition-transform duration-300 group-hover:scale-105">
+                  <Icon name="phone" className="size-4" />
+                </span>
+                <span className="text-left">
+                  <span className="block text-[10px] font-bold tracking-[0.18em] text-white/75 uppercase">
+                    Call now
+                  </span>
+                  <span className="block text-base leading-tight font-bold">
+                    {site.contact.phone}
+                  </span>
+                </span>
               </Link>
-            </p>
+            </div>
+
+            <ul className="mt-8 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+              {["Free career counselling", "No registration fee", "Placement support included"].map(
+                (item) => (
+                  <li key={item} className="flex items-center gap-2 text-sm text-muted">
+                    <span className="grid size-5 shrink-0 place-items-center rounded-full border border-brand-200 text-brand-600">
+                      <Icon name="check" className="size-3" />
+                    </span>
+                    {item}
+                  </li>
+                ),
+              )}
+            </ul>
           </div>
         </Rail>
       </section>
