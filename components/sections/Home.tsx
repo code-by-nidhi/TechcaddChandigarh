@@ -9,9 +9,10 @@ import {
   testimonials,
   faqs,
 } from "@/data/content";
-import { featuredCourses } from "@/data/courses";
 import { recentPosts, formatDate } from "@/data/blog";
-import { CourseCard } from "@/components/CourseCard";
+import { CategoriesShowcase } from "@/components/sections/CategoriesShowcase";
+import { FeaturedShowcase } from "@/components/sections/FeaturedShowcase";
+import { TechnologyCards } from "@/components/sections/TechnologyCards";
 import { Accordion } from "@/components/Accordion";
 import { QuickDemoForm } from "@/components/EnquiryForm";
 import { ButtonLink, Eyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
@@ -112,25 +113,81 @@ export function ProcessSection() {
   );
 }
 
+/* ------------------------------- Categories ------------------------------- */
+
+export function CategoriesSection() {
+  return (
+    <section className="panel-surface relative isolate overflow-hidden py-20 text-white lg:py-28">
+      <div
+        aria-hidden="true"
+        className="drift-slow pointer-events-none absolute -top-1/4 left-1/2 -z-10 size-[46rem] -translate-x-1/2 rounded-full bg-accent-400/10 blur-[150px]"
+      />
+      <Rail>
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <SectionHeading
+            onDark
+            eyebrow="Course categories"
+            title="Seven tracks, fifty-plus courses"
+            body="Pick a direction first, then a duration. Counselling is free if you want help choosing."
+          />
+          <ButtonLink href="/courses" variant="onDarkGhost">
+            All courses
+            <Icon name="arrow-right" className="size-4" />
+          </ButtonLink>
+        </div>
+      </Rail>
+
+      <div className="mt-12">
+        <CategoriesShowcase />
+      </div>
+
+      <Rail>
+        <div className="mx-auto mt-14 flex max-w-3xl flex-col items-center gap-4 rounded-2xl border border-white/12 bg-white/[0.06] p-6 text-center backdrop-blur-sm sm:flex-row sm:text-left">
+          <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/12">
+            <Icon name="rocket" className="size-5" />
+          </span>
+          <div className="flex-1">
+            <h3 className="font-display text-base font-bold tracking-tight">
+              Not sure which track?
+            </h3>
+            <p className="mt-1 text-sm leading-relaxed text-brand-100/75">
+              Answer four questions and we will suggest a track, a duration and a first project to
+              build.
+            </p>
+          </div>
+          <ButtonLink href="/tools/career-track-finder" variant="onDark" size="sm" className="shrink-0">
+            Find my track
+            <Icon name="arrow-right" className="size-4" />
+          </ButtonLink>
+        </div>
+      </Rail>
+    </section>
+  );
+}
+
 /* ----------------------------- Featured courses ----------------------------- */
 
 export function FeaturedSection() {
   return (
-    <section className="py-20 lg:py-28">
+    <section className="relative isolate overflow-hidden bg-[#111111] py-20 text-white lg:py-28">
       <Rail>
         <SectionHeading
           align="center"
+          onDark
           eyebrow="Featured courses"
           title="What most students are enrolling in"
           body="Every one of these runs with lab hours, a live client project and placement support."
         />
-        <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredCourses.slice(0, 9).map((course) => (
-            <CourseCard key={course.id} course={course} />
-          ))}
-        </Reveal>
+      </Rail>
+
+      {/* Full-bleed on purpose: the outer cards should run off both edges. */}
+      <div className="mt-12 lg:mt-16">
+        <FeaturedShowcase />
+      </div>
+
+      <Rail>
         <div className="mt-12 text-center">
-          <ButtonLink href="/courses" variant="secondary" size="lg">
+          <ButtonLink href="/courses" variant="onDark" size="lg">
             Browse all courses
             <Icon name="arrow-right" className="size-4" />
           </ButtonLink>
@@ -297,14 +354,7 @@ export function TechnologiesSection() {
       </div>
 
       <Rail className="mt-14">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {techGroups.map((group) => (
-            <div key={group.name}>
-              <h3 className="font-display text-sm font-bold tracking-tight">{group.name}</h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-muted">{group.items.join(" · ")}</p>
-            </div>
-          ))}
-        </div>
+        <TechnologyCards />
       </Rail>
     </section>
   );
