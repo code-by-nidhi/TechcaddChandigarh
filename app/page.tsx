@@ -6,7 +6,6 @@ import {
   CtaSection,
   DifferenceSection,
   FaqSection,
-  FeaturedSection,
   IncludedSection,
   ProcessSection,
   TechnologiesSection,
@@ -33,7 +32,6 @@ export default function HomePage() {
       <AboutSection />
       <ProcessSection />
       <CategoriesSection />
-      <FeaturedSection />
       <DifferenceSection />
       <TestimonialsSection />
       <IncludedSection />
