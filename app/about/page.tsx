@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { MediaFrame } from "@/components/MediaFrame";
 import { ScrambleButton } from "@/components/ScrambleButton";
 import { ButtonLink, Eyebrow as UiEyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
-import { CountUp, Parallax, Reveal } from "@/components/motion/Reveal";
+import { CountUp, Reveal } from "@/components/motion/Reveal";
 import { RevealScope } from "@/components/motion/RevealScope";
 import { Words, revealDelay } from "@/components/motion/Words";
 import { site } from "@/data/site";
@@ -25,50 +24,137 @@ const heroStats = [
   { label: "Student Satisfaction", value: "98%" },
 ];
 
-/** Six pillars, laid out as hexagon vertices — top, then clockwise every 60°. */
-const ecosystemPillars = [
+/** Fixed positions (not random) so server and client render identically. */
+const ECOSYSTEM_PARTICLES = [
+  { x: 8, y: 18, delay: 0.2 },
+  { x: 92, y: 12, delay: 1.1 },
+  { x: 14, y: 82, delay: 2.3 },
+  { x: 88, y: 78, delay: 0.6 },
+  { x: 50, y: 6, delay: 1.7 },
+  { x: 6, y: 50, delay: 2.9 },
+  { x: 94, y: 46, delay: 0.9 },
+  { x: 48, y: 94, delay: 1.4 },
+];
+
+/**
+ * Eight-card masonry collage for "Who we are". Spans are chosen so the areas
+ * sum to whole grid rows both at the 2-column mobile width (2+2+1+1+2+2+2+2 =
+ * 14 = 7 rows × 2 cols) and at `lg` (2×2 + 1×2 + 1+1 + 2+2+2+2 = 16 = 4 cols
+ * × 4 rows) — the same area-accounting trick as the bento grid further down
+ * the page, so the CSS auto-placement algorithm never leaves a gap either way.
+ */
+const collageCards = [
   {
-    icon: "layers",
-    title: "Industry-Relevant Curriculum",
-    body: "Every syllabus is checked against what companies are hiring for right now.",
-    x: 50,
-    y: 12,
+    icon: "users",
+    title: "The techcadd team with faculty at a partner college",
+    body: "Collaborating with academic experts to deliver industry-aligned learning experiences.",
+    span: "col-span-2 lg:col-span-2 lg:row-span-2",
+    size: "lg" as const,
   },
   {
     icon: "code",
-    title: "Hands-On Projects",
-    body: "Concepts are proven by building, not by memorising slides.",
-    x: 82.9,
-    y: 31,
-  },
-  {
-    icon: "users",
-    title: "Expert Mentorship",
-    body: "Trainers who still ship production work guide every batch.",
-    x: 82.9,
-    y: 69,
+    title: "Live project review during a lab session",
+    body: "Hands-on learning with real-world projects and expert feedback.",
+    span: "col-span-2 lg:col-span-1 lg:row-span-2",
+    size: "md" as const,
   },
   {
     icon: "briefcase",
-    title: "Internship Opportunities",
-    body: "Real assignments with real deadlines, before the certificate.",
-    x: 50,
-    y: 88,
+    title: "A hiring drive on campus",
+    body: "Connecting learners with top recruiters.",
+    span: "",
+    size: "sm" as const,
+  },
+  {
+    icon: "layers",
+    title: "Industry-relevant curriculum",
+    body: "Skills companies actually hire for, updated often.",
+    span: "",
+    size: "sm" as const,
+  },
+  {
+    icon: "monitor",
+    title: "Practical, project-based learning",
+    body: "Build real projects, solve real problems, and gain job-ready skills.",
+    span: "col-span-2 lg:col-span-2",
+    size: "md" as const,
   },
   {
     icon: "target",
-    title: "Career Preparation",
-    body: "Resumes, mock interviews and portfolio reviews, built into the track.",
-    x: 17.1,
-    y: 69,
+    title: "Career-focused outcomes",
+    body: "From learning to getting hired — we're with you at every step.",
+    span: "col-span-2 lg:col-span-2",
+    size: "md" as const,
+  },
+  {
+    icon: "rocket",
+    title: "Internship opportunities on real teams",
+    body: "Structured internships with real deliverables and real deadlines.",
+    span: "col-span-2 lg:col-span-2",
+    size: "lg" as const,
   },
   {
     icon: "award",
-    title: "Placement Support",
-    body: "Hiring partners and drives that continue until you are placed.",
-    x: 17.1,
-    y: 31,
+    title: "Mentorship from working professionals",
+    body: "Guidance from trainers who still ship production work.",
+    span: "col-span-2 lg:col-span-2",
+    size: "lg" as const,
   },
+];
+
+/**
+ * Positioned in the gaps the two overlapping panels leave open, not over
+ * either panel's own text corner (top-left icon, bottom-left caption).
+ */
+const skillFloatCards = [
+  { icon: "target", label: "Practical Learning", style: { right: "-3%", top: "-4%" } },
+  { icon: "graduation-cap", label: "From Learning", style: { left: "1%", bottom: "6%" } },
+  { icon: "chart", label: "Real-World Exposure", style: { right: "-3%", bottom: "-10%" } },
+] as const;
+
+const learnerSegments = [
+  {
+    step: "01",
+    title: "School & College Students",
+    body: "Looking to develop technology skills early.",
+    icon: "graduation-cap",
+  },
+  {
+    step: "02",
+    title: "Graduates & Job Seekers",
+    body: "Preparing for technology careers.",
+    icon: "briefcase",
+  },
+  {
+    step: "03",
+    title: "Engineering & IT Students",
+    body: "Seeking practical exposure and industrial training.",
+    icon: "code",
+  },
+  {
+    step: "04",
+    title: "Working Professionals",
+    body: "Looking to upgrade or diversify their skills.",
+    icon: "monitor",
+  },
+  {
+    step: "05",
+    title: "Career Switchers",
+    body: "Exploring opportunities in the technology sector.",
+    icon: "arrow-up-right",
+  },
+  {
+    step: "06",
+    title: "Entrepreneurs & Freelancers",
+    body: "Seeking digital and technology capabilities.",
+    icon: "rocket",
+  },
+];
+
+/** Card-center coordinates for the connector lines, in the grid's own 0-100 viewBox. */
+const LEARNER_LINE_ROWS = [
+  { y: 22, xs: [16.7, 50, 83.3] },
+  { y: 78, xs: [16.7, 50, 83.3] },
 ];
 
 const missionPoints = ["Practical by design", "Priced for access", "Always current"];
@@ -99,6 +185,72 @@ const journeySteps = [
     step: "04",
     title: "Grow",
     body: "Career guidance, mock interviews and placement support carry that portfolio into an offer, not just a completion certificate.",
+  },
+];
+
+/** Icon and status-badge chrome for the journey cards — visual only, not copy. */
+const journeyIcons = ["layers", "target", "code", "rocket"] as const;
+const journeyBadges = ["Foundations", "Hands-on", "Real projects", "Career-ready"];
+
+const differencePoints = [
+  {
+    title: "Industry-Oriented Curriculum",
+    body: "Training is designed around practical skills and technologies relevant to today's digital workplace.",
+  },
+  {
+    title: "Hands-On Learning",
+    body: "Students get opportunities to apply concepts rather than relying solely on theoretical instruction.",
+  },
+  {
+    title: "Emerging Technology Programs",
+    body: "Learners can explore domains including AI, Machine Learning, Data Science, Cyber Security, Cloud Computing and other modern technologies.",
+  },
+  {
+    title: "Projects & Industrial Exposure",
+    body: "Project-based learning and industrial training help students connect classroom concepts with practical applications.",
+  },
+  {
+    title: "Experienced Trainers & Mentors",
+    body: "Guidance from trainers and mentors helps learners understand technical concepts and their real-world applications.",
+  },
+  {
+    title: "Career Guidance",
+    body: "Students can receive guidance related to course selection, skill development, resumes, interviews and career pathways.",
+  },
+  {
+    title: "Placement Assistance",
+    body: `${site.shortName} provides placement assistance and career support to eligible learners; actual employment decisions remain with recruiting organizations.`,
+  },
+  {
+    title: "Modern Learning Infrastructure",
+    body: "Technology-focused learning environments are designed to support practical training and hands-on work.",
+  },
+  {
+    title: "Industry & Academic Engagement",
+    body: `${site.shortName} has participated in workshops, training initiatives and placement activities with educational institutions, strengthening the connection between academic learning and industry-oriented skills.`,
+  },
+];
+
+const learnDomains = [
+  {
+    name: "Technology",
+    icon: "sparkles",
+    items: ["AI", "Machine Learning", "Data Science", "Cyber Security", "Cloud Computing", "DevOps"],
+  },
+  {
+    name: "Development",
+    icon: "code",
+    items: ["Python", "Full Stack", "MERN", "Web Development", "Mobile App Development"],
+  },
+  {
+    name: "Digital & Creative",
+    icon: "compass",
+    items: ["Digital Marketing", "UI/UX", "Graphic Designing", "Video Editing", "Animation"],
+  },
+  {
+    name: "Professional & Technical Skills",
+    icon: "briefcase",
+    items: ["Advanced Excel", "CAD/CAM", "Accounting", "Other career-focused programs"],
   },
 ];
 
@@ -282,13 +434,15 @@ export default function AboutPage() {
       </section>
 
       {/* -------------------------------- Who we are -------------------------------- */}
-      <section className="relative isolate overflow-hidden bg-subtle py-20 lg:py-28">
+      <section className="relative isolate overflow-hidden bg-[#f7f8fc] py-20 lg:py-28">
         <Rail>
           <div className="grid gap-14 lg:grid-cols-12 lg:gap-8">
             <div className="lg:col-span-5">
               <UiEyebrow>Who we are</UiEyebrow>
               <h2 className="mt-5 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance text-ink sm:text-4xl lg:text-[2.75rem]">
-                More Than A Training Institute
+                More Than A
+                <br />
+                <span className="text-brand-600">Training Institute</span>
               </h2>
               <Reveal className="mt-6 space-y-5 text-base leading-relaxed text-muted lg:text-[17px]">
                 <p>
@@ -334,165 +488,521 @@ export default function AboutPage() {
             <div className="relative lg:col-span-7">
               <div
                 aria-hidden="true"
-                className="drift-slow pointer-events-none absolute -top-10 -right-10 size-64 rounded-full bg-brand-500/15 blur-[90px]"
+                className="drift-slow pointer-events-none absolute -top-10 -right-10 size-64 rounded-full bg-brand-500/10 blur-[90px]"
               />
-              <Parallax amount={-48} className="relative grid grid-cols-6 gap-4">
-                <MediaFrame
-                  reveal
-                  caption={`The ${site.shortName} team with faculty at a partner college`}
-                  icon="users"
-                  className="col-span-6 aspect-[16/9] sm:col-span-4"
-                />
-                <MediaFrame
-                  reveal
-                  delay={120}
-                  caption="Live project review during a lab session"
-                  icon="code"
-                  className="col-span-3 aspect-square sm:col-span-2 sm:row-span-2 sm:mt-10"
-                />
-                <MediaFrame
-                  reveal
-                  delay={240}
-                  caption="A hiring drive on campus"
-                  icon="briefcase"
-                  className="col-span-3 aspect-square sm:col-span-2"
-                />
-                <MediaFrame
-                  reveal
-                  delay={320}
-                  caption="Screen-side during the Agentic AI workshop"
-                  icon="monitor"
-                  className="col-span-6 aspect-[21/9] sm:col-span-4"
-                />
-              </Parallax>
+              <Reveal className="relative grid grid-cols-2 gap-4 lg:grid-cols-4 lg:grid-rows-[172px_172px_205px_250px] lg:gap-5">
+                {collageCards.map((card, i) => (
+                  <div
+                    key={card.title}
+                    data-reveal
+                    style={revealDelay(i, 60)}
+                    className={`group relative isolate flex min-h-[185px] flex-col justify-between overflow-hidden rounded-[24px] border border-white/10 bg-gradient-to-br from-hero-900 to-hero-950 p-5 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.5)] transition-all duration-300 hover:-translate-y-1 hover:border-accent-400/50 hover:shadow-[0_30px_60px_-25px_rgba(34,211,238,0.35)] ${card.span}`}
+                  >
+                    <span aria-hidden="true" className="panel-dots absolute inset-0 opacity-50" />
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-hero-950 via-hero-950/10 to-transparent"
+                    />
+                    <span className="pointer-events-none absolute right-4 bottom-4 grid size-8 shrink-0 place-items-center rounded-full border border-white/25 bg-white/10 text-white transition-all duration-300 group-hover:border-accent-400/60 group-hover:bg-accent-400/20">
+                      <Icon name="arrow-right" className="size-3.5" />
+                    </span>
+
+                    <span className="relative grid size-10 shrink-0 place-items-center rounded-xl border border-white/25 bg-white/10 text-accent-400 backdrop-blur-sm">
+                      <Icon name={card.icon} className="size-4.5" />
+                    </span>
+
+                    <div className="relative pr-9">
+                      <h3
+                        className={`font-display leading-snug font-bold tracking-tight text-white ${
+                          card.size === "lg" ? "text-lg lg:text-xl" : card.size === "md" ? "text-sm lg:text-base" : "text-xs lg:text-sm"
+                        }`}
+                      >
+                        {card.title}
+                      </h3>
+                      <p
+                        className={`mt-1.5 leading-relaxed text-white/60 ${
+                          card.size === "sm" ? "text-[10px]" : "text-[11px] lg:text-xs"
+                        }`}
+                      >
+                        {card.body}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </Reveal>
             </div>
           </div>
         </Rail>
       </section>
 
-      {/* ----------------------------- Learning ecosystem ----------------------------- */}
-      <section className="relative isolate overflow-hidden bg-panel py-20 text-white lg:py-28">
-        <PanelGlow />
+      {/* ------------------------------ Skill-building ecosystem ------------------------------ */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-br from-[#050b1d] via-[#081b3a] to-[#0f2e6d] py-20 text-white lg:py-28">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <svg
+            className="absolute inset-0 size-full"
+            preserveAspectRatio="none"
+            viewBox="0 0 100 100"
+          >
+            <path d="M0 20 L15 20 L22 12 L40 12" fill="none" stroke="#ffffff" strokeOpacity={0.08} strokeWidth={0.15} />
+            <path d="M100 35 L80 35 L72 45 L55 45" fill="none" stroke="#ffffff" strokeOpacity={0.08} strokeWidth={0.15} />
+            <path d="M62 0 L62 15 L77 15 L77 30" fill="none" stroke="#ffffff" strokeOpacity={0.08} strokeWidth={0.15} />
+            <path d="M0 72 L20 72 L20 87 L35 87" fill="none" stroke="#ffffff" strokeOpacity={0.08} strokeWidth={0.15} />
+            <path d="M100 82 L85 82 L85 97" fill="none" stroke="#ffffff" strokeOpacity={0.08} strokeWidth={0.15} />
+            {[
+              [15, 20], [22, 12], [40, 12], [80, 35], [72, 45], [55, 45],
+              [62, 15], [77, 15], [77, 30], [20, 72], [20, 87], [35, 87], [85, 82], [85, 97],
+            ].map(([x, y], i) => (
+              <circle key={i} cx={x} cy={y} r={0.6} fill="#00d4ff" fillOpacity={0.5} />
+            ))}
+          </svg>
+          <div className="drift-slow absolute -top-20 right-0 size-[30rem] rounded-full bg-[#1e88ff]/14 blur-[150px]" />
+          <div className="absolute top-8 right-8 hidden text-right xl:block">
+            <p className="text-[10px] font-semibold tracking-[0.2em] text-white/35 uppercase">
+              Skills &nbsp; Projects
+            </p>
+            <p className="text-[10px] font-semibold tracking-[0.2em] text-white/35 uppercase">
+              Opportunities &nbsp; Careers
+            </p>
+          </div>
+        </div>
+
         <Rail className="relative">
-          <SectionHeading
-            align="center"
-            onDark
-            eyebrow="How it fits together"
-            title="An Ecosystem Designed For Career Growth"
-            body="Six parts that reinforce each other — none of them work in isolation, which is the point."
-          />
-
-          {/* Hexagon network — desktop and tablet */}
-          <Reveal className="relative mx-auto mt-16 hidden aspect-square w-full max-w-2xl md:block">
-            <svg viewBox="0 0 100 100" className="absolute inset-0 size-full overflow-visible" aria-hidden="true">
-              <defs>
-                <linearGradient id="eco-spoke" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.75" />
-                  <stop offset="100%" stopColor="#2563eb" stopOpacity="0.15" />
-                </linearGradient>
-              </defs>
-              {ecosystemPillars.map((node) => (
-                <line
-                  key={`spoke-${node.title}`}
-                  x1={50}
-                  y1={50}
-                  x2={node.x}
-                  y2={node.y}
-                  stroke="url(#eco-spoke)"
-                  strokeWidth={0.5}
-                  strokeLinecap="round"
-                />
-              ))}
-              {ecosystemPillars.map((node, i) => {
-                const next = ecosystemPillars[(i + 1) % ecosystemPillars.length];
-                return (
-                  <line
-                    key={`ring-${node.title}`}
-                    x1={node.x}
-                    y1={node.y}
-                    x2={next.x}
-                    y2={next.y}
-                    stroke="#38bdf8"
-                    strokeWidth={0.35}
-                    strokeOpacity={0.35}
-                    className="neural-flow"
-                    style={{ ["--flow-delay" as string]: `${i * 0.35}s` }}
-                  />
-                );
-              })}
-            </svg>
-
-            <div
-              className="absolute grid place-items-center rounded-full bg-gradient-to-br from-brand-500 to-accent-500 p-6 text-center shadow-[0_30px_70px_-20px_rgba(34,211,238,0.55)] ring-4 ring-white/10"
-              style={{ left: "50%", top: "50%", width: "26%", transform: "translate(-50%, -50%)" }}
-            >
-              <span className="font-display text-xs leading-tight font-bold tracking-tight sm:text-sm">
-                Career Growth
-              </span>
+          <div className="grid gap-16 lg:grid-cols-12 lg:gap-8">
+            <div className="lg:col-span-5">
+              <p className="font-mono text-xs font-bold tracking-[0.22em] text-[#00d4ff] uppercase">
+                More than training
+              </p>
+              <h2 className="mt-5 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance sm:text-4xl lg:text-[2.75rem]">
+                A Skill-Building
+                <br />
+                <span className="bg-gradient-to-r from-[#1e88ff] to-[#00d4ff] bg-clip-text text-transparent">
+                  Ecosystem.
+                </span>
+              </h2>
+              <Reveal className="mt-6 space-y-5 text-base leading-relaxed text-white/65 lg:text-[17px]">
+                <p>
+                  At {site.shortName}, technology education is designed to go beyond textbooks and
+                  conventional classroom learning. The focus is on helping learners{" "}
+                  <strong className="font-semibold text-white">learn, implement and grow</strong>{" "}
+                  by combining conceptual understanding with practical application.
+                </p>
+                <p>
+                  Through expert mentorship, real projects, industrial training and placement
+                  support, learners gain hands-on experience that shows them how technology
+                  actually works — not just how it is described in a slide.
+                </p>
+              </Reveal>
+              <div className="mt-9 grid grid-cols-3 divide-x divide-white/10 border-t border-white/10 pt-7">
+                <div>
+                  <p className="font-display text-2xl font-bold tracking-tight text-[#00d4ff]">
+                    <CountUp value="5K+" />
+                  </p>
+                  <p className="mt-1 text-xs text-white/50">Students Trained</p>
+                </div>
+                <div className="pl-5">
+                  <p className="font-display text-2xl font-bold tracking-tight text-[#00d4ff]">
+                    <CountUp value={site.stats.partners} />
+                  </p>
+                  <p className="mt-1 text-xs text-white/50">Hiring Partners</p>
+                </div>
+                <div className="pl-5">
+                  <p className="font-display text-2xl font-bold tracking-tight text-[#00d4ff]">
+                    <CountUp value="95%" />
+                  </p>
+                  <p className="mt-1 text-xs text-white/50">Placement Support</p>
+                </div>
+              </div>
             </div>
 
-            {ecosystemPillars.map((node) => (
-              <div
-                key={node.title}
-                className="absolute grid place-items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.07] p-4 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/[0.12]"
-                style={{
-                  left: `${node.x}%`,
-                  top: `${node.y}%`,
-                  width: "23%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                <Icon name={node.icon} className="size-5 text-accent-400" />
-                <span className="text-[11px] leading-tight font-semibold sm:text-xs">
-                  {node.title}
-                </span>
-              </div>
-            ))}
-          </Reveal>
+            <div className="lg:col-span-7">
+              {/* Overlapping panels — desktop and tablet */}
+              <Reveal className="relative hidden h-[480px] md:block lg:h-[500px] xl:h-[560px]">
+                <svg
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                  className="absolute inset-0 size-full overflow-visible"
+                  aria-hidden="true"
+                >
+                  <circle cx={4} cy={10} r={0.9} fill="#00d4ff" className="twinkle" />
+                  <circle cx={96} cy={22} r={0.9} fill="#00d4ff" className="twinkle" style={{ ["--twinkle-delay" as string]: "0.6s" }} />
+                  <circle cx={8} cy={92} r={0.9} fill="#00d4ff" className="twinkle" style={{ ["--twinkle-delay" as string]: "1.2s" }} />
+                  <path d="M0 18 L20 18 L28 8" fill="none" stroke="#ffffff" strokeOpacity={0.12} strokeWidth={0.3} />
+                  <path d="M100 30 L82 30 L76 42" fill="none" stroke="#ffffff" strokeOpacity={0.12} strokeWidth={0.3} />
+                </svg>
 
-          {/* Connected list — mobile */}
-          <div className="relative mt-14 md:hidden">
+                <div className="absolute top-0 left-0 aspect-[16/11] w-[64%] overflow-hidden rounded-[24px] border border-white/12 bg-gradient-to-br from-hero-900 to-hero-950 shadow-[0_30px_70px_-30px_rgba(0,0,0,0.7)]">
+                  <span aria-hidden="true" className="panel-dots absolute inset-0 opacity-50" />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-hero-950 via-hero-950/20 to-transparent"
+                  />
+                  <Icon name="monitor" className="absolute top-5 left-5 size-6 text-[#00d4ff]/70" />
+                  <p className="absolute bottom-5 left-5 font-display text-2xl leading-[1.05] font-bold tracking-tight text-white sm:text-3xl">
+                    Learn
+                    <br />
+                    Build
+                    <br />
+                    Grow
+                  </p>
+                </div>
+
+                <div className="absolute right-0 bottom-0 z-10 aspect-[16/11] w-[64%] overflow-hidden rounded-[24px] border border-white/12 bg-gradient-to-br from-[#0f2b6e] to-hero-950 shadow-[0_30px_70px_-25px_rgba(0,0,0,0.75)]">
+                  <span aria-hidden="true" className="panel-dots absolute inset-0 opacity-50" />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-hero-950 via-hero-950/20 to-transparent"
+                  />
+                  <Icon name="users" className="absolute top-5 left-5 size-6 text-[#00d4ff]/70" />
+                  <p className="absolute bottom-5 left-5 max-w-[62%] font-display text-base leading-snug font-bold tracking-tight text-white sm:text-lg">
+                    Building Career-Ready Developers
+                  </p>
+                </div>
+
+                {skillFloatCards.map((card) => (
+                  <div
+                    key={card.label}
+                    className="absolute z-20 flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 shadow-[0_20px_45px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+                    style={card.style}
+                  >
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] text-white">
+                      <Icon name={card.icon} className="size-4.5" />
+                    </span>
+                    <span className="text-xs font-semibold whitespace-nowrap text-white sm:text-sm">
+                      {card.label}
+                    </span>
+                  </div>
+                ))}
+              </Reveal>
+
+              {/* Stacked panels — mobile */}
+              <div className="space-y-4 md:hidden">
+                <div className="relative aspect-[16/11] overflow-hidden rounded-[24px] border border-white/12 bg-gradient-to-br from-hero-900 to-hero-950">
+                  <span aria-hidden="true" className="panel-dots absolute inset-0 opacity-50" />
+                  <Icon name="monitor" className="absolute top-5 left-5 size-6 text-[#00d4ff]/70" />
+                  <p className="absolute bottom-5 left-5 font-display text-xl leading-[1.05] font-bold tracking-tight text-white">
+                    Learn
+                    <br />
+                    Build
+                    <br />
+                    Grow
+                  </p>
+                </div>
+                <div className="relative aspect-[16/11] overflow-hidden rounded-[24px] border border-white/12 bg-gradient-to-br from-[#0f2b6e] to-hero-950">
+                  <span aria-hidden="true" className="panel-dots absolute inset-0 opacity-50" />
+                  <Icon name="users" className="absolute top-5 left-5 size-6 text-[#00d4ff]/70" />
+                  <p className="absolute bottom-5 left-5 max-w-[85%] font-display text-lg leading-snug font-bold tracking-tight text-white">
+                    Building Career-Ready Developers
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  {skillFloatCards.map((card) => (
+                    <div
+                      key={card.label}
+                      className="flex items-center gap-2.5 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-xl"
+                    >
+                      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] text-white">
+                        <Icon name={card.icon} className="size-4.5" />
+                      </span>
+                      <span className="text-xs font-semibold whitespace-nowrap text-white sm:text-sm">
+                        {card.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Rail>
+      </section>
+
+      {/* -------------------------------- Why it matters -------------------------------- */}
+      <section className="relative isolate overflow-hidden py-20 lg:py-28">
+        <Rail>
+          <div className="relative mx-auto max-w-3xl text-center">
+            <p className="font-mono text-xs font-bold tracking-[0.22em] text-brand-600 uppercase">
+              Why it matters
+            </p>
+            <h2 className="relative mt-4 inline-block font-display text-3xl leading-[1.15] font-bold tracking-tight text-balance text-ink sm:text-4xl lg:text-[2.75rem]">
+              Preparing learners for a changing digital world
+              <span
+                aria-hidden="true"
+                className="absolute top-0 -right-10 hidden size-7 rounded-full border border-brand-300 lg:block"
+              />
+            </h2>
+            <Reveal className="mt-7 space-y-5 text-base leading-relaxed text-muted lg:text-[17px]">
+              <p>
+                Technology is evolving rapidly. Artificial Intelligence, automation, cloud
+                platforms, cybersecurity, data and software development are continuously changing
+                the way businesses operate.
+              </p>
+              <p>
+                {site.shortName} aims to keep its learning ecosystem aligned with this changing
+                environment by introducing learners to emerging technologies and industry-relevant
+                tools, helping them develop the adaptability required to continue learning
+                throughout their careers.
+              </p>
+            </Reveal>
+            <Reveal className="mt-10 rounded-2xl border border-line bg-subtle px-7 py-8 sm:px-10">
+              <p className="font-display text-lg leading-relaxed font-semibold text-balance text-ink lg:text-xl">
+                The objective is not simply to teach a technology, but to develop the ability to
+                understand problems, build solutions, use technology effectively and keep
+                upgrading one&rsquo;s skills.
+              </p>
+            </Reveal>
+          </div>
+        </Rail>
+      </section>
+
+      {/* -------------------------------- Who we teach -------------------------------- */}
+      <section className="relative isolate overflow-hidden bg-gradient-to-b from-[#050b1d] to-[#081b3a] py-20 text-white lg:py-32">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)",
+              backgroundSize: "44px 44px",
+              maskImage: "radial-gradient(70% 60% at 50% 40%, #000 40%, transparent 100%)",
+            }}
+          />
+          <div className="drift-slow absolute top-0 left-1/2 size-[44rem] -translate-x-1/2 -translate-y-1/3 rounded-full bg-[#1e88ff]/14 blur-[170px]" />
+          <div className="drift-slow-reverse absolute bottom-0 left-0 size-[26rem] rounded-full bg-[#00d4ff]/10 blur-[140px]" />
+          <div className="drift-slow-reverse absolute right-0 bottom-0 size-[26rem] rounded-full bg-[#1e88ff]/10 blur-[140px]" />
+          <div className="panel-noise absolute inset-0" />
+          {ECOSYSTEM_PARTICLES.map((p, i) => (
             <span
-              aria-hidden="true"
-              className="absolute top-0 bottom-0 left-[19px] w-px bg-white/15"
+              key={i}
+              className="twinkle absolute size-1 rounded-full bg-accent-400"
+              style={{ left: `${p.x}%`, top: `${p.y}%`, ["--twinkle-delay" as string]: `${p.delay}s` }}
             />
-            <ol className="relative space-y-6">
-              {ecosystemPillars.map((node, i) => (
+          ))}
+        </div>
+
+        <Rail className="relative">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-accent-400/30 bg-accent-400/10 px-4 py-1.5 text-xs font-semibold tracking-[0.2em] text-accent-400 uppercase shadow-[0_0_24px_-6px_rgba(0,212,255,0.6)]">
+              Who we teach
+            </span>
+            <h2 className="mt-6 font-display text-4xl leading-[1.1] font-bold tracking-tight text-balance sm:text-5xl lg:text-[4rem]">
+              Learning for every stage of the{" "}
+              <span className="text-[#00d4ff]">career journey</span>
+            </h2>
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/60 lg:text-lg">
+              {site.shortName}&rsquo;s training ecosystem is designed to serve a diverse learner
+              base, including:
+            </p>
+          </div>
+
+          <div className="relative mt-16 lg:mt-20">
+            <svg
+              className="pointer-events-none absolute inset-0 hidden size-full overflow-visible lg:block"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              {LEARNER_LINE_ROWS.map((row, i) => (
+                <line
+                  key={i}
+                  x1={row.xs[0]}
+                  y1={row.y}
+                  x2={row.xs[2]}
+                  y2={row.y}
+                  stroke="#00d4ff"
+                  strokeOpacity={0.18}
+                  strokeWidth={0.15}
+                  className="neural-flow"
+                  style={{ ["--flow-delay" as string]: `${i * 0.6}s` }}
+                />
+              ))}
+            </svg>
+
+            <ul className="relative grid gap-8 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-10 lg:gap-y-14">
+              {learnerSegments.map((item, i) => (
                 <li
-                  key={node.title}
+                  key={item.step}
                   data-reveal
                   style={revealDelay(i, 70)}
-                  className="relative flex gap-4 pl-0"
+                  className={`group relative overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.04] p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-accent-400/40 hover:bg-white/[0.06] hover:shadow-[0_30px_60px_-30px_rgba(0,212,255,0.4)] ${
+                    i % 3 === 1 ? "lg:translate-y-6" : ""
+                  }`}
                 >
-                  <span className="relative z-10 grid size-10 shrink-0 place-items-center rounded-full border border-white/15 bg-hero-950 text-accent-400">
-                    <Icon name={node.icon} className="size-4.5" />
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -top-10 -right-10 size-32 rounded-full bg-accent-400/10 blur-2xl transition-opacity duration-300 group-hover:opacity-100"
+                  />
+                  <span className="absolute top-6 right-6 rounded-full bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] px-2.5 py-1 font-mono text-[10px] font-bold tracking-wide text-white shadow-[0_0_16px_-2px_rgba(0,212,255,0.65)]">
+                    {item.step}
                   </span>
-                  <div>
-                    <h3 className="font-display text-sm font-bold tracking-tight">{node.title}</h3>
-                    <p className="mt-1 text-xs leading-relaxed text-white/60">{node.body}</p>
+                  <span className="relative grid size-12 place-items-center rounded-2xl border border-accent-400/40 bg-accent-400/5 text-accent-400 shadow-[0_0_20px_-6px_rgba(0,212,255,0.5)]">
+                    <Icon name={item.icon} className="size-5" />
+                  </span>
+                  <h3 className="relative mt-5 font-display text-lg font-bold tracking-tight text-white">
+                    {item.title}
+                  </h3>
+                  <p className="relative mt-2 text-sm leading-relaxed text-white/60">{item.body}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Rail>
+      </section>
+
+      {/* -------------------------- Learn / Practice / Build / Grow -------------------------- */}
+      <section className="bg-white py-[72px] lg:py-[120px]">
+        <div className="mx-auto max-w-[1400px] px-4 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="font-mono text-xs font-bold tracking-[0.22em] text-brand-600 uppercase">
+              From classroom to practical experience
+            </p>
+            <h2 className="mt-4 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance text-ink sm:text-4xl lg:text-[2.75rem]">
+              Learn <span aria-hidden="true" className="text-brand-300">→</span> Practice{" "}
+              <span aria-hidden="true" className="text-brand-300">→</span> Build{" "}
+              <span aria-hidden="true" className="text-brand-300">→</span> Grow
+            </h2>
+          </div>
+
+          <div className="relative mt-16 lg:mt-24">
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute top-8 right-[12%] left-[12%] hidden lg:block"
+            >
+              <div className="relative h-[3px] w-full overflow-hidden rounded-full bg-gradient-to-r from-[#1e88ff]/15 via-[#1e88ff]/40 to-[#00d4ff]/15">
+                <div className="line-sweep absolute inset-y-0 w-1/3 rounded-full bg-gradient-to-r from-[#1e88ff] to-[#00d4ff]" />
+              </div>
+              {[0, 33.33, 66.66, 100].map((pct, i) => (
+                <span
+                  key={pct}
+                  className="twinkle absolute top-1/2 size-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] shadow-[0_0_12px_rgba(30,136,255,0.6)] ring-[3px] ring-white"
+                  style={{ left: `${pct}%`, ["--twinkle-delay" as string]: `${i * 0.4}s` }}
+                />
+              ))}
+            </div>
+
+            <ol className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
+              {journeySteps.map((step, i) => (
+                <li
+                  key={step.title}
+                  data-reveal
+                  style={revealDelay(i, 110)}
+                  className="group relative z-10 flex flex-col items-center"
+                >
+                  <div className="relative z-10 grid size-16 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#1e88ff] to-[#00d4ff] font-display text-xl font-bold text-white shadow-[0_15px_35px_-8px_rgba(30,136,255,0.55)] ring-4 ring-white transition-transform duration-300 group-hover:scale-105">
+                    {step.step}
+                  </div>
+                  <div className="-mt-8 flex w-full flex-1 flex-col items-center rounded-[24px] border border-[rgba(30,136,255,0.1)] bg-white/70 px-6 pt-12 pb-8 text-center shadow-[0_20px_60px_rgba(30,136,255,0.08)] backdrop-blur-md transition-all duration-300 group-hover:-translate-y-1.5 group-hover:border-[rgba(30,136,255,0.3)] group-hover:shadow-[0_30px_70px_-10px_rgba(30,136,255,0.18)]">
+                    <span className="grid size-11 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                      <Icon name={journeyIcons[i]} className="size-5" />
+                    </span>
+                    <h3 className="mt-4 font-display text-xl font-bold tracking-tight text-ink">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2.5 text-sm leading-relaxed text-muted">{step.body}</p>
+                    <span className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-line bg-subtle px-3 py-1 text-[11px] font-semibold text-muted">
+                      <span className="size-1.5 rounded-full bg-emerald-500" />
+                      {journeyBadges[i]}
+                    </span>
                   </div>
                 </li>
               ))}
             </ol>
           </div>
+        </div>
+      </section>
 
-          {/* Descriptions — every viewport */}
-          <ul className="mt-16 grid gap-x-10 gap-y-6 sm:grid-cols-2 lg:mt-20 lg:grid-cols-3">
-            {ecosystemPillars.map((node, i) => (
+      {/* ------------------------------- The difference ------------------------------- */}
+      <section className="relative isolate overflow-hidden bg-panel py-20 text-white lg:py-28">
+        <PanelGlow />
+        <Rail className="relative">
+          <div className="max-w-3xl">
+            <UiEyebrow onDark>The difference</UiEyebrow>
+            <h2 className="mt-4 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance sm:text-4xl lg:text-5xl">
+              What makes {site.shortName} different?
+            </h2>
+          </div>
+          <ul className="mt-12 grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3">
+            {differencePoints.map((item, i) => (
               <li
-                key={`desc-${node.title}`}
+                key={item.title}
                 data-reveal
                 style={revealDelay(i, 70)}
-                className="border-l-2 border-white/15 pl-4"
+                className="flex gap-3.5"
               >
-                <h4 className="font-display text-sm font-bold tracking-tight text-white">
-                  {node.title}
-                </h4>
-                <p className="mt-1.5 text-sm leading-relaxed text-white/60">{node.body}</p>
+                <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border border-accent-400/50 text-accent-400">
+                  <Icon name="check" className="size-3.5" />
+                </span>
+                <div>
+                  <h3 className="font-display text-base font-bold tracking-tight">{item.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-white/65">{item.body}</p>
+                </div>
               </li>
             ))}
           </ul>
         </Rail>
+      </section>
+
+      {/* -------------------------------- What you can learn -------------------------------- */}
+      <section className="relative isolate overflow-hidden bg-white py-[72px] lg:py-[120px]">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div className="drift-slow absolute -top-24 -right-32 size-[30rem] rounded-full bg-[#1e88ff]/8 blur-[130px]" />
+          <div className="drift-slow-reverse absolute -bottom-24 -left-24 size-[26rem] rounded-full bg-[#00d4ff]/8 blur-[120px]" />
+        </div>
+
+        <div className="relative mx-auto max-w-[1400px] px-4 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-8">
+            <div className="lg:col-span-4">
+              <p className="inline-flex items-center gap-2 font-mono text-xs font-bold tracking-[0.22em] text-brand-600 uppercase">
+                What you can learn
+                <span aria-hidden="true" className="h-px w-8 bg-brand-300" />
+              </p>
+              <h2 className="mt-4 font-display text-3xl leading-[1.12] font-bold tracking-tight text-balance sm:text-4xl lg:text-[2.75rem]">
+                <span className="text-[#081b3a]">Building skills across</span>{" "}
+                <span className="bg-gradient-to-r from-[#1e88ff] to-[#00d4ff] bg-clip-text text-transparent">
+                  technology domains
+                </span>
+              </h2>
+              <p className="mt-5 text-base leading-relaxed text-[#64748b]">
+                Whether a learner wants to code an application, analyse data, build an AI
+                solution, secure a network, manage cloud infrastructure, design a digital
+                experience, create visual content or grow a business online, {site.shortName}{" "}
+                provides multiple learning pathways.
+              </p>
+              <ButtonLink href="/courses" size="lg" className="mt-8">
+                View All Courses
+                <Icon name="arrow-right" className="size-4" />
+              </ButtonLink>
+            </div>
+
+            <ul className="grid gap-5 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-4">
+              {learnDomains.map((domain, i) => (
+                <li
+                  key={domain.name}
+                  data-reveal
+                  style={revealDelay(i, 90)}
+                  className="group rounded-[24px] border border-[rgba(30,136,255,0.1)] bg-white/70 p-6 shadow-[0_20px_60px_rgba(30,136,255,0.08)] backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-[rgba(30,136,255,0.3)] hover:shadow-[0_30px_70px_-10px_rgba(30,136,255,0.18)]"
+                >
+                  <span className="grid size-11 place-items-center rounded-xl bg-brand-50 text-brand-600 transition-colors duration-300 group-hover:bg-gradient-to-br group-hover:from-[#1e88ff] group-hover:to-[#00d4ff] group-hover:text-white">
+                    <Icon name={domain.icon} className="size-5" />
+                  </span>
+                  <h3 className="mt-4 font-display text-base font-bold tracking-tight text-ink">
+                    {domain.name}
+                  </h3>
+                  <span
+                    aria-hidden="true"
+                    className="mt-3 block h-0.5 w-8 rounded-full bg-gradient-to-r from-[#1e88ff] to-[#00d4ff] transition-all duration-300 group-hover:w-12"
+                  />
+                  <ul className="mt-4 space-y-2.5">
+                    {domain.items.map((item) => (
+                      <li key={item} className="flex items-start gap-2.5 text-sm leading-relaxed text-[#081b3a]">
+                        <span aria-hidden="true" className="mt-[7px] size-1.5 shrink-0 rounded-full bg-brand-500" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </section>
 
       {/* ---------------------------------- Mission ---------------------------------- */}
@@ -606,54 +1116,6 @@ export default function AboutPage() {
               </p>
             ))}
           </Reveal>
-        </Rail>
-      </section>
-
-      {/* -------------------------- Learn / Practice / Build / Grow -------------------------- */}
-      <section className="bg-subtle py-20 lg:py-28">
-        <Rail>
-          <SectionHeading
-            align="center"
-            eyebrow="From classroom to career"
-            title={
-              <span className="inline-flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
-                {journeySteps.map((step, i) => (
-                  <span key={step.title} className="inline-flex items-center gap-3">
-                    {i > 0 ? (
-                      <Icon name="arrow-right" className="size-[0.7em] shrink-0 text-brand-600" />
-                    ) : null}
-                    {step.title}
-                  </span>
-                ))}
-              </span>
-            }
-            body="Every format we run — live projects, industrial training, internships — moves through the same four stages."
-          />
-
-          <div className="relative mt-14 lg:mt-20">
-            <span
-              aria-hidden="true"
-              className="absolute top-7 right-[12.5%] left-[12.5%] hidden border-t border-dashed border-line lg:block"
-            />
-            <ol className="relative grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8">
-              {journeySteps.map((step, i) => (
-                <li
-                  key={step.title}
-                  data-reveal
-                  style={revealDelay(i, 110)}
-                  className="group lg:flex lg:flex-col lg:items-center lg:text-center"
-                >
-                  <span className="grid size-14 place-items-center rounded-full border border-line bg-background font-display text-base font-bold tracking-tight text-brand-600 shadow-[0_12px_28px_-16px_rgba(15,23,42,0.55)] transition-all duration-300 group-hover:border-brand-600/40 group-hover:bg-brand-600 group-hover:text-white">
-                    {step.step}
-                  </span>
-                  <h3 className="mt-5 font-display text-xl font-bold tracking-tight text-ink">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">{step.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
         </Rail>
       </section>
 

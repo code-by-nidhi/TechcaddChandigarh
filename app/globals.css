@@ -534,6 +534,21 @@
   animation-delay: var(--flow-delay, 0s);
 }
 
+/* A bright segment sweeping along a connector track — plain `transform`, so
+   it works on an ordinary div rather than needing an SVG stroke. */
+@keyframes line-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+@utility line-sweep {
+  animation: line-sweep 2.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .drift-slow,
   .drift-slow-reverse,
@@ -542,7 +557,8 @@
   .scroll-hint,
   .twinkle,
   .pulse-line,
-  .neural-flow {
+  .neural-flow,
+  .line-sweep {
     animation: none;
   }
 
