@@ -549,6 +549,28 @@
   animation: line-sweep 2.6s ease-in-out infinite;
 }
 
+/* Infinite horizontal marquee — Team carousel. The track holds two copies of
+   the card list back to back, so sliding exactly -50% loops seamlessly.
+   Paused on hover so a visitor can actually read a card, and it lives on the
+   track itself (not a wrapper) since `:hover` bubbles up from any card. */
+@keyframes marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility team-marquee {
+  animation: marquee-x 32s linear infinite;
+  will-change: transform;
+
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .drift-slow,
   .drift-slow-reverse,
@@ -558,7 +580,8 @@
   .twinkle,
   .pulse-line,
   .neural-flow,
-  .line-sweep {
+  .line-sweep,
+  .team-marquee {
     animation: none;
   }
 
