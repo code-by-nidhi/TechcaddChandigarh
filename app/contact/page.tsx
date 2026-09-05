@@ -1,50 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
-import { FaqSection } from "@/components/sections/Home";
-import { EnquiryForm } from "@/components/EnquiryForm";
+import { SupportDesks } from "@/components/sections/SupportDesks";
+import { CareerStartSection } from "@/components/sections/CareerStartSection";
+import { TrainingHighlights } from "@/components/sections/TrainingHighlights";
+import { LocationContact } from "@/components/sections/LocationContact";
 import { Icon, Rail, SectionHeading } from "@/components/ui";
-import { CountUp } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
 import { branches } from "@/data/branches";
-import { faqs } from "@/data/content";
 
 export const metadata: Metadata = {
   title: `Contact — Book a Free Demo Class in ${site.city}`,
   description: `Call ${site.contact.phone}, email ${site.contact.email}, or visit our ${site.city} campus. Free career counselling with no obligation to enrol.`,
   alternates: { canonical: `${site.url}/contact` },
 };
-
-const channels = [
-  {
-    icon: "phone",
-    label: "Call us",
-    value: site.contact.phone,
-    href: site.contact.phoneHref,
-    note: site.contact.hours,
-  },
-  {
-    icon: "whatsapp",
-    label: "WhatsApp",
-    value: "Message us",
-    href: site.contact.whatsapp,
-    note: "Usually answered within an hour",
-  },
-  {
-    icon: "mail",
-    label: "Email",
-    value: site.contact.email,
-    href: `mailto:${site.contact.email}`,
-    note: "Replies within one working day",
-  },
-  {
-    icon: "map-pin",
-    label: "Visit",
-    value: `${site.address.line1}, ${site.address.city}`,
-    href: site.address.mapUrl,
-    note: "Walk in during working hours",
-  },
-];
 
 export default function ContactPage() {
   return (
@@ -61,159 +30,13 @@ export default function ContactPage() {
         ]}
       />
 
-      <section className="border-b border-line bg-white py-7">
-        <Rail>
-          <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-center sm:justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-display text-xl font-bold tracking-tight text-ink">
-                <CountUp value={site.stats.alumni} />
-              </span>
-              <span className="text-xs text-muted">students trained</span>
-            </div>
-            <span aria-hidden="true" className="hidden h-6 w-px bg-line sm:block" />
-            <div className="flex items-center gap-1.5">
-              <Icon name="star" className="size-4 text-accent-yellow" />
-              <span className="font-display text-xl font-bold tracking-tight text-ink">
-                <CountUp value={site.stats.rating} />
-              </span>
-              <span className="text-xs text-muted">on Google ({site.stats.reviews})</span>
-            </div>
-            <span aria-hidden="true" className="hidden h-6 w-px bg-line sm:block" />
-            <div className="flex items-center gap-2">
-              <span className="font-display text-xl font-bold tracking-tight text-ink">
-                <CountUp value={site.stats.partners} />
-              </span>
-              <span className="text-xs text-muted">hiring partners</span>
-            </div>
-            <span aria-hidden="true" className="hidden h-6 w-px bg-line sm:block" />
-            <div className="flex items-center gap-2 text-xs text-muted">
-              <Icon name="award" className="size-4 text-brand-600" />
-              Training since {site.founded}
-            </div>
-          </div>
-        </Rail>
-      </section>
+      <SupportDesks />
 
-      <section className="py-16 lg:py-20">
-        <Rail>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {channels.map((channel) => (
-              <a
-                key={channel.label}
-                href={channel.href}
-                target={channel.href.startsWith("http") ? "_blank" : undefined}
-                rel={channel.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                className="group card-hover relative overflow-hidden rounded-2xl border border-line bg-white p-6 transition-colors duration-300 hover:border-brand-200"
-              >
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -top-8 -right-8 size-24 rounded-full bg-brand-400/0 blur-2xl transition-colors duration-300 group-hover:bg-brand-400/15"
-                />
-                <span className="relative inline-flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-[0_10px_24px_-10px_rgba(37,99,235,0.6)]">
-                  <Icon name={channel.icon} className="size-5" />
-                </span>
-                <p className="relative mt-5 text-xs font-semibold uppercase tracking-widest text-muted">
-                  {channel.label}
-                </p>
-                <p className="relative mt-1.5 font-display font-bold tracking-tight break-words">
-                  {channel.value}
-                </p>
-                <p className="relative mt-2 text-xs text-muted">{channel.note}</p>
-                <span className="relative mt-4 inline-flex items-center gap-1 text-xs font-semibold text-brand-600 opacity-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:opacity-100">
-                  Open
-                  <Icon name="arrow-up-right" className="size-3" />
-                </span>
-              </a>
-            ))}
-          </div>
-        </Rail>
-      </section>
+      <CareerStartSection />
 
-      <section id="enquire" className="relative isolate scroll-mt-24 overflow-hidden bg-subtle py-16 lg:py-24">
-        <div
-          aria-hidden="true"
-          className="drift-slow pointer-events-none absolute -top-24 -right-24 -z-10 size-[26rem] rounded-full bg-brand-400/10 blur-[120px]"
-        />
-        <Rail className="relative">
-          <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
-            <div>
-              <SectionHeading
-                eyebrow="Book a demo"
-                title="Sit through a real class first"
-                body="Any institute confident in its teaching will let you watch a session before you pay. Book a demo, see the lab, talk to students already in the batch, and decide afterwards."
-              />
+      <TrainingHighlights />
 
-              <ul className="mt-10 space-y-3.5">
-                {[
-                  "Free career counselling with a senior trainer",
-                  "No registration fee to book",
-                  "Sit through a full class, not a sales pitch",
-                  "Honest advice on duration and fit",
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3">
-                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-emerald-50 text-emerald-600">
-                      <Icon name="check" className="size-3" />
-                    </span>
-                    <span className="text-sm leading-relaxed text-muted">{item}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <div className="mt-10 rounded-2xl border border-line bg-white p-6 shadow-[0_20px_45px_-30px_rgba(15,23,42,0.25)]">
-                <div className="flex items-center gap-3">
-                  <span className="grid size-10 place-items-center rounded-xl bg-brand-50 text-brand-600">
-                    <Icon name="map-pin" className="size-4.5" />
-                  </span>
-                  <h3 className="font-display font-bold tracking-tight">Head campus</h3>
-                </div>
-                <address className="mt-4 space-y-2.5 text-sm not-italic text-muted">
-                  <p className="flex gap-3">
-                    <Icon name="map-pin" className="mt-0.5 size-4 shrink-0 text-brand-600" />
-                    <span>
-                      {site.address.line1}
-                      <br />
-                      {site.address.line2}
-                      <br />
-                      {site.address.city} {site.address.postalCode}
-                    </span>
-                  </p>
-                  <p className="flex gap-3">
-                    <Icon name="clock" className="size-4 shrink-0 text-brand-600" />
-                    {site.contact.hours}
-                  </p>
-                </address>
-                <a
-                  href={site.address.mapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 hover:underline"
-                >
-                  Open in Google Maps
-                  <Icon name="arrow-up-right" className="size-4" />
-                </a>
-              </div>
-            </div>
-
-            <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-[0_30px_60px_-35px_rgba(15,23,42,0.3)]">
-              <span
-                aria-hidden="true"
-                className="block h-1.5 bg-gradient-to-r from-brand-600 via-brand-500 to-accent-400"
-              />
-              <div className="p-7 lg:p-9">
-                <h2 className="font-display text-xl font-bold tracking-tight">
-                  Request a call back
-                </h2>
-                <p className="mt-2 text-sm text-muted">
-                  A counsellor will call you within one working day.
-                </p>
-                <div className="mt-7">
-                  <EnquiryForm />
-                </div>
-              </div>
-            </div>
-          </div>
-        </Rail>
-      </section>
+      <LocationContact />
 
       <section className="py-16 lg:py-24">
         <Rail>
@@ -247,8 +70,6 @@ export default function ContactPage() {
           </div>
         </Rail>
       </section>
-
-      <FaqSection items={faqs} />
     </>
   );
 }
