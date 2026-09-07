@@ -4,9 +4,10 @@ import { PageHeader } from "@/components/PageHeader";
 import { CtaSection, FaqSection } from "@/components/sections/Home";
 import { Icon, Rail, SectionHeading } from "@/components/ui";
 import { site } from "@/data/site";
-import { after12Courses, programDurations, programTracks } from "@/data/programs";
+import { after12Courses, programDurations, programTracks, programsForTrack } from "@/data/programs";
 import { getCourse, getCategory } from "@/data/courses";
 import { faqs } from "@/data/content";
+import { faqPageSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: `Courses After 12th in ${site.city} — IT, AI & Design Tracks`,
@@ -124,34 +125,45 @@ export default function After12Page() {
             body="If you want a longer, more structured route, the same tracks run as 3, 6 and 9 month after-12th programs with an internship built in."
           />
           <div className="mt-14 space-y-3">
-            {programTracks.map((track) => (
-              <div
-                key={track.id}
-                className="rounded-2xl border border-line bg-white p-6 sm:flex sm:items-center sm:justify-between sm:gap-8"
-              >
-                <div className="min-w-0">
-                  <h3 className="font-display font-bold tracking-tight">{track.name}</h3>
-                  <p className="mt-1 text-sm text-muted">{track.blurb}</p>
+            {programTracks.map((track) => {
+              const trackPrograms = programsForTrack(track.id).filter((p) => p.after12th);
+              return (
+                <div
+                  key={track.id}
+                  className="rounded-2xl border border-line bg-white p-6 sm:flex sm:items-center sm:justify-between sm:gap-8"
+                >
+                  <div className="min-w-0">
+                    <h3 className="font-display font-bold tracking-tight">{track.name}</h3>
+                    <p className="mt-1 text-sm text-muted">{track.blurb}</p>
+                  </div>
+                  <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-0 sm:w-72 sm:shrink-0">
+                    {programDurations.map((duration) => {
+                      const program = trackPrograms.find((p) => p.duration.slug === duration.slug);
+                      if (!program) return null;
+                      return (
+                        <Link
+                          key={duration.slug}
+                          href={`/${program.slug}`}
+                          className="rounded-xl border border-line px-3 py-2.5 text-center text-xs font-semibold transition-colors hover:border-brand-600/40 hover:bg-brand-50"
+                        >
+                          {duration.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="mt-4 grid grid-cols-3 gap-2 sm:mt-0 sm:w-72 sm:shrink-0">
-                  {programDurations.map((duration) => (
-                    <Link
-                      key={duration.slug}
-                      href={`/after-12th-${duration.slug}-${track.id}-program-in-${site.citySlug}`}
-                      className="rounded-xl border border-line px-3 py-2.5 text-center text-xs font-semibold transition-colors hover:border-brand-600/40 hover:bg-brand-50"
-                    >
-                      {duration.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Rail>
       </section>
 
       <FaqSection items={faqs.slice(0, 6)} />
       <CtaSection />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs.slice(0, 6))) }}
+      />
     </>
   );
 }

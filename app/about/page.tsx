@@ -787,9 +787,7 @@ export default function AboutPage() {
                   key={item.step}
                   data-reveal
                   style={revealDelay(i, 70)}
-                  className={`group relative overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.04] p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-accent-400/40 hover:bg-white/[0.06] hover:shadow-[0_30px_60px_-30px_rgba(0,212,255,0.4)] ${
-                    i % 3 === 1 ? "lg:translate-y-6" : ""
-                  }`}
+                  className="group relative overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.04] p-7 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-accent-400/40 hover:bg-white/[0.06] hover:shadow-[0_30px_60px_-30px_rgba(0,212,255,0.4)]"
                 >
                   <span
                     aria-hidden="true"

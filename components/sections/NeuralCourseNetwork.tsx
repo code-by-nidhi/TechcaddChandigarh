@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useMotionValue, useSpring, useTransform, type MotionValue } from "framer-motion";
 import { cx } from "@/components/ui";
+import { courseSlug } from "@/data/courses";
 
 /**
  * No cards, no icons, no stats — just the course names themselves, rendered
@@ -22,6 +23,10 @@ interface NetworkNode {
   /** Position as a percentage of the stage. */
   x: number;
   y: number;
+  /** Set only when this label is itself a real course — see data/courses.ts.
+   * Everything else here is a skill taught inside a broader course, not a
+   * page of its own, so it stays decorative text. */
+  courseId?: string;
 }
 
 const NODES: NetworkNode[] = [
@@ -32,12 +37,12 @@ const NODES: NetworkNode[] = [
   { id: "node", label: "Node.js", cluster: "web", size: "md", x: 37, y: 39 },
   { id: "express", label: "Express.js", cluster: "web", size: "sm", x: 29, y: 48 },
   { id: "mongodb", label: "MongoDB", cluster: "web", size: "md", x: 13, y: 47 },
-  { id: "mern", label: "MERN Stack", cluster: "web", size: "lg", x: 27, y: 35 },
+  { id: "mern", label: "MERN Stack", cluster: "web", size: "lg", x: 27, y: 35, courseId: "mern-stack" },
 
-  { id: "python", label: "Python", cluster: "ai", size: "lg", x: 58, y: 14 },
-  { id: "ml", label: "Machine Learning", cluster: "ai", size: "md", x: 70, y: 10 },
-  { id: "ai", label: "Artificial Intelligence", cluster: "ai", size: "md", x: 76, y: 22 },
-  { id: "data-science", label: "Data Science", cluster: "ai", size: "md", x: 62, y: 26 },
+  { id: "python", label: "Python", cluster: "ai", size: "lg", x: 58, y: 14, courseId: "python" },
+  { id: "ml", label: "Machine Learning", cluster: "ai", size: "md", x: 70, y: 10, courseId: "machine-learning" },
+  { id: "ai", label: "Artificial Intelligence", cluster: "ai", size: "md", x: 76, y: 22, courseId: "artificial-intelligence" },
+  { id: "data-science", label: "Data Science", cluster: "ai", size: "md", x: 62, y: 26, courseId: "data-science" },
 
   { id: "aws", label: "AWS", cluster: "cloud", size: "lg", x: 82, y: 33 },
   { id: "azure", label: "Azure", cluster: "cloud", size: "sm", x: 91, y: 30 },
@@ -45,19 +50,19 @@ const NODES: NetworkNode[] = [
   { id: "docker", label: "Docker", cluster: "cloud", size: "lg", x: 93, y: 51 },
   { id: "kubernetes", label: "Kubernetes", cluster: "cloud", size: "sm", x: 83, y: 55 },
 
-  { id: "cybersecurity", label: "Cyber Security", cluster: "cyber", size: "md", x: 47, y: 48 },
-  { id: "ethical-hacking", label: "Ethical Hacking", cluster: "cyber", size: "sm", x: 54, y: 58 },
+  { id: "cybersecurity", label: "Cyber Security", cluster: "cyber", size: "md", x: 47, y: 48, courseId: "cyber-security" },
+  { id: "ethical-hacking", label: "Ethical Hacking", cluster: "cyber", size: "sm", x: 54, y: 58, courseId: "ethical-hacking" },
 
   { id: "uiux", label: "UI/UX Design", cluster: "design", size: "md", x: 12, y: 61 },
   { id: "figma", label: "Figma", cluster: "design", size: "sm", x: 21, y: 71 },
 
-  { id: "autocad", label: "AutoCAD", cluster: "cad", size: "sm", x: 31, y: 80 },
+  { id: "autocad", label: "AutoCAD", cluster: "cad", size: "sm", x: 31, y: 80, courseId: "autocad" },
 
-  { id: "digital-marketing", label: "Digital Marketing", cluster: "marketing", size: "lg", x: 55, y: 70 },
-  { id: "seo", label: "SEO", cluster: "marketing", size: "sm", x: 65, y: 66 },
-  { id: "google-ads", label: "Google Ads", cluster: "marketing", size: "sm", x: 61, y: 81 },
+  { id: "digital-marketing", label: "Digital Marketing", cluster: "marketing", size: "lg", x: 55, y: 70, courseId: "digital-marketing" },
+  { id: "seo", label: "SEO", cluster: "marketing", size: "sm", x: 65, y: 66, courseId: "seo" },
+  { id: "google-ads", label: "Google Ads", cluster: "marketing", size: "sm", x: 61, y: 81, courseId: "google-ads" },
 
-  { id: "tally", label: "Tally", cluster: "finance", size: "sm", x: 79, y: 71 },
+  { id: "tally", label: "Tally", cluster: "finance", size: "sm", x: 79, y: 71, courseId: "tally" },
   { id: "gst", label: "GST", cluster: "finance", size: "sm", x: 87, y: 81 },
 ];
 
@@ -236,20 +241,25 @@ export function NeuralCourseNetwork() {
       </div>
 
       <div className="rail relative mt-14 flex flex-wrap justify-center gap-x-3 gap-y-4 lg:hidden">
-        {NODES.map((node) => (
-          <span
-            key={node.id}
-            className={cx(
-              "inline-block rounded-full bg-white/[0.03] px-3 py-1 font-display font-bold tracking-tight text-white backdrop-blur-sm whitespace-nowrap",
-              SIZE_CLASS[node.size],
-            )}
-            style={{
-              textShadow: `0 0 14px ${CLUSTER_GLOW[node.cluster]}, 0 0 30px ${CLUSTER_GLOW[node.cluster]}`,
-            }}
-          >
-            {node.label}
-          </span>
-        ))}
+        {NODES.map((node) => {
+          const className = cx(
+            "inline-block rounded-full bg-white/[0.03] px-3 py-1 font-display font-bold tracking-tight text-white backdrop-blur-sm whitespace-nowrap transition-colors duration-300",
+            node.courseId && "hover:bg-white/[0.08]",
+            SIZE_CLASS[node.size],
+          );
+          const style = {
+            textShadow: `0 0 14px ${CLUSTER_GLOW[node.cluster]}, 0 0 30px ${CLUSTER_GLOW[node.cluster]}`,
+          };
+          return node.courseId ? (
+            <Link key={node.id} href={`/${courseSlug(node.courseId)}`} className={className} style={style}>
+              {node.label}
+            </Link>
+          ) : (
+            <span key={node.id} className={className} style={style}>
+              {node.label}
+            </span>
+          );
+        })}
       </div>
     </section>
   );
@@ -289,23 +299,30 @@ function NetworkNodeLabel({
             scale: state === "active" ? 1.12 : 1,
           }}
           transition={{ type: "spring", stiffness: 260, damping: 24 }}
-          className="cursor-default"
+          className={node.courseId ? "cursor-pointer" : "cursor-default"}
         >
-          <span
-            className={cx(
+          {(() => {
+            const labelClassName = cx(
               "inline-block rounded-full bg-white/[0.03] px-3 py-1 font-display font-bold tracking-tight text-white backdrop-blur-sm transition-[background-color] duration-300 whitespace-nowrap",
               SIZE_CLASS[node.size],
               state === "active" && "bg-white/[0.07]",
-            )}
-            style={{
+            );
+            const labelStyle = {
               textShadow:
                 state === "dimmed"
                   ? "none"
                   : `0 0 ${state === "active" ? 26 : 14}px ${glow}, 0 0 ${state === "active" ? 60 : 30}px ${glow}`,
-            }}
-          >
-            {node.label}
-          </span>
+            };
+            return node.courseId ? (
+              <Link href={`/${courseSlug(node.courseId)}`} className={labelClassName} style={labelStyle}>
+                {node.label}
+              </Link>
+            ) : (
+              <span className={labelClassName} style={labelStyle}>
+                {node.label}
+              </span>
+            );
+          })()}
         </motion.div>
       </div>
     </div>

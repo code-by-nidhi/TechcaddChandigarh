@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
 import { FutureCareerForm } from "@/components/sections/FutureCareerForm";
 import { TeamCarousel } from "@/components/sections/TeamCarousel";
-import { ButtonLink, Icon, Rail, SectionHeading, cx } from "@/components/ui";
-import { Reveal } from "@/components/motion/Reveal";
+import { Eyebrow, Icon, Rail, SectionHeading, cx } from "@/components/ui";
+import { HeroReveal, Reveal } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -105,68 +105,137 @@ const team = [
   { name: "Aman Sharma", title: "Team Member" },
 ];
 
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
-
 export default function FounderPage() {
   return (
     <>
-      <PageHeader
-        breadcrumbs={[
-          { label: "Home", href: "/" },
-          { label: "About", href: "/about" },
-          { label: "Founder" },
-        ]}
-        eyebrow="Founder"
-        title="Mr. Gourav Gupta"
-        body="Founder & CEO, techcadd"
-      >
-        <ul className="flex flex-wrap gap-2.5">
-          {roleDescriptors.map((role) => (
-            <li
-              key={role}
-              className="rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-xs font-semibold text-white/90 backdrop-blur-sm"
-            >
-              {role}
-            </li>
-          ))}
-        </ul>
-      </PageHeader>
+      {/* --------------------------------------- Hero --------------------------------------- */}
+      <section className="relative isolate flex min-h-screen flex-col justify-center overflow-hidden bg-gradient-to-b from-[#050B1D] via-[#081B3A] to-[#0F2E6D] pt-28 pb-24 text-white">
+        {/* blueprint grid */}
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.14]"
+        >
+          <defs>
+            <pattern id="founder-hero-grid" width="64" height="64" patternUnits="userSpaceOnUse">
+              <path d="M64 0H0V64" fill="none" stroke="white" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#founder-hero-grid)" />
+        </svg>
+
+        {/* circuit-style accent lines */}
+        <svg
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.2]"
+          preserveAspectRatio="none"
+          viewBox="0 0 1600 900"
+        >
+          <path d="M0 140 H360 L420 200 H960" fill="none" stroke="#00D4FF" strokeWidth="1" />
+          <path
+            d="M0 700 H260 L320 640 H1140 L1200 700 H1600"
+            fill="none"
+            stroke="#1E88FF"
+            strokeWidth="1"
+          />
+          <circle cx="360" cy="140" r="3" fill="#00D4FF" />
+          <circle cx="960" cy="200" r="3" fill="#00D4FF" />
+          <circle cx="1200" cy="700" r="3" fill="#1E88FF" />
+        </svg>
+
+        {/* radial glows in the corners */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-40 -left-32 -z-10 size-[38rem] rounded-full bg-[#1E88FF]/25 blur-[150px]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-24 -bottom-40 -z-10 size-[34rem] rounded-full bg-[#00D4FF]/20 blur-[150px]"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/3 right-1/4 -z-10 size-[22rem] rounded-full bg-[#0F2E6D]/60 blur-[130px]"
+        />
+
+        {/* floating particles */}
+        {[
+          { top: "18%", left: "8%", delay: "0s" },
+          { top: "28%", left: "42%", delay: "0.6s" },
+          { top: "62%", left: "18%", delay: "1.2s" },
+          { top: "70%", left: "60%", delay: "1.8s" },
+          { top: "40%", left: "78%", delay: "0.9s" },
+          { top: "85%", left: "35%", delay: "1.5s" },
+        ].map((particle, i) => (
+          <span
+            key={i}
+            aria-hidden="true"
+            className="float-slow pointer-events-none absolute size-1.5 rounded-full bg-[#00D4FF]/70 blur-[1px]"
+            style={{ top: particle.top, left: particle.left, animationDelay: particle.delay }}
+          />
+        ))}
+
+        {/* drift accent rings */}
+        <div
+          aria-hidden="true"
+          className="drift-slow pointer-events-none absolute top-24 right-[12%] size-16 rounded-full border border-white/15"
+        />
+        <div
+          aria-hidden="true"
+          className="drift-slow-reverse pointer-events-none absolute bottom-28 left-[10%] size-10 rounded-full border border-[#00D4FF]/25"
+        />
+
+        <HeroReveal className="rail relative">
+          <div data-hero-item>
+            <Eyebrow onDark>Founder</Eyebrow>
+          </div>
+
+          <h1 data-hero-item className="relative mt-6 max-w-4xl">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-x-12 -inset-y-10 -z-10 rounded-[999px] bg-[#1E88FF]/25 blur-[90px]"
+            />
+            <span className="block font-display text-[56px] leading-[1.02] font-extrabold tracking-tight sm:text-[68px] lg:text-[84px]">
+              Mr. Gourav Gupta
+            </span>
+          </h1>
+
+          <p
+            data-hero-item
+            className="mt-7 max-w-2xl text-lg leading-relaxed text-brand-100/85 lg:text-xl"
+          >
+            Founder & CEO, techcadd
+          </p>
+
+          <div data-hero-item className="mt-10 flex flex-wrap items-center gap-3">
+            {roleDescriptors.map((role, i) => (
+              <div key={role} className="flex items-center gap-3">
+                <span className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-sm font-semibold text-white/90 backdrop-blur-md transition-all duration-300 ease-out hover:-translate-y-1 hover:border-[#00D4FF]/50 hover:bg-white/15 hover:shadow-[0_16px_40px_-12px_rgba(0,212,255,0.55)]">
+                  {role}
+                </span>
+                {i < roleDescriptors.length - 1 ? (
+                  <span
+                    aria-hidden="true"
+                    className="size-1.5 shrink-0 rounded-full bg-[#00D4FF] shadow-[0_0_10px_2px_rgba(0,212,255,0.6)]"
+                  />
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </HeroReveal>
+      </section>
 
       {/* ---------------------------------- The founder ---------------------------------- */}
       <section className="py-20 lg:py-28">
         <Rail>
-          <div className="grid items-center gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-20">
-            <Reveal className="relative isolate mx-auto w-full max-w-sm overflow-hidden rounded-[32px] bg-gradient-to-br from-[#050B1D] to-[#081B3A] p-10 text-center text-white shadow-[0_40px_90px_-40px_rgba(5,11,29,0.55)]">
-              <span
-                aria-hidden="true"
-                className="panel-dots pointer-events-none absolute inset-0 opacity-60"
-              />
-              <span
-                aria-hidden="true"
-                className="drift-slow pointer-events-none absolute -top-16 -right-10 size-52 rounded-full bg-brand-500/20 blur-[100px]"
-              />
-              <span className="relative mx-auto grid size-28 place-items-center rounded-full bg-gradient-to-br from-[#1E88FF] to-[#00D4FF] font-display text-4xl font-bold shadow-[0_20px_45px_-15px_rgba(30,136,255,0.6)]">
-                {initials("Gourav Gupta")}
-              </span>
-              <h2 className="relative mt-6 font-display text-xl font-bold tracking-tight">
-                Mr. Gourav Gupta
-              </h2>
-              <p className="relative mt-1 text-sm font-medium text-brand-200/80">
-                Founder & CEO, techcadd
-              </p>
-            </Reveal>
-
+          <div className="grid items-center gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
             <Reveal>
               <SectionHeading
                 eyebrow="The founder"
-                title="Making young people capable and confident with technology."
+                title={
+                  <>
+                    Making young people{" "}
+                    <span className="text-brand-600">capable and confident</span> with technology.
+                  </>
+                }
               />
               <div className="mt-6 space-y-4 leading-relaxed text-muted">
                 <p>
@@ -179,6 +248,29 @@ export default function FounderPage() {
                   computer education into emerging technologies, practical training, industry
                   engagement, career development and innovation.
                 </p>
+              </div>
+              <div className="mt-7 border-t border-line pt-6">
+                <p className="font-display text-sm font-bold tracking-tight text-ink">
+                  Mr. Gourav Gupta
+                </p>
+                <p className="mt-0.5 text-sm text-muted">Founder & CEO, techcadd</p>
+              </div>
+            </Reveal>
+
+            <Reveal className="relative isolate mx-auto aspect-[715/986] w-full max-w-sm overflow-hidden rounded-[32px] shadow-[0_40px_90px_-40px_rgba(5,11,29,0.55)]">
+              <Image
+                src="/images/gouravsir.webp"
+                alt="Mr. Gourav Gupta, Founder & CEO of techcadd"
+                fill
+                sizes="(min-width: 1024px) 384px, 90vw"
+                className="object-cover"
+                priority
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-6 pt-16">
+                <p className="font-display text-lg font-bold tracking-tight text-white">
+                  Mr. Gourav Gupta
+                </p>
+                <p className="mt-0.5 text-sm text-white/75">Founder & CEO, techcadd</p>
               </div>
             </Reveal>
           </div>
@@ -480,32 +572,6 @@ export default function FounderPage() {
               </li>
             ))}
           </ul>
-        </Rail>
-      </section>
-
-      {/* ------------------------------- Ready to start your career ------------------------------- */}
-      <section className="border-t border-line bg-white">
-        <Rail>
-          <div className="flex flex-col items-start gap-6 py-10 sm:flex-row sm:items-center sm:justify-between lg:py-12">
-            <div>
-              <h2 className="font-display text-xl font-bold tracking-tight lg:text-2xl">
-                Ready to start your career in tech?
-              </h2>
-              <p className="mt-1.5 text-sm text-muted">
-                Book a free demo class and see the lab before you decide.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <ButtonLink href="/contact#enquire">Book Free Demo</ButtonLink>
-              <a
-                href={site.contact.phoneHref}
-                className="inline-flex h-11 items-center gap-2 rounded-full border border-foreground/15 px-5 text-sm font-medium transition-colors duration-300 hover:border-brand-600/30 hover:bg-brand-50"
-              >
-                <Icon name="phone" className="size-4" />
-                {site.contact.phone}
-              </a>
-            </div>
-          </div>
         </Rail>
       </section>
     </>

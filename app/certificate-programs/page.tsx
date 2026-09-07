@@ -4,9 +4,10 @@ import { PageHeader } from "@/components/PageHeader";
 import { CtaSection, FaqSection } from "@/components/sections/Home";
 import { Icon, Rail, SectionHeading } from "@/components/ui";
 import { site } from "@/data/site";
-import { programDurations, programTracks, trainingFormats } from "@/data/programs";
-import { getCourse } from "@/data/courses";
+import { programDurations, programTracks, programsForTrack, trainingFormats } from "@/data/programs";
+import { getCourse, courseSlug } from "@/data/courses";
 import { faqs } from "@/data/content";
+import { faqPageSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: `Certificate Programs in ${site.city} — 3, 6 & 9 Month Tracks`,
@@ -101,17 +102,26 @@ export default function CertificateProgramsPage() {
           <div className="mt-14 space-y-4">
             {programTracks.map((track) => {
               const course = getCourse(track.id);
+              const trackPrograms = programsForTrack(track.id).filter((p) => !p.after12th);
               return (
                 <div
                   key={track.id}
                   className="rounded-2xl border border-line bg-white p-6 lg:flex lg:items-center lg:justify-between lg:gap-8"
                 >
                   <div className="min-w-0 lg:max-w-md">
-                    <h3 className="font-display text-lg font-bold tracking-tight">{track.name}</h3>
+                    <h3 className="font-display text-lg font-bold tracking-tight">
+                      {course ? (
+                        <Link href={`/${courseSlug(track.id)}`} className="hover:underline">
+                          {track.name}
+                        </Link>
+                      ) : (
+                        track.name
+                      )}
+                    </h3>
                     <p className="mt-1.5 text-sm leading-relaxed text-muted">{track.blurb}</p>
                     {course ? (
                       <Link
-                        href={`/${track.id}-course-in-${site.citySlug}`}
+                        href={`/${courseSlug(track.id)}`}
                         className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600"
                       >
                         Full syllabus
@@ -120,18 +130,22 @@ export default function CertificateProgramsPage() {
                     ) : null}
                   </div>
                   <div className="mt-5 grid gap-2 sm:grid-cols-3 lg:mt-0 lg:w-[26rem] lg:shrink-0">
-                    {programDurations.map((duration) => (
-                      <Link
-                        key={duration.slug}
-                        href={`/${duration.slug}-${track.id}-program-in-${site.citySlug}`}
-                        className="group rounded-xl border border-line px-4 py-3 text-center transition-colors hover:border-brand-600/40 hover:bg-brand-50"
-                      >
-                        <span className="block font-display text-sm font-bold tracking-tight">
-                          {duration.label}
-                        </span>
-                        <span className="mt-0.5 block text-[11px] text-muted">{duration.tier}</span>
-                      </Link>
-                    ))}
+                    {programDurations.map((duration) => {
+                      const program = trackPrograms.find((p) => p.duration.slug === duration.slug);
+                      if (!program) return null;
+                      return (
+                        <Link
+                          key={duration.slug}
+                          href={`/${program.slug}`}
+                          className="group rounded-xl border border-line px-4 py-3 text-center transition-colors hover:border-brand-600/40 hover:bg-brand-50"
+                        >
+                          <span className="block font-display text-sm font-bold tracking-tight">
+                            {duration.label}
+                          </span>
+                          <span className="mt-0.5 block text-[11px] text-muted">{duration.tier}</span>
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -169,6 +183,10 @@ export default function CertificateProgramsPage() {
 
       <FaqSection items={faqs.slice(0, 6)} />
       <CtaSection />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs.slice(0, 6))) }}
+      />
     </>
   );
 }
