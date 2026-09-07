@@ -482,7 +482,7 @@ export const courses: Course[] = [
     careers: ["Java Developer", "Backend Engineer", "Android Developer", "Software Engineer"],
   },
   {
-    id: "c-cpp",
+    id: "c-plus-plus",
     name: "C & C++ Programming",
     category: "programming",
     duration: "2 months",
@@ -580,7 +580,7 @@ export const courses: Course[] = [
     fee: { original: 75000, offer: 58000 },
   },
   {
-    id: "mern-stack",
+    id: "mern-stack-development",
     name: "MERN Stack",
     category: "web",
     duration: "4 – 6 months",
@@ -605,7 +605,7 @@ export const courses: Course[] = [
     careers: ["MERN Developer", "Full-Stack Developer", "React Developer", "Node.js Developer"],
   },
   {
-    id: "mean-stack",
+    id: "mean-stack-development",
     name: "MEAN Stack",
     category: "web",
     duration: "4 months",

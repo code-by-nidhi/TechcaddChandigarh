@@ -591,7 +591,6 @@
   .drift-slow,
   .drift-slow-reverse,
   .float-slow,
-<<<<<<< Updated upstream
   .float-card,
   .scroll-hint,
   .twinkle,
@@ -599,10 +598,6 @@
   .neural-flow,
   .line-sweep,
   .team-marquee {
-=======
-  .tool-in,
-  .scroll-hint {
->>>>>>> Stashed changes
     animation: none;
   }
 

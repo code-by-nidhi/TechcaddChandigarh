@@ -14,15 +14,51 @@ export function CourseStatsStrip() {
     { value: "100%", label: "Practical, project-based" },
   ];
   return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-      {stats.map((s) => (
-        <div key={s.label} className="rounded-2xl border border-line bg-subtle p-5 text-center">
-          <p className="font-display text-2xl font-extrabold tracking-tight text-brand-600">
-            {s.value}
-          </p>
-          <p className="mt-1 text-xs font-medium text-muted">{s.label}</p>
-        </div>
-      ))}
+    <div className="relative isolate overflow-hidden rounded-[24px] bg-gradient-to-br from-[#050B1D] via-[#081B3A] to-[#0F2E6D] p-6">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_80%_at_15%_10%,rgba(30,136,255,0.25),transparent_70%),radial-gradient(50%_70%_at_90%_90%,rgba(0,212,255,0.18),transparent_70%)]"
+      />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {stats.map((s) => (
+          <div key={s.label} className="text-center">
+            <p className="font-display text-2xl font-extrabold tracking-tight text-[#00D4FF]">
+              {s.value}
+            </p>
+            <p className="mt-1 text-xs font-medium text-white/65">{s.label}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------- Toolchain -------------------------------- */
+
+export function ToolchainPanel({ course }: { course: Course }) {
+  return (
+    <div className="relative isolate overflow-hidden rounded-[24px] bg-gradient-to-br from-[#050B1D] via-[#081B3A] to-[#0F2E6D] p-7 lg:p-9">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(50%_60%_at_85%_15%,rgba(0,212,255,0.2),transparent_70%)]"
+      />
+      <h2 className="font-display text-2xl font-bold tracking-tight text-white">
+        The toolchain behind the craft
+      </h2>
+      <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/65">
+        Everything below is installed on the lab machines and used on live client work, not shown
+        once in a slide and forgotten.
+      </p>
+      <div className="mt-7 flex flex-wrap gap-2.5">
+        {course.tools.map((tool) => (
+          <span
+            key={tool}
+            className="rounded-lg border border-[#00D4FF]/25 bg-white/5 px-3.5 py-2 text-sm font-medium text-[#00D4FF]"
+          >
+            {tool}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -543,22 +579,28 @@ export function StagedSyllabus({ course }: { course: Course }) {
 
 export function GetStartedStrip({ course }: { course: Course }) {
   return (
-    <div className="rounded-2xl border border-line bg-subtle p-8 text-center">
-      <h2 className="font-display text-xl font-bold tracking-tight">Get started today</h2>
-      <p className="mt-2 text-sm text-muted">Not sure if {course.name} is the right fit?</p>
-      <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted">
+    <div className="relative isolate overflow-hidden rounded-[24px] bg-gradient-to-br from-[#050B1D] via-[#081B3A] to-[#0F2E6D] p-8 text-center">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_80%_at_50%_0%,rgba(30,136,255,0.25),transparent_70%)]"
+      />
+      <h2 className="font-display text-xl font-bold tracking-tight text-white">
+        Get started today
+      </h2>
+      <p className="mt-2 text-sm text-white/65">Not sure if {course.name} is the right fit?</p>
+      <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/65">
         One call with a counsellor is usually enough to find out. Book a free demo class and see
         the lab before you decide.
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         <a
           href={site.contact.phoneHref}
-          className="inline-flex h-11 items-center gap-2 rounded-full border border-line bg-white px-5 text-sm font-medium transition-colors hover:border-brand-600/30 hover:bg-brand-50"
+          className="inline-flex h-11 items-center gap-2 rounded-full border border-white/20 px-5 text-sm font-medium text-white transition-colors hover:border-[#00D4FF]/50 hover:bg-white/5"
         >
-          <Icon name="phone" className="size-4" />
+          <Icon name="phone" className="size-4 text-[#00D4FF]" />
           {site.contact.phone}
         </a>
-        <ButtonLink href="/contact#enquire" size="lg">
+        <ButtonLink href="/contact#enquire" size="lg" variant="onDark">
           Book a free demo
           <Icon name="arrow-right" className="size-4" />
         </ButtonLink>

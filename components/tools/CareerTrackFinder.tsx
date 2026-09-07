@@ -42,7 +42,7 @@ const questions: Question[] = [
         hint: "You can build something small on your own",
         weights: {
           "full-stack-development": 3,
-          "mern-stack": 3,
+          "mern-stack-development": 3,
           "machine-learning": 2,
           "cloud-computing": 2,
         },
@@ -66,7 +66,7 @@ const questions: Question[] = [
       {
         label: "Building things people use",
         hint: "Websites, apps, products",
-        weights: { "full-stack-development": 4, "mern-stack": 3, "flutter-app-development": 3 },
+        weights: { "full-stack-development": 4, "mern-stack-development": 3, "flutter-app-development": 3 },
       },
       {
         label: "Finding answers in data",

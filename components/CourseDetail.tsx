@@ -9,6 +9,7 @@ import { EnquiryForm } from "./EnquiryForm";
 import { Badge, ButtonLink, Icon, Rail, SectionHeading, badgeTone } from "./ui";
 import {
   CourseStatsStrip,
+  ToolchainPanel,
   EligibilitySection,
   CaseForCourse,
   ProjectsSection,
@@ -125,12 +126,18 @@ export function CourseBody({
   intro,
   extra,
   syllabusTitle,
+  showExtras,
 }: {
   course: Course;
   duration?: string;
   intro?: ReactNode;
   extra?: ReactNode;
   syllabusTitle?: string;
+  /** Renders the full course-page template (stats, eligibility, projects,
+   * staged syllabus, comparison table, etc.) — only for plain course pages,
+   * not the program/training-format/after-12th variants that share this
+   * same body. */
+  showExtras?: boolean;
 }) {
   const category = getCategory(course.category);
   const related = relatedCourses(course);
@@ -164,21 +171,35 @@ export function CourseBody({
                   )}
                 </div>
 
-                <div className="mt-8 flex flex-wrap gap-2">
-                  {course.tools.map((tool) => (
-                    <span
-                      key={tool}
-                      className="rounded-lg border border-line bg-subtle px-3 py-1.5 text-sm font-medium text-muted"
-                    >
-                      {tool}
-                    </span>
-                  ))}
-                </div>
+                {showExtras ? null : (
+                  <div className="mt-8 flex flex-wrap gap-2">
+                    {course.tools.map((tool) => (
+                      <span
+                        key={tool}
+                        className="rounded-lg border border-line bg-subtle px-3 py-1.5 text-sm font-medium text-muted"
+                      >
+                        {tool}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
+
+              {showExtras ? <CourseStatsStrip /> : null}
+              {showExtras ? <ToolchainPanel course={course} /> : null}
 
               {extra}
 
-              <Syllabus modules={course.modules} title={syllabusTitle} />
+              {showExtras ? <EligibilitySection course={course} /> : null}
+              {showExtras ? <CaseForCourse course={course} /> : null}
+              {showExtras ? <ProjectsSection course={course} /> : null}
+              {showExtras ? <WorkingLoopSection /> : null}
+
+              {showExtras ? (
+                <StagedSyllabus course={course} />
+              ) : (
+                <Syllabus modules={course.modules} title={syllabusTitle} />
+              )}
 
               <div>
                 <h2 className="font-display text-2xl font-bold tracking-tight">
@@ -219,6 +240,8 @@ export function CourseBody({
                 </p>
               </div>
 
+              {showExtras ? <CareerFaqSection course={course} /> : null}
+
               <div>
                 <h2 className="font-display text-2xl font-bold tracking-tight">
                   Included in this program
@@ -232,6 +255,11 @@ export function CourseBody({
                   ))}
                 </ul>
               </div>
+
+              {showExtras ? <CourseTestimonials course={course} /> : null}
+              {showExtras ? <WhyTechcaddSection /> : null}
+              {showExtras ? <ComparisonTable course={course} /> : null}
+              {showExtras ? <GetStartedStrip course={course} /> : null}
             </div>
 
             <aside className="lg:sticky lg:top-24 lg:self-start">

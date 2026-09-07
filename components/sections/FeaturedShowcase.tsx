@@ -50,7 +50,7 @@ const DECK: Slot[] = [
   { course: "digital-marketing", variant: "photo" },
   { course: "data-analytics", variant: "grid" },
   { course: "generative-ai", variant: "mono" },
-  { course: "mern-stack", variant: "editorial" },
+  { course: "mern-stack-development", variant: "editorial" },
   { course: "python", variant: "typo" },
 ];
 

@@ -37,7 +37,7 @@ const NODES: NetworkNode[] = [
   { id: "node", label: "Node.js", cluster: "web", size: "md", x: 37, y: 39 },
   { id: "express", label: "Express.js", cluster: "web", size: "sm", x: 29, y: 48 },
   { id: "mongodb", label: "MongoDB", cluster: "web", size: "md", x: 13, y: 47 },
-  { id: "mern", label: "MERN Stack", cluster: "web", size: "lg", x: 27, y: 35, courseId: "mern-stack" },
+  { id: "mern", label: "MERN Stack", cluster: "web", size: "lg", x: 27, y: 35, courseId: "mern-stack-development" },
 
   { id: "python", label: "Python", cluster: "ai", size: "lg", x: 58, y: 14, courseId: "python" },
   { id: "ml", label: "Machine Learning", cluster: "ai", size: "md", x: 70, y: 10, courseId: "machine-learning" },

@@ -31,7 +31,7 @@ export const programTracks: ProgramTrack[] = [
   { id: "data-science", name: "Data Science", blurb: "Statistics, Python, SQL and modelling for decision-making roles." },
   { id: "data-analytics", name: "Data Analytics", blurb: "Excel, SQL, Power BI and Python for reporting and insight roles." },
   { id: "full-stack-development", name: "Full-Stack Development", blurb: "Front-end, back-end, databases and deployment end to end." },
-  { id: "mern-stack", name: "MERN Stack", blurb: "MongoDB, Express, React and Node in one JavaScript stack." },
+  { id: "mern-stack-development", name: "MERN Stack", blurb: "MongoDB, Express, React and Node in one JavaScript stack." },
   { id: "flutter-app-development", name: "Flutter App Development", blurb: "Cross-platform Android and iOS apps from a single codebase." },
   { id: "cyber-security", name: "Cyber Security", blurb: "Offensive and defensive security in authorised lab ranges." },
   { id: "cloud-computing", name: "Cloud Computing", blurb: "AWS, Azure, containers, CI/CD and infrastructure as code." },
