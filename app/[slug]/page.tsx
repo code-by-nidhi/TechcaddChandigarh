@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
-import { CourseBody, courseHeaderMeta } from "@/components/CourseDetail";
+import { CourseTemplate } from "@/components/CourseTemplate";
+import { CourseBody } from "@/components/CourseDetail";
 import { CtaSection, FaqSection } from "@/components/sections/Home";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { ButtonLink, Icon, Rail } from "@/components/ui";
@@ -88,93 +89,7 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   /* ------------------------------- Course page ------------------------------- */
   if (resolved.kind === "course") {
     const { course, variant } = resolved;
-    const noun = variant === "training" ? "Training" : "Course";
-    const trackPrograms = programsForTrack(course.id).filter((p) => !p.after12th);
-
-    const schema = courseSchema({
-      name: `${course.name} ${noun} in ${site.city}`,
-      description: course.summary,
-      url: `${site.url}/${slug}`,
-      priceInr: course.fee?.offer,
-    });
-    const faqSchema = faqPageSchema(faqs.slice(0, 6));
-
-    return (
-      <>
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Courses", href: "/courses" },
-            { label: course.name },
-          ]}
-          eyebrow={`${noun} in ${site.city}`}
-          title={`${course.name} ${noun} in ${site.city}`}
-          body={course.summary}
-          meta={courseHeaderMeta(course)}
-        >
-          <div className="flex flex-wrap gap-4">
-            <ButtonLink href="/contact#enquire" variant="onDark" size="lg">
-              Book a free demo
-              <Icon name="arrow-right" className="size-4" />
-            </ButtonLink>
-            <ButtonLink href="#syllabus" variant="onDarkGhost" size="lg">
-              See syllabus
-            </ButtonLink>
-          </div>
-        </PageHeader>
-
-        <div id="syllabus" />
-
-        <CourseBody
-          course={course}
-          showExtras
-          extra={
-            trackPrograms.length ? (
-              <div>
-                <h2 className="font-display text-2xl font-bold tracking-tight">
-                  Available as a certificate program
-                </h2>
-                <p className="mt-4 leading-relaxed text-muted">
-                  The same track runs at three depths. Pick the one that matches your timeline —
-                  the syllabus below is the three-month core, and longer formats add advanced
-                  modules, a live project and an internship.
-                </p>
-                <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                  {trackPrograms.map((program) => (
-                    <Link
-                      key={program.slug}
-                      href={`/${program.slug}`}
-                      className="card-hover rounded-2xl border border-line bg-white p-5"
-                    >
-                      <p className="font-display text-lg font-bold tracking-tight">
-                        {program.duration.label}
-                      </p>
-                      <p className="mt-1 text-xs font-semibold text-brand-600">
-                        {program.duration.tier}
-                      </p>
-                      <p className="mt-3 text-xs leading-relaxed text-muted">
-                        {program.duration.hours} of classroom and lab time
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ) : null
-          }
-        />
-
-        <FaqSection items={faqs.slice(0, 6)} />
-        <CtaSection />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-      </>
-    );
+    return <CourseTemplate course={course} slug={slug} variant={variant} />;
   }
 
   /* ------------------------------- Program page ------------------------------- */

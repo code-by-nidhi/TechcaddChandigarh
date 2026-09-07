@@ -20,6 +20,7 @@ import {
   ComparisonTable,
   CourseTestimonials,
   GetStartedStrip,
+  matchingTestimonials,
 } from "./CourseDetailExtras";
 
 /* ------------------------------- Syllabus list ------------------------------- */
@@ -142,6 +143,65 @@ export function CourseBody({
   const category = getCategory(course.category);
   const related = relatedCourses(course);
 
+  const outcomesBlock = (
+    <div>
+      <h2 className="font-display text-2xl font-bold tracking-tight">
+        What you will be able to do
+      </h2>
+      <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+        {course.outcomes.map((outcome) => (
+          <li
+            key={outcome}
+            className="flex items-start gap-3 rounded-xl border border-line bg-white p-5"
+          >
+            <Icon name="check" className="mt-0.5 size-5 shrink-0 text-emerald-600" />
+            <span className="text-sm leading-relaxed">{outcome}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const careersBlock = (
+    <div>
+      <h2 className="font-display text-2xl font-bold tracking-tight">
+        Roles this prepares you for
+      </h2>
+      <div className="mt-8 flex flex-wrap gap-2.5">
+        {course.careers.map((role) => (
+          <span
+            key={role}
+            className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium"
+          >
+            <Icon name="briefcase" className="size-4 text-brand-600" />
+            {role}
+          </span>
+        ))}
+      </div>
+      <p className="mt-6 text-sm leading-relaxed text-muted">
+        Placement support includes CV and portfolio review, mock interviews and drives with our{" "}
+        {site.stats.partners} hiring partners. It continues after your course finishes, until you
+        are placed.
+      </p>
+    </div>
+  );
+
+  const includedBlock = (
+    <div>
+      <h2 className="font-display text-2xl font-bold tracking-tight">
+        Included in this program
+      </h2>
+      <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+        {includedItems.map((item) => (
+          <li key={item.title} className="rounded-xl border border-line bg-subtle p-5">
+            <p className="font-display text-sm font-bold tracking-tight">{item.title}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.body}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
   return (
     <>
       <section className="py-16 lg:py-20">
@@ -149,8 +209,11 @@ export function CourseBody({
           <div className="grid gap-12 lg:grid-cols-[1.7fr_1fr] lg:gap-16">
             <div className="min-w-0 space-y-16">
               <div>
-                <h2 className="font-display text-2xl font-bold tracking-tight">
-                  About this course
+                <span className="inline-flex items-center rounded-full border border-line px-4 py-1.5 text-xs font-bold tracking-wide text-muted uppercase">
+                  Overview
+                </span>
+                <h2 className="mt-6 font-display text-2xl font-bold tracking-tight">
+                  Course overview
                 </h2>
                 <div className="mt-5 space-y-4 leading-relaxed text-muted">
                   {intro ?? (
@@ -185,81 +248,14 @@ export function CourseBody({
                 )}
               </div>
 
-              {showExtras ? <CourseStatsStrip /> : null}
-              {showExtras ? <ToolchainPanel course={course} /> : null}
-
               {extra}
 
-              {showExtras ? <EligibilitySection course={course} /> : null}
-              {showExtras ? <CaseForCourse course={course} /> : null}
-              {showExtras ? <ProjectsSection course={course} /> : null}
-              {showExtras ? <WorkingLoopSection /> : null}
-
-              {showExtras ? (
-                <StagedSyllabus course={course} />
-              ) : (
+              {showExtras ? null : (
                 <Syllabus modules={course.modules} title={syllabusTitle} />
               )}
-
-              <div>
-                <h2 className="font-display text-2xl font-bold tracking-tight">
-                  What you will be able to do
-                </h2>
-                <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-                  {course.outcomes.map((outcome) => (
-                    <li
-                      key={outcome}
-                      className="flex items-start gap-3 rounded-xl border border-line bg-white p-5"
-                    >
-                      <Icon name="check" className="mt-0.5 size-5 shrink-0 text-emerald-600" />
-                      <span className="text-sm leading-relaxed">{outcome}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h2 className="font-display text-2xl font-bold tracking-tight">
-                  Roles this prepares you for
-                </h2>
-                <div className="mt-8 flex flex-wrap gap-2.5">
-                  {course.careers.map((role) => (
-                    <span
-                      key={role}
-                      className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium"
-                    >
-                      <Icon name="briefcase" className="size-4 text-brand-600" />
-                      {role}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-6 text-sm leading-relaxed text-muted">
-                  Placement support includes CV and portfolio review, mock interviews and drives
-                  with our {site.stats.partners} hiring partners. It continues after your course
-                  finishes, until you are placed.
-                </p>
-              </div>
-
-              {showExtras ? <CareerFaqSection course={course} /> : null}
-
-              <div>
-                <h2 className="font-display text-2xl font-bold tracking-tight">
-                  Included in this program
-                </h2>
-                <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-                  {includedItems.map((item) => (
-                    <li key={item.title} className="rounded-xl border border-line bg-subtle p-5">
-                      <p className="font-display text-sm font-bold tracking-tight">{item.title}</p>
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted">{item.body}</p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {showExtras ? <CourseTestimonials course={course} /> : null}
-              {showExtras ? <WhyTechcaddSection /> : null}
-              {showExtras ? <ComparisonTable course={course} /> : null}
-              {showExtras ? <GetStartedStrip course={course} /> : null}
+              {showExtras ? null : outcomesBlock}
+              {showExtras ? null : careersBlock}
+              {showExtras ? null : includedBlock}
             </div>
 
             <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -284,6 +280,95 @@ export function CourseBody({
           </div>
         </Rail>
       </section>
+
+      {showExtras ? (
+        <>
+          <section className="py-20 lg:py-28">
+            <Rail>
+              <CourseStatsStrip />
+            </Rail>
+          </section>
+
+          <section className="bg-subtle py-20 lg:py-28">
+            <Rail>
+              <ToolchainPanel course={course} />
+            </Rail>
+          </section>
+
+          <section className="hero-surface py-20 lg:py-28">
+            <Rail>
+              <EligibilitySection course={course} />
+            </Rail>
+          </section>
+
+          <section className="py-20 lg:py-28">
+            <Rail>
+              <CaseForCourse course={course} />
+            </Rail>
+          </section>
+
+          <section className="hero-surface py-20 lg:py-28">
+            <Rail>
+              <ProjectsSection course={course} />
+            </Rail>
+          </section>
+
+          <section className="bg-subtle py-20 lg:py-28">
+            <Rail>
+              <WorkingLoopSection />
+            </Rail>
+          </section>
+
+          <section className="py-20 lg:py-28">
+            <Rail>
+              <StagedSyllabus course={course} />
+            </Rail>
+          </section>
+
+          <section className="bg-subtle py-20 lg:py-28">
+            <Rail className="space-y-16">
+              {outcomesBlock}
+              {careersBlock}
+            </Rail>
+          </section>
+
+          <section className="hero-surface py-20 lg:py-28">
+            <Rail>
+              <CareerFaqSection course={course} />
+            </Rail>
+          </section>
+
+          <section className="py-20 lg:py-28">
+            <Rail>{includedBlock}</Rail>
+          </section>
+
+          {matchingTestimonials(course).length ? (
+            <section className="bg-subtle py-20 lg:py-28">
+              <Rail>
+                <CourseTestimonials course={course} />
+              </Rail>
+            </section>
+          ) : null}
+
+          <section className="py-20 lg:py-28">
+            <Rail>
+              <WhyTechcaddSection />
+            </Rail>
+          </section>
+
+          <section className="bg-subtle py-20 lg:py-28">
+            <Rail>
+              <ComparisonTable course={course} />
+            </Rail>
+          </section>
+
+          <section className="py-20 lg:py-28">
+            <Rail>
+              <GetStartedStrip course={course} />
+            </Rail>
+          </section>
+        </>
+      ) : null}
 
       {/* Enquiry */}
       <section className="bg-subtle py-16 lg:py-20">

@@ -107,28 +107,32 @@ const PERSONAS: { icon: string; title: string; body: (name: string) => string }[
 export function EligibilitySection({ course }: { course: Course }) {
   return (
     <div>
-      <h2 className="font-display text-2xl font-bold tracking-tight">Who can do this course</h2>
-      <p className="mt-4 leading-relaxed text-muted">
+      <span className="inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold tracking-wide text-amber-300 uppercase">
+        Eligibility
+      </span>
+      <h2 className="mt-6 font-display text-3xl font-bold tracking-tight text-balance text-white lg:text-4xl">
+        Who can do this course
+      </h2>
+      <p className="mt-4 max-w-2xl leading-relaxed text-white/65">
         {course.name} is built for people at several different starting points, and the batch is
         deliberately mixed. What matters more than your background is turning up consistently and
         finishing what each module asks you to build.
       </p>
-      <ol className="mt-8 grid gap-4 sm:grid-cols-2">
+      <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {PERSONAS.map((persona, i) => (
-          <li key={persona.title} className="rounded-2xl border border-line bg-white p-6">
-            <div className="flex items-start gap-4">
-              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-50 font-display text-xs font-bold text-brand-600">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <div>
-                <h3 className="font-display text-base font-bold tracking-tight">
-                  {persona.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-muted">
-                  {persona.body(course.name)}
-                </p>
-              </div>
-            </div>
+          <li
+            key={persona.title}
+            className="rounded-2xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-sm"
+          >
+            <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-amber-400/15 font-display text-xs font-bold text-amber-300">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <h3 className="mt-4 font-display text-base font-bold tracking-tight text-white">
+              {persona.title}
+            </h3>
+            <p className="mt-2 text-sm leading-relaxed text-white/60">
+              {persona.body(course.name)}
+            </p>
           </li>
         ))}
       </ol>
@@ -229,29 +233,37 @@ export function ProjectsSection({ course }: { course: Course }) {
 
   return (
     <div>
-      <h2 className="font-display text-2xl font-bold tracking-tight">
-        What you will actually build
+      <span className="inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold tracking-wide text-amber-300 uppercase">
+        Portfolio
+      </span>
+      <h2 className="mt-6 font-display text-3xl font-bold tracking-tight text-balance text-white lg:text-4xl">
+        Hands-on projects you will ship
       </h2>
-      <p className="mt-4 leading-relaxed text-muted">
+      <p className="mt-4 max-w-2xl leading-relaxed text-white/65">
         The syllabus is arranged so every module produces something you keep rather than a set of
         notes. Modules run in the order a real project runs: foundations first, then applied work,
         then supervised client work, then the portfolio piece that turns all of it into an offer
         letter.
       </p>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
+      <div className="mt-10 grid gap-5 sm:grid-cols-2">
         {projects.map((project) => (
-          <div key={project.step} className="rounded-2xl border border-line bg-white p-6">
-            <span className="font-display text-xs font-bold text-brand-600">{project.step}</span>
-            <h3 className="mt-2 font-display text-base font-bold tracking-tight">
+          <div
+            key={project.step}
+            className="rounded-2xl border border-white/10 bg-gradient-to-br from-[#1E88FF]/20 to-[#0F2E6D]/40 p-6 backdrop-blur-sm"
+          >
+            <span className="inline-flex items-center rounded-full border border-amber-400/30 px-3 py-1 text-xs font-bold text-amber-300">
+              Project {project.step}
+            </span>
+            <h3 className="mt-4 font-display text-lg font-bold tracking-tight text-white">
               {project.title}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{project.body}</p>
+            <p className="mt-2 text-sm leading-relaxed text-white/65">{project.body}</p>
             {project.tags.length ? (
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-5 flex flex-wrap gap-2">
                 {project.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-lg border border-line bg-subtle px-2.5 py-1 text-xs font-medium text-muted"
+                    className="rounded-lg bg-white/10 px-2.5 py-1 text-xs font-medium text-white/80"
                   >
                     {tag}
                   </span>
@@ -452,14 +464,18 @@ export function ComparisonTable({ course }: { course: Course }) {
 
 /* ------------------------------- Testimonials ------------------------------- */
 
-export function CourseTestimonials({ course }: { course: Course }) {
+export function matchingTestimonials(course: Course) {
   const nameLower = course.name.toLowerCase();
-  const matches = testimonials.filter(
+  return testimonials.filter(
     (t) =>
       t.course.toLowerCase().includes(nameLower.split(" ")[0]) ||
       nameLower.includes(t.course.toLowerCase()) ||
       t.course.toLowerCase() === nameLower,
   );
+}
+
+export function CourseTestimonials({ course }: { course: Course }) {
+  const matches = matchingTestimonials(course);
   if (!matches.length) return null;
 
   return (
