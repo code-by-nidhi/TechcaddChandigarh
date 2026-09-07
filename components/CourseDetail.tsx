@@ -233,9 +233,10 @@ export function CourseBody({
                     <>
                       <p>{course.summary}</p>
                       <p>
-                        This is a {course.level.toLowerCase()} track running over{" "}
+                        This is {/^[aeiou]/i.test(course.level) ? "an" : "a"}{" "}
+                        {course.level.toLowerCase()} track running over{" "}
                         {duration ?? course.duration} at our {site.city} centre. Batches are small
-                        enough that a trainer can sit with you when something does not compile, and
+                        enough that a trainer can sit with you when something is not working, and
                         every module ends with lab work rather than a quiz.
                       </p>
                       <p>

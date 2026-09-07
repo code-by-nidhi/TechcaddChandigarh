@@ -1194,7 +1194,7 @@ export function courseStages(course: Course) {
   return [
     {
       title: "Foundation & Core Skills",
-      body: `${topicLine(stage1)} through to the tools that turn syntax into shipped work. ${stage1.length} capabilities, taught, practised in the lab and assessed on work you keep.`,
+      body: `${topicLine(stage1)}, through to the tools that turn theory into finished work. ${stage1.length} capabilities, taught, practised in the lab and assessed on work you keep.`,
       modules: stage1,
       count: stage1.length,
       countLabel: `${stage1.length} capabilities`,
