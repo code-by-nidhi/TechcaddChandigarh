@@ -5,14 +5,13 @@ import {
   formatCards,
   includedItems,
   processSteps,
-  techGroups,
   testimonials,
   faqs,
 } from "@/data/content";
 import { recentPosts, formatDate } from "@/data/blog";
 import { CategoriesShowcase } from "@/components/sections/CategoriesShowcase";
 import { FeaturedShowcase } from "@/components/sections/FeaturedShowcase";
-import { TechnologyCards } from "@/components/sections/TechnologyCards";
+import { TechnologyStage } from "@/components/sections/TechnologyStage";
 import { Accordion } from "@/components/Accordion";
 import { QuickDemoForm } from "@/components/EnquiryForm";
 import { ButtonLink, Eyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
@@ -324,8 +323,6 @@ export function IncludedSection() {
 /* ------------------------------- Technologies ------------------------------- */
 
 export function TechnologiesSection() {
-  const marquee = techGroups.flatMap((g) => g.items).slice(0, 40);
-
   return (
     <section className="overflow-hidden py-20 lg:py-28">
       <Rail>
@@ -337,24 +334,8 @@ export function TechnologiesSection() {
         />
       </Rail>
 
-      <div
-        className="relative mt-14 flex select-none gap-3 overflow-hidden py-1 [mask-image:linear-gradient(90deg,transparent,black_8%,black_92%,transparent)]"
-        aria-hidden="true"
-      >
-        <div className="marquee-track flex shrink-0 gap-3">
-          {[...marquee, ...marquee].map((tool, i) => (
-            <span
-              key={`${tool}-${i}`}
-              className="shrink-0 rounded-full border border-line bg-white px-5 py-2.5 text-sm font-medium whitespace-nowrap text-muted"
-            >
-              {tool}
-            </span>
-          ))}
-        </div>
-      </div>
-
       <Rail className="mt-14">
-        <TechnologyCards />
+        <TechnologyStage />
       </Rail>
     </section>
   );
