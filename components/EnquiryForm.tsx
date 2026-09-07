@@ -3,12 +3,10 @@
 import { useState } from "react";
 import { courses } from "@/data/courses";
 import { branches } from "@/data/branches";
+import { isValidPhone, submitEnquiry, type EnquiryFormType } from "@/lib/enquiry";
 import { Button, Icon, cx } from "./ui";
 
-/**
- * Front-end only. Wire `onSubmit` to the CRM or an API route when the backend
- * is ready — the success state below is what the user sees either way.
- */
+/** Posts to `/api/enquiry`, which writes the lead to MySQL. */
 export function EnquiryForm({ compact = false }: { compact?: boolean }) {
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -25,8 +23,23 @@ export function EnquiryForm({ compact = false }: { compact?: boolean }) {
 
     setError(null);
     setStatus("sending");
-    // TODO: replace with the real submission endpoint.
-    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    const result = await submitEnquiry({
+      formType: "enquiry-form",
+      name: String(data.get("name") ?? ""),
+      phone,
+      email: String(data.get("email") ?? ""),
+      course: String(data.get("course") ?? ""),
+      branch: String(data.get("branch") ?? ""),
+      message: String(data.get("message") ?? ""),
+    });
+
+    if (!result.ok) {
+      setError(result.error);
+      setStatus("idle");
+      return;
+    }
+
     setStatus("sent");
   }
 
@@ -137,9 +150,42 @@ export function EnquiryForm({ compact = false }: { compact?: boolean }) {
   );
 }
 
+/**
+ * The phone-only forms collect nothing else, so they share one handler — the
+ * two exported variants differ only in how they are styled.
+ */
+function useQuickDemo(formType: EnquiryFormType) {
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const phone = String(new FormData(event.currentTarget).get("phone") ?? "");
+
+    if (!isValidPhone(phone)) {
+      setError("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    setError(null);
+    setStatus("sending");
+
+    const result = await submitEnquiry({ formType, phone });
+    if (!result.ok) {
+      setError(result.error);
+      setStatus("idle");
+      return;
+    }
+
+    setStatus("sent");
+  }
+
+  return { status, error, handleSubmit };
+}
+
 /** Single-field variant used in the closing call-to-action band. */
 export function QuickDemoForm() {
-  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const { status, error, handleSubmit } = useQuickDemo("quick-demo");
 
   return status === "sent" ? (
     <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-3 text-sm font-medium text-white ring-1 ring-inset ring-white/20">
@@ -147,36 +193,37 @@ export function QuickDemoForm() {
       Thanks — a counsellor will call you shortly.
     </p>
   ) : (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setStatus("sent");
-      }}
-      className="flex w-full max-w-md flex-col gap-3 sm:flex-row"
-    >
-      <label className="sr-only" htmlFor="quick-phone">
-        Mobile number
-      </label>
-      <input
-        id="quick-phone"
-        name="phone"
-        type="tel"
-        required
-        inputMode="numeric"
-        placeholder="Enter your mobile number"
-        className="h-13 flex-1 rounded-full border border-white/25 bg-white/10 px-6 text-sm text-white outline-none backdrop-blur-sm transition-colors placeholder:text-brand-100/60 focus:border-white/60"
-      />
-      <Button type="submit" variant="onDark" size="lg" className="shrink-0">
-        Book Demo
-        <Icon name="arrow-right" className="size-4" />
-      </Button>
+    <form onSubmit={handleSubmit} noValidate className="w-full max-w-md">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <label className="sr-only" htmlFor="quick-phone">
+          Mobile number
+        </label>
+        <input
+          id="quick-phone"
+          name="phone"
+          type="tel"
+          required
+          inputMode="numeric"
+          placeholder="Enter your mobile number"
+          className="h-13 flex-1 rounded-full border border-white/25 bg-white/10 px-6 text-sm text-white outline-none backdrop-blur-sm transition-colors placeholder:text-brand-100/60 focus:border-white/60"
+        />
+        <Button type="submit" variant="onDark" size="lg" className="shrink-0" disabled={status === "sending"}>
+          {status === "sending" ? "Sending…" : "Book Demo"}
+          <Icon name="arrow-right" className="size-4" />
+        </Button>
+      </div>
+      {error ? (
+        <p role="alert" className="mt-2 text-xs font-medium text-red-200">
+          {error}
+        </p>
+      ) : null}
     </form>
   );
 }
 
 /** Same single-field form as `QuickDemoForm`, styled for a light background. */
 export function QuickDemoFormLight() {
-  const [status, setStatus] = useState<"idle" | "sent">("idle");
+  const { status, error, handleSubmit } = useQuickDemo("quick-demo");
 
   return status === "sent" ? (
     <p className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-5 py-3 text-sm font-medium text-brand-700 ring-1 ring-inset ring-brand-600/15">
@@ -184,29 +231,30 @@ export function QuickDemoFormLight() {
       Thanks — a counsellor will call you shortly.
     </p>
   ) : (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        setStatus("sent");
-      }}
-      className="flex w-full flex-col gap-3 sm:flex-row"
-    >
-      <label className="sr-only" htmlFor="quick-phone-light">
-        Mobile number
-      </label>
-      <input
-        id="quick-phone-light"
-        name="phone"
-        type="tel"
-        required
-        inputMode="numeric"
-        placeholder="Your mobile number"
-        className="h-13 flex-1 rounded-full border border-line bg-white px-6 text-sm text-foreground outline-none transition-colors placeholder:text-muted/70 focus:border-brand-600"
-      />
-      <Button type="submit" size="lg" className="shrink-0">
-        Book Demo
-        <Icon name="arrow-right" className="size-4" />
-      </Button>
+    <form onSubmit={handleSubmit} noValidate className="w-full">
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <label className="sr-only" htmlFor="quick-phone-light">
+          Mobile number
+        </label>
+        <input
+          id="quick-phone-light"
+          name="phone"
+          type="tel"
+          required
+          inputMode="numeric"
+          placeholder="Your mobile number"
+          className="h-13 flex-1 rounded-full border border-line bg-white px-6 text-sm text-foreground outline-none transition-colors placeholder:text-muted/70 focus:border-brand-600"
+        />
+        <Button type="submit" size="lg" className="shrink-0" disabled={status === "sending"}>
+          {status === "sending" ? "Sending…" : "Book Demo"}
+          <Icon name="arrow-right" className="size-4" />
+        </Button>
+      </div>
+      {error ? (
+        <p role="alert" className="mt-2 text-xs font-medium text-red-600">
+          {error}
+        </p>
+      ) : null}
     </form>
   );
 }

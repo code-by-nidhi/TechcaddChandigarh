@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Icon } from "@/components/ui";
+import { submitEnquiry } from "@/lib/enquiry";
 
 export function FutureCareerForm() {
   const [phone, setPhone] = useState("");
@@ -18,8 +19,15 @@ export function FutureCareerForm() {
 
     setError(null);
     setStatus("sending");
-    // TODO: replace with the real submission endpoint.
-    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    const result = await submitEnquiry({ formType: "future-career", phone: digits });
+
+    if (!result.ok) {
+      setError(result.error);
+      setStatus("idle");
+      return;
+    }
+
     setStatus("sent");
   }
 

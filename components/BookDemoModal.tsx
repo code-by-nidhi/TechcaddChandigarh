@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { courses } from "@/data/courses";
 import { Icon, cx } from "@/components/ui";
+import { submitEnquiry } from "@/lib/enquiry";
 import { site } from "@/data/site";
 
 /** Google's four-colour "G" mark. */
@@ -64,8 +65,20 @@ export function BookDemoModal({ onClose }: { onClose: () => void }) {
 
     setError(null);
     setStatus("sending");
-    // TODO: replace with the real submission endpoint.
-    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    const result = await submitEnquiry({
+      formType: "book-demo-modal",
+      name: String(data.get("name") ?? ""),
+      phone,
+      course: String(data.get("course") ?? ""),
+    });
+
+    if (!result.ok) {
+      setError(result.error);
+      setStatus("idle");
+      return;
+    }
+
     setStatus("sent");
   }
 

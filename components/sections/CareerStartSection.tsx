@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { courses } from "@/data/courses";
 import { Icon, Rail, cx } from "@/components/ui";
+import { submitEnquiry } from "@/lib/enquiry";
 import { site } from "@/data/site";
 
 const steps = [
@@ -57,8 +58,22 @@ function CaptchaForm() {
 
     setError(null);
     setStatus("sending");
-    // TODO: replace with the real submission endpoint.
-    await new Promise((resolve) => setTimeout(resolve, 700));
+
+    const result = await submitEnquiry({
+      formType: "career-start",
+      name: String(data.get("name") ?? ""),
+      phone,
+      email: String(data.get("email") ?? ""),
+      course: String(data.get("course") ?? ""),
+      message: String(data.get("message") ?? ""),
+    });
+
+    if (!result.ok) {
+      setError(result.error);
+      setStatus("idle");
+      return;
+    }
+
     setStatus("sent");
   }
 
