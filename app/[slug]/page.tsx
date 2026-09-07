@@ -127,6 +127,7 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
 
         <CourseBody
           course={course}
+          showExtras
           extra={
             trackPrograms.length ? (
               <div>

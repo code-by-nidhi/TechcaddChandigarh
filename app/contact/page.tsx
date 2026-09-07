@@ -21,14 +21,27 @@ export default function ContactPage() {
       <PageHeader
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
         eyebrow="Contact"
-        title="Talk to a counsellor before you decide anything"
-        body="Career counselling is free and there is no obligation to enrol. Tell us your background and what you want to do next — if a course is wrong for you, we will say so."
-        meta={[
-          { label: "Phone", value: site.contact.phone },
-          { label: "Hours", value: site.contact.hours },
-          { label: "Centres", value: String(branches.length) },
-        ]}
-      />
+        title={`Talk to a counsellor in ${site.city}`}
+        body="Tell us where you are: 12th pass, mid-degree, working, or running a business. We will tell you honestly which track fits and which does not."
+      >
+        <div className="flex flex-wrap items-center gap-4">
+          <Link
+            href="/contact#enquire"
+            className="group inline-flex items-center gap-3 rounded-full bg-white py-1.5 pr-1.5 pl-6 text-sm font-semibold text-hero-950 transition-transform duration-300 hover:-translate-y-0.5"
+          >
+            Book a free demo class
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition-colors duration-300 group-hover:bg-brand-700">
+              <Icon name="arrow-right" className="size-4" />
+            </span>
+          </Link>
+          <a
+            href={site.contact.phoneHref}
+            className="inline-flex h-12 items-center gap-2 rounded-full border border-white/25 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-colors duration-300 hover:border-white/50 hover:bg-white/10"
+          >
+            Call {site.contact.phone}
+          </a>
+        </div>
+      </PageHeader>
 
       <SupportDesks />
 
