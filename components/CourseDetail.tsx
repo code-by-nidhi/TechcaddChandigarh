@@ -5,22 +5,26 @@ import { site } from "@/data/site";
 import { includedItems } from "@/data/content";
 import { relatedCourses, rupees } from "@/lib/routes";
 import { CourseCard } from "./CourseCard";
+import { CourseFaqSection } from "./CourseFaqSection";
 import { EnquiryForm } from "./EnquiryForm";
-import { Badge, ButtonLink, Icon, Rail, SectionHeading, badgeTone } from "./ui";
+import { SyllabusLadderSection } from "./SyllabusLadderSection";
+import { Badge, ButtonLink, cx, Icon, Rail, SectionHeading, badgeTone } from "./ui";
 import {
-  CourseStatsStrip,
+  OverviewNetworkGraphic,
+  IndustryTrainingSection,
   ToolchainPanel,
+  CertificationSection,
   EligibilitySection,
   CaseForCourse,
+  IndustryLeadersSection,
   ProjectsSection,
   WorkingLoopSection,
-  StagedSyllabus,
+  HowItIsBuiltSection,
   CareerFaqSection,
   WhyTechcaddSection,
   ComparisonTable,
   CourseTestimonials,
   GetStartedStrip,
-  matchingTestimonials,
 } from "./CourseDetailExtras";
 
 /* ------------------------------- Syllabus list ------------------------------- */
@@ -206,16 +210,25 @@ export function CourseBody({
     <>
       <section className="py-16 lg:py-20">
         <Rail>
-          <div className="grid gap-12 lg:grid-cols-[1.7fr_1fr] lg:gap-16">
+          <div
+            className={cx(
+              "grid gap-12",
+              showExtras ? "" : "lg:grid-cols-[1.7fr_1fr] lg:gap-16",
+            )}
+          >
             <div className="min-w-0 space-y-16">
-              <div>
+              <div className={cx(showExtras ? "mx-auto max-w-3xl" : "")}>
                 <span className="inline-flex items-center rounded-full border border-line px-4 py-1.5 text-xs font-bold tracking-wide text-muted uppercase">
                   Overview
                 </span>
-                <h2 className="mt-6 font-display text-2xl font-bold tracking-tight">
+                <h2 className="mt-6 flex items-center gap-3 font-display text-2xl font-bold tracking-tight">
                   Course overview
+                  <span
+                    aria-hidden="true"
+                    className="inline-block size-6 shrink-0 rounded-full border-2 border-brand-500"
+                  />
                 </h2>
-                <div className="mt-5 space-y-4 leading-relaxed text-muted">
+                <div className="mt-5 max-w-3xl space-y-4 text-justify leading-relaxed text-muted">
                   {intro ?? (
                     <>
                       <p>{course.summary}</p>
@@ -246,6 +259,12 @@ export function CourseBody({
                     ))}
                   </div>
                 )}
+
+                {showExtras ? (
+                  <div className="mt-10">
+                    <OverviewNetworkGraphic />
+                  </div>
+                ) : null}
               </div>
 
               {extra}
@@ -258,40 +277,36 @@ export function CourseBody({
               {showExtras ? null : includedBlock}
             </div>
 
-            <aside className="lg:sticky lg:top-24 lg:self-start">
-              <EnrolCard course={course} duration={duration} />
+            {showExtras ? null : (
+              <aside className="lg:sticky lg:top-24 lg:self-start">
+                <EnrolCard course={course} duration={duration} />
 
-              <div className="mt-6 rounded-2xl border border-line bg-subtle p-6">
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-                  Track
-                </p>
-                <Link
-                  href={`/courses#${category.id}`}
-                  className="mt-3 flex items-center gap-3 text-sm font-medium transition-colors hover:text-brand-600"
-                >
-                  <span className="inline-flex size-9 items-center justify-center rounded-lg bg-white text-brand-600">
-                    <Icon name={category.icon} className="size-4" />
-                  </span>
-                  {category.name}
-                </Link>
-                <p className="mt-4 text-sm leading-relaxed text-muted">{category.blurb}</p>
-              </div>
-            </aside>
+                <div className="mt-6 rounded-2xl border border-line bg-subtle p-6">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+                    Track
+                  </p>
+                  <Link
+                    href={`/courses#${category.id}`}
+                    className="mt-3 flex items-center gap-3 text-sm font-medium transition-colors hover:text-brand-600"
+                  >
+                    <span className="inline-flex size-9 items-center justify-center rounded-lg bg-white text-brand-600">
+                      <Icon name={category.icon} className="size-4" />
+                    </span>
+                    {category.name}
+                  </Link>
+                  <p className="mt-4 text-sm leading-relaxed text-muted">{category.blurb}</p>
+                </div>
+              </aside>
+            )}
           </div>
         </Rail>
       </section>
 
       {showExtras ? (
         <>
-          <section className="py-20 lg:py-28">
-            <Rail>
-              <CourseStatsStrip />
-            </Rail>
-          </section>
-
           <section className="bg-subtle py-20 lg:py-28">
             <Rail>
-              <ToolchainPanel course={course} />
+              <IndustryTrainingSection course={course} />
             </Rail>
           </section>
 
@@ -301,7 +316,7 @@ export function CourseBody({
             </Rail>
           </section>
 
-          <section className="py-20 lg:py-28">
+          <section className="bg-[#F7F8FC] py-20 lg:py-28">
             <Rail>
               <CaseForCourse course={course} />
             </Rail>
@@ -309,19 +324,25 @@ export function CourseBody({
 
           <section className="hero-surface py-20 lg:py-28">
             <Rail>
-              <ProjectsSection course={course} />
+              <IndustryLeadersSection course={course} />
             </Rail>
           </section>
 
           <section className="bg-subtle py-20 lg:py-28">
             <Rail>
-              <WorkingLoopSection />
+              <WorkingLoopSection course={course} />
             </Rail>
           </section>
 
           <section className="py-20 lg:py-28">
             <Rail>
-              <StagedSyllabus course={course} />
+              <ToolchainPanel course={course} />
+            </Rail>
+          </section>
+
+          <section className="hero-surface py-20 lg:py-28">
+            <Rail>
+              <CertificationSection course={course} />
             </Rail>
           </section>
 
@@ -332,9 +353,15 @@ export function CourseBody({
             </Rail>
           </section>
 
-          <section className="hero-surface py-20 lg:py-28">
+          <section className="py-20 lg:py-28">
             <Rail>
               <CareerFaqSection course={course} />
+            </Rail>
+          </section>
+
+          <section className="hero-surface py-20 lg:py-28">
+            <Rail>
+              <ProjectsSection course={course} />
             </Rail>
           </section>
 
@@ -342,23 +369,39 @@ export function CourseBody({
             <Rail>{includedBlock}</Rail>
           </section>
 
-          {matchingTestimonials(course).length ? (
-            <section className="bg-subtle py-20 lg:py-28">
-              <Rail>
-                <CourseTestimonials course={course} />
-              </Rail>
-            </section>
-          ) : null}
-
-          <section className="py-20 lg:py-28">
+          <section className="hero-surface py-20 lg:py-28">
             <Rail>
               <WhyTechcaddSection />
             </Rail>
           </section>
 
-          <section className="bg-subtle py-20 lg:py-28">
+          <section className="py-20 lg:py-28">
             <Rail>
               <ComparisonTable course={course} />
+            </Rail>
+          </section>
+
+          <section className="py-20 lg:py-28">
+            <Rail>
+              <CourseTestimonials course={course} />
+            </Rail>
+          </section>
+
+          <section className="hero-surface py-20 lg:py-28">
+            <Rail>
+              <CourseFaqSection course={course} />
+            </Rail>
+          </section>
+
+          <section className="py-20 lg:py-28">
+            <Rail>
+              <HowItIsBuiltSection course={course} />
+            </Rail>
+          </section>
+
+          <section className="hero-surface py-20 lg:py-28">
+            <Rail>
+              <SyllabusLadderSection course={course} />
             </Rail>
           </section>
 
@@ -369,22 +412,6 @@ export function CourseBody({
           </section>
         </>
       ) : null}
-
-      {/* Enquiry */}
-      <section className="bg-subtle py-16 lg:py-20">
-        <Rail>
-          <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
-            <SectionHeading
-              eyebrow="Enquire"
-              title={`Talk to a counsellor about ${course.name}`}
-              body="Tell us your background and what you want to do next. We will tell you honestly whether this course is the right fit — and which duration suits your timeline."
-            />
-            <div className="rounded-2xl border border-line bg-white p-7 lg:p-8">
-              <EnquiryForm />
-            </div>
-          </div>
-        </Rail>
-      </section>
 
       {/* Related */}
       {related.length ? (
@@ -408,6 +435,24 @@ export function CourseBody({
           </Rail>
         </section>
       ) : null}
+
+      {/* Enquiry — course-template pages render their own CourseEnquirySection instead, right before the footer */}
+      {showExtras ? null : (
+        <section className="bg-subtle py-16 lg:py-20">
+          <Rail>
+            <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
+              <SectionHeading
+                eyebrow="Enquire"
+                title={`Talk to a counsellor about ${course.name}`}
+                body="Tell us your background and what you want to do next. We will tell you honestly whether this course is the right fit — and which duration suits your timeline."
+              />
+              <div className="rounded-2xl border border-line bg-white p-7 lg:p-8">
+                <EnquiryForm />
+              </div>
+            </div>
+          </Rail>
+        </section>
+      )}
     </>
   );
 }

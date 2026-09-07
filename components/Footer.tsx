@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { site } from "@/data/site";
 import { footerColumns, legalLinks } from "@/data/nav";
 import { branches } from "@/data/branches";
+import { resolveSlug } from "@/lib/routes";
 import { Logo } from "./Logo";
 import { ButtonLink, Icon } from "./ui";
 
@@ -14,34 +18,39 @@ const socials = [
 
 export function Footer() {
   const year = new Date().getFullYear();
+  const pathname = usePathname();
+  const resolved = resolveSlug(pathname.replace(/^\//, ""));
+  const isCoursePage = resolved?.kind === "course";
 
   return (
     <footer className="relative overflow-hidden border-t border-line bg-subtle">
-      {/* Closing call to action */}
-      <div className="border-b border-line bg-white">
-        <div className="rail">
-          <div className="flex flex-col items-start gap-6 py-10 sm:flex-row sm:items-center sm:justify-between lg:py-12">
-            <div>
-              <h2 className="font-display text-xl font-bold tracking-tight lg:text-2xl">
-                Ready to start your career in tech?
-              </h2>
-              <p className="mt-1.5 text-sm text-muted">
-                Book a free demo class and see the lab before you decide.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <ButtonLink href="/contact#enquire">Book Free Demo</ButtonLink>
-              <a
-                href={site.contact.phoneHref}
-                className="inline-flex h-11 items-center gap-2 rounded-full border border-foreground/15 px-5 text-sm font-medium transition-colors duration-300 hover:border-brand-600/30 hover:bg-brand-50"
-              >
-                <Icon name="phone" className="size-4" />
-                {site.contact.phone}
-              </a>
+      {/* Closing call to action — course pages already end with an equivalent CTA */}
+      {isCoursePage ? null : (
+        <div className="border-b border-line bg-white">
+          <div className="rail">
+            <div className="flex flex-col items-start gap-6 py-10 sm:flex-row sm:items-center sm:justify-between lg:py-12">
+              <div>
+                <h2 className="font-display text-xl font-bold tracking-tight lg:text-2xl">
+                  Ready to start your career in tech?
+                </h2>
+                <p className="mt-1.5 text-sm text-muted">
+                  Book a free demo class and see the lab before you decide.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <ButtonLink href="/contact#enquire">Book Free Demo</ButtonLink>
+                <a
+                  href={site.contact.phoneHref}
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-foreground/15 px-5 text-sm font-medium transition-colors duration-300 hover:border-brand-600/30 hover:bg-brand-50"
+                >
+                  <Icon name="phone" className="size-4" />
+                  {site.contact.phone}
+                </a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Oversized wordmark watermark */}
       <svg
