@@ -9,9 +9,10 @@ import {
   testimonials,
   faqs,
 } from "@/data/content";
-import { courseCategories, coursesByCategory, featuredCourses } from "@/data/courses";
+import { featuredCourses } from "@/data/courses";
 import { recentPosts, formatDate } from "@/data/blog";
 import { CourseCard } from "@/components/CourseCard";
+import { CategoriesShowcase } from "@/components/sections/CategoriesShowcase";
 import { Accordion } from "@/components/Accordion";
 import { QuickDemoForm } from "@/components/EnquiryForm";
 import { ButtonLink, Eyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
@@ -116,67 +117,47 @@ export function ProcessSection() {
 
 export function CategoriesSection() {
   return (
-    <section className="bg-subtle py-20 lg:py-28">
+    <section className="panel-surface relative isolate overflow-hidden py-20 text-white lg:py-28">
+      <div
+        aria-hidden="true"
+        className="drift-slow pointer-events-none absolute -top-1/4 left-1/2 -z-10 size-[46rem] -translate-x-1/2 rounded-full bg-accent-400/10 blur-[150px]"
+      />
       <Rail>
         <div className="flex flex-wrap items-end justify-between gap-6">
           <SectionHeading
+            onDark
             eyebrow="Course categories"
             title="Seven tracks, fifty-plus courses"
             body="Pick a direction first, then a duration. Counselling is free if you want help choosing."
           />
-          <ButtonLink href="/courses" variant="secondary">
+          <ButtonLink href="/courses" variant="onDarkGhost">
             All courses
             <Icon name="arrow-right" className="size-4" />
           </ButtonLink>
         </div>
+      </Rail>
 
-        <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {courseCategories.map((category) => {
-            const count = coursesByCategory(category.id).length;
-            return (
-              <Link
-                key={category.id}
-                href={`/courses#${category.id}`}
-                className="card-hover group rounded-2xl border border-line bg-white p-6"
-              >
-                <span className="inline-flex size-11 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors duration-300 group-hover:bg-brand-600 group-hover:text-white">
-                  <Icon name={category.icon} className="size-5" />
-                </span>
-                <h3 className="mt-5 font-display text-lg font-bold tracking-tight">
-                  {category.name}
-                </h3>
-                <p className="mt-2.5 text-sm leading-relaxed text-muted">{category.blurb}</p>
-                <p className="mt-5 text-xs font-semibold text-brand-600">
-                  {count} course{count === 1 ? "" : "s"}
-                </p>
-              </Link>
-            );
-          })}
+      <CategoriesShowcase />
 
-          <div className="hero-surface flex flex-col justify-between rounded-2xl p-6 text-white">
-            <div>
-              <span className="inline-flex size-11 items-center justify-center rounded-xl bg-white/12">
-                <Icon name="rocket" className="size-5" />
-              </span>
-              <h3 className="mt-5 font-display text-lg font-bold tracking-tight">
-                Not sure which track?
-              </h3>
-              <p className="mt-2.5 text-sm leading-relaxed text-brand-100/75">
-                Answer four questions and we will suggest a track, a duration and a first project to
-                build.
-              </p>
-            </div>
-            <ButtonLink
-              href="/tools/career-track-finder"
-              variant="onDark"
-              size="sm"
-              className="mt-6 self-start"
-            >
-              Find my track
-              <Icon name="arrow-right" className="size-4" />
-            </ButtonLink>
+      <Rail>
+        <div className="mx-auto mt-6 flex max-w-3xl flex-col items-center gap-4 rounded-2xl border border-white/12 bg-white/[0.06] p-6 text-center backdrop-blur-sm sm:flex-row sm:text-left">
+          <span className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-white/12">
+            <Icon name="rocket" className="size-5" />
+          </span>
+          <div className="flex-1">
+            <h3 className="font-display text-base font-bold tracking-tight">
+              Not sure which track?
+            </h3>
+            <p className="mt-1 text-sm leading-relaxed text-brand-100/75">
+              Answer four questions and we will suggest a track, a duration and a first project to
+              build.
+            </p>
           </div>
-        </Reveal>
+          <ButtonLink href="/tools/career-track-finder" variant="onDark" size="sm" className="shrink-0">
+            Find my track
+            <Icon name="arrow-right" className="size-4" />
+          </ButtonLink>
+        </div>
       </Rail>
     </section>
   );
