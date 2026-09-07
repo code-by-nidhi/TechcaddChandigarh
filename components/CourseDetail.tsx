@@ -7,6 +7,19 @@ import { relatedCourses, rupees } from "@/lib/routes";
 import { CourseCard } from "./CourseCard";
 import { EnquiryForm } from "./EnquiryForm";
 import { Badge, ButtonLink, Icon, Rail, SectionHeading, badgeTone } from "./ui";
+import {
+  CourseStatsStrip,
+  EligibilitySection,
+  CaseForCourse,
+  ProjectsSection,
+  WorkingLoopSection,
+  StagedSyllabus,
+  CareerFaqSection,
+  WhyTechcaddSection,
+  ComparisonTable,
+  CourseTestimonials,
+  GetStartedStrip,
+} from "./CourseDetailExtras";
 
 /* ------------------------------- Syllabus list ------------------------------- */
 

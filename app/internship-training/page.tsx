@@ -6,8 +6,9 @@ import { EnquiryForm } from "@/components/EnquiryForm";
 import { ButtonLink, Icon, Rail, SectionHeading } from "@/components/ui";
 import { site } from "@/data/site";
 import { trainingFormats } from "@/data/programs";
-import { featuredCourses } from "@/data/courses";
+import { featuredCourses, courseSlug } from "@/data/courses";
 import { faqs } from "@/data/content";
+import { faqPageSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: `Internship Program in ${site.city} — Live Client Work`,
@@ -122,7 +123,7 @@ export default function InternshipPage() {
                   {featuredCourses.map((course) => (
                     <Link
                       key={course.id}
-                      href={`/${course.id}-course-in-${site.citySlug}`}
+                      href={`/${courseSlug(course.id)}`}
                       className="group flex items-center justify-between gap-3 rounded-xl border border-line bg-white px-5 py-4 text-sm font-medium transition-colors hover:border-brand-600/30 hover:bg-brand-50/40"
                     >
                       {course.name}
@@ -194,6 +195,10 @@ export default function InternshipPage() {
 
       <FaqSection items={faqs.slice(0, 6)} />
       <CtaSection />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs.slice(0, 6))) }}
+      />
     </>
   );
 }

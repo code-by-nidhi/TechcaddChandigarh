@@ -13,8 +13,9 @@ import {
   type NavTile,
 } from "@/data/nav";
 import { site } from "@/data/site";
+import { BookDemoModal } from "./BookDemoModal";
 import { Logo } from "./Logo";
-import { Badge, ButtonLink, Icon, badgeTone, cx } from "./ui";
+import { Badge, Button, Icon, badgeTone, cx } from "./ui";
 
 /* -------------------------------------------------------------------------- */
 /*                              Mega panel pieces                              */
@@ -218,6 +219,7 @@ export function Header() {
   const [open, setOpen] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [demoOpen, setDemoOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
@@ -372,14 +374,15 @@ export function Header() {
 
             {/* Kept on phones too — it is the page's primary action — but tucked
                 away on the narrowest handsets where the logo needs the room. */}
-            <ButtonLink
-              href="/contact#enquire"
+            <Button
+              type="button"
+              onClick={() => setDemoOpen(true)}
               variant={solid ? "primary" : "onDark"}
               size="sm"
               className="hidden shrink-0 px-4 min-[380px]:inline-flex sm:px-5"
             >
               Book Demo
-            </ButtonLink>
+            </Button>
 
             <button
               type="button"
@@ -410,7 +413,17 @@ export function Header() {
         </div>
       ) : null}
 
-      {mobileOpen ? <MobileMenu onNavigate={() => setMobileOpen(false)} /> : null}
+      {mobileOpen ? (
+        <MobileMenu
+          onNavigate={() => setMobileOpen(false)}
+          onBookDemo={() => {
+            setMobileOpen(false);
+            setDemoOpen(true);
+          }}
+        />
+      ) : null}
+
+      {demoOpen ? <BookDemoModal onClose={() => setDemoOpen(false)} /> : null}
     </header>
   );
 }
@@ -432,7 +445,13 @@ function flatten(item: NavItem): { title?: string; links: NavLink[] }[] {
   }
 }
 
-function MobileMenu({ onNavigate }: { onNavigate: () => void }) {
+function MobileMenu({
+  onNavigate,
+  onBookDemo,
+}: {
+  onNavigate: () => void;
+  onBookDemo: () => void;
+}) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
@@ -533,10 +552,10 @@ function MobileMenu({ onNavigate }: { onNavigate: () => void }) {
         </ul>
 
         <div className="mt-6 grid gap-2.5">
-          <ButtonLink href="/contact#enquire" onClick={onNavigate} size="lg">
+          <Button type="button" onClick={onBookDemo} size="lg">
             Book Free Demo
             <Icon name="arrow-right" className="size-4" />
-          </ButtonLink>
+          </Button>
           <a
             href={site.contact.phoneHref}
             className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-line text-sm font-medium"

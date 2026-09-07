@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Breadcrumbs, Eyebrow, Rail } from "./ui";
 import { HeroReveal } from "./motion/Reveal";
+import { breadcrumbListSchema } from "@/lib/schema";
 
 /**
  * The navy banner every inner page opens with — keeps the hero gradient as the
@@ -76,6 +77,15 @@ export function PageHeader({
           </div>
         ) : null}
       </HeroReveal>
+
+      {breadcrumbs && breadcrumbs.length > 1 ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(breadcrumbListSchema(breadcrumbs)),
+          }}
+        />
+      ) : null}
     </section>
   );
 }

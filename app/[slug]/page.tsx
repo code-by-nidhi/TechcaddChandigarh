@@ -11,6 +11,7 @@ import { site } from "@/data/site";
 import { courseSlug } from "@/data/courses";
 import { programsForTrack, trainingFormats } from "@/data/programs";
 import { faqs } from "@/data/content";
+import { courseSchema, faqPageSchema } from "@/lib/schema";
 
 export const dynamicParams = false;
 
@@ -34,35 +35,46 @@ export async function generateMetadata({
       const { course, variant } = resolved;
       const noun = variant === "training" ? "Training" : "Course";
       const title = `${course.name} ${noun} in ${site.city} — Syllabus, Duration & Fees`;
+      const description = `${course.summary} ${course.duration} at our ${site.city} centre, with live projects, an industry certificate and placement support.`;
       return {
         title,
-        description: `${course.summary} ${course.duration} at our ${site.city} centre, with live projects, an industry certificate and placement support.`,
+        description,
         alternates: { canonical },
         openGraph: { title, description: course.summary, url: canonical },
+        twitter: { card: "summary_large_image", title, description: course.summary },
       };
     }
     case "program": {
       const { program } = resolved;
+      const title = `${program.title} — Syllabus, Fees & Placement`;
       return {
-        title: `${program.title} — Syllabus, Fees & Placement`,
+        title,
         description: program.summary,
         alternates: { canonical },
+        openGraph: { title, description: program.summary, url: canonical },
+        twitter: { card: "summary_large_image", title, description: program.summary },
       };
     }
     case "training-format": {
       const { format } = resolved;
+      const title = `${format.title} — Projects, Certificate & Placement`;
       return {
-        title: `${format.title} — Projects, Certificate & Placement`,
+        title,
         description: format.summary,
         alternates: { canonical },
+        openGraph: { title, description: format.summary, url: canonical },
+        twitter: { card: "summary_large_image", title, description: format.summary },
       };
     }
     case "after-12th": {
       const { entry } = resolved;
+      const title = `${entry.title} — ${entry.duration} Foundation-First Track`;
       return {
-        title: `${entry.title} — ${entry.duration} Foundation-First Track`,
+        title,
         description: entry.summary,
         alternates: { canonical },
+        openGraph: { title, description: entry.summary, url: canonical },
+        twitter: { card: "summary_large_image", title, description: entry.summary },
       };
     }
   }
@@ -79,27 +91,13 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
     const noun = variant === "training" ? "Training" : "Course";
     const trackPrograms = programsForTrack(course.id).filter((p) => !p.after12th);
 
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "Course",
+    const schema = courseSchema({
       name: `${course.name} ${noun} in ${site.city}`,
       description: course.summary,
-      provider: {
-        "@type": "EducationalOrganization",
-        name: site.name,
-        sameAs: site.url,
-      },
-      ...(course.fee
-        ? {
-            offers: {
-              "@type": "Offer",
-              price: course.fee.offer,
-              priceCurrency: "INR",
-              category: "Paid",
-            },
-          }
-        : {}),
-    };
+      url: `${site.url}/${slug}`,
+      priceInr: course.fee?.offer,
+    });
+    const faqSchema = faqPageSchema(faqs.slice(0, 6));
 
     return (
       <>
@@ -170,6 +168,10 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
       </>
     );
   }
@@ -178,6 +180,12 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   if (resolved.kind === "program") {
     const { program } = resolved;
     const { duration } = program;
+    const schema = courseSchema({
+      name: program.title,
+      description: program.summary,
+      url: `${site.url}/${slug}`,
+    });
+    const faqSchema = faqPageSchema(faqs.slice(0, 6));
 
     return (
       <>
@@ -210,6 +218,14 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
 
         <FaqSection items={faqs.slice(0, 6)} />
         <CtaSection />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
       </>
     );
   }
@@ -218,6 +234,12 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   if (resolved.kind === "training-format") {
     const { format } = resolved;
     const others = trainingFormats.filter((f) => f.slug !== format.slug);
+    const schema = courseSchema({
+      name: format.title,
+      description: format.summary,
+      url: `${site.url}/${slug}`,
+    });
+    const faqSchema = faqPageSchema(faqs.slice(0, 6));
 
     return (
       <>
@@ -346,12 +368,27 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
 
         <FaqSection items={faqs.slice(0, 6)} />
         <CtaSection />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
       </>
     );
   }
 
   /* ------------------------------ After-12th page ------------------------------ */
   const { entry, course } = resolved;
+  const afterCourseSchema = courseSchema({
+    name: entry.title,
+    description: entry.summary,
+    url: `${site.url}/${slug}`,
+    priceInr: course.fee?.offer,
+  });
+  const afterFaqSchema = faqPageSchema(faqs.slice(0, 6));
 
   return (
     <>
@@ -425,6 +462,14 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
 
       <FaqSection items={faqs.slice(0, 6)} />
       <CtaSection />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(afterCourseSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(afterFaqSchema) }}
+      />
     </>
   );
 }

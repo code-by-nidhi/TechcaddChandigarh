@@ -11,58 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: `${site.url}/reviews` },
 };
 
-const moreReviews = [
-  {
-    name: "Karan Malhotra",
-    role: "DevOps Engineer, Mohali",
-    course: "Cloud Computing & DevOps",
-    initials: "KM",
-    quote:
-      "I had been a support engineer for three years and was stuck. The Kubernetes and Terraform modules were what actually moved me — six weeks after finishing I was running deployments instead of tickets.",
-  },
-  {
-    name: "Ishita Rana",
-    role: "SEO Executive, Chandigarh",
-    course: "Digital Marketing",
-    initials: "IR",
-    quote:
-      "We ran real campaigns with real budgets. Losing money on a badly targeted ad in week four taught me more than any case study could have.",
-  },
-  {
-    name: "Manpreet Kaur",
-    role: "MERN Developer, Panchkula",
-    course: "MERN Stack",
-    initials: "MK",
-    quote:
-      "The code reviews were brutal in the best way. My first pull request came back with eleven comments. By the end of the course they came back with one or two.",
-  },
-  {
-    name: "Aditya Nair",
-    role: "BCA Student, Kharar",
-    course: "6 Weeks Industrial Training",
-    initials: "AN",
-    quote:
-      "I needed the six-week training for university and expected to sit through slides. Instead I built and deployed something. The viva was the easiest exam I have had.",
-  },
-  {
-    name: "Preeti Sharma",
-    role: "Accounts Executive, Zirakpur",
-    course: "Tally with GST",
-    initials: "PS",
-    quote:
-      "I was returning to work after a long break and needed something practical. GST filing was covered properly, not just in theory. I was handling live books within a month of joining a firm.",
-  },
-  {
-    name: "Vikram Chauhan",
-    role: "Flutter Developer, Ambala",
-    course: "Flutter App Development",
-    initials: "VC",
-    quote:
-      "Publishing to the Play Store as part of the course was the detail that mattered. Every other candidate had a demo app; I had a link.",
-  },
-];
-
-const allReviews = [...testimonials, ...moreReviews];
+const allReviews = testimonials;
 
 const distribution = [
   { stars: 5, share: 88 },

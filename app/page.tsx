@@ -6,7 +6,6 @@ import {
   CtaSection,
   DifferenceSection,
   FaqSection,
-  FeaturedSection,
   IncludedSection,
   ProcessSection,
   TechnologiesSection,
@@ -14,16 +13,9 @@ import {
 } from "@/components/sections/Home";
 import { faqs } from "@/data/content";
 import { site } from "@/data/site";
+import { faqPageSchema } from "@/lib/schema";
 
-const faqSchema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: faqs.map((faq) => ({
-    "@type": "Question",
-    name: faq.question,
-    acceptedAnswer: { "@type": "Answer", text: faq.answer },
-  })),
-};
+const faqSchema = faqPageSchema(faqs.slice(0, 6));
 
 export default function HomePage() {
   return (
@@ -33,7 +25,6 @@ export default function HomePage() {
       <AboutSection />
       <ProcessSection />
       <CategoriesSection />
-      <FeaturedSection />
       <DifferenceSection />
       <TestimonialsSection />
       <IncludedSection />

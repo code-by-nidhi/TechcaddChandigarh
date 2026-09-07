@@ -194,7 +194,9 @@ export function CareerTrackFinder() {
           Your recommended track
         </p>
         <h2 className="mt-4 font-display text-2xl font-bold tracking-tight lg:text-3xl">
-          {top.course.name}
+          <Link href={`/${courseSlug(top.course.id)}`} className="hover:underline">
+            {top.course.name}
+          </Link>
         </h2>
         <p className="mt-4 leading-relaxed text-muted">{top.course.summary}</p>
 

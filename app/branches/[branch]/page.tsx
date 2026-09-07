@@ -10,6 +10,7 @@ import { branches, branchesBySlug, serviceAreas } from "@/data/branches";
 import { featuredCourses } from "@/data/courses";
 import { faqs } from "@/data/content";
 import { site } from "@/data/site";
+import { faqPageSchema } from "@/lib/schema";
 
 export const dynamicParams = false;
 
@@ -230,6 +231,10 @@ export default async function BranchPage({ params }: { params: Promise<{ branch:
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs.slice(0, 6))) }}
       />
     </>
   );

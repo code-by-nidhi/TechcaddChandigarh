@@ -10,6 +10,7 @@ import { branchFor, serviceAreas, serviceAreasBySlug } from "@/data/branches";
 import { courseCategories, coursesByCategory } from "@/data/courses";
 import { faqs } from "@/data/content";
 import { site } from "@/data/site";
+import { faqPageSchema } from "@/lib/schema";
 
 export const dynamicParams = false;
 
@@ -191,6 +192,10 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
 
       <FaqSection items={faqs.slice(0, 6)} />
       <CtaSection />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs.slice(0, 6))) }}
+      />
     </>
   );
 }
