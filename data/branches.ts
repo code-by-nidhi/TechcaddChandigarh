@@ -1,8 +1,8 @@
 import { site } from "./site";
 
 /**
- * Regional centres around the tricity. Contact details are placeholders —
- * replace with the live numbers and addresses for each branch.
+ * Regional centres across the Punjab belt. Contact details are placeholders
+ * — replace with the live numbers and addresses for each branch.
  */
 export interface Branch {
   slug: string;
@@ -20,14 +20,14 @@ export interface Branch {
 
 export const branches: Branch[] = [
   {
-    slug: "chandigarh",
-    name: "Chandigarh",
+    slug: "jalandhar",
+    name: "Jalandhar",
     isHead: true,
-    address: "SCO 118-120, 2nd Floor, Sector 34-A, Chandigarh 160022",
-    locality: "Sector 34-A",
+    address: "Model Town, Jalandhar, Punjab 144003",
+    locality: "Model Town",
     phone: site.contact.phone,
     phoneHref: site.contact.phoneHref,
-    mapUrl: "https://maps.google.com/?q=Sector+34A+Chandigarh",
+    mapUrl: "https://maps.google.com/?q=Model+Town+Jalandhar",
     blurb:
       "Our head campus, with the largest lab floor, the AI and cyber security ranges, and the placement team that runs drives for every branch.",
     labs: "6 labs · 140 seats",
@@ -39,93 +39,93 @@ export const branches: Branch[] = [
     ],
   },
   {
-    slug: "mohali",
-    name: "Mohali",
-    address: "Phase 7, Industrial Area, Sahibzada Ajit Singh Nagar 160055",
-    locality: "Phase 7",
-    phone: "+91 98881 22255",
-    phoneHref: "tel:+919888122255",
-    mapUrl: "https://maps.google.com/?q=Phase+7+Mohali",
+    slug: "ludhiana",
+    name: "Ludhiana",
+    address: "Ferozepur Road, Ludhiana, Punjab 141001",
+    locality: "Ferozepur Road",
+    phone: "+91 98881 22261",
+    phoneHref: "tel:+919888122261",
+    mapUrl: "https://maps.google.com/?q=Ferozepur+Road+Ludhiana",
     blurb:
-      "Close to the IT parks, this centre runs the heaviest full-stack and cloud schedules, including early-morning batches for working professionals.",
-    labs: "4 labs · 90 seats",
+      "Serving Punjab's largest industrial city, with a schedule weighted toward working professionals and evening batches.",
+    labs: "3 labs · 65 seats",
     highlights: [
-      "Full-stack and DevOps focus",
-      "7 AM batches for working professionals",
-      "Walking distance from Phase 8 IT offices",
-      "Interview drives with local product teams",
-    ],
-  },
-  {
-    slug: "panchkula",
-    name: "Panchkula",
-    address: "Sector 11, Main Market, Panchkula, Haryana 134109",
-    locality: "Sector 11",
-    phone: "+91 98881 22256",
-    phoneHref: "tel:+919888122256",
-    mapUrl: "https://maps.google.com/?q=Sector+11+Panchkula",
-    blurb:
-      "Serving Panchkula and the Haryana side of the tricity, with strong data analytics, digital marketing and office skills programs.",
-    labs: "3 labs · 70 seats",
-    highlights: [
-      "Data analytics and marketing focus",
-      "Tally and office skills batches",
-      "Student transport routes from Pinjore",
-      "Saturday doubt-clearing sessions",
-    ],
-  },
-  {
-    slug: "zirakpur",
-    name: "Zirakpur",
-    address: "VIP Road, Near Paras Down Town, Zirakpur, Punjab 140603",
-    locality: "VIP Road",
-    phone: "+91 98881 22257",
-    phoneHref: "tel:+919888122257",
-    mapUrl: "https://maps.google.com/?q=VIP+Road+Zirakpur",
-    blurb:
-      "A fast-growing centre for students commuting from Dera Bassi, Banur and the Ambala highway corridor.",
-    labs: "3 labs · 60 seats",
-    highlights: [
-      "Convenient for highway commuters",
-      "Evening batches after 6 PM",
-      "Industrial training for nearby colleges",
-      "Free parking on site",
-    ],
-  },
-  {
-    slug: "kharar",
-    name: "Kharar",
-    address: "Landran Road, Near Chandigarh University, Kharar, Punjab 140301",
-    locality: "Landran Road",
-    phone: "+91 98881 22258",
-    phoneHref: "tel:+919888122258",
-    mapUrl: "https://maps.google.com/?q=Landran+Road+Kharar",
-    blurb:
-      "Built around the university belt — the majority of our 45-day and six-week industrial training cohorts run from here.",
-    labs: "4 labs · 100 seats",
-    highlights: [
-      "Industrial training specialists",
-      "Campus tie-ups with nearby universities",
-      "Batch timings around college hours",
+      "Evening batches for working professionals",
+      "Programming and data tracks",
+      "Placement drives with local industry",
       "Group enrolment discounts",
     ],
   },
   {
-    slug: "ambala",
-    name: "Ambala",
-    address: "Nicholson Road, Ambala Cantt, Haryana 133001",
-    locality: "Ambala Cantt",
-    phone: "+91 98881 22259",
-    phoneHref: "tel:+919888122259",
-    mapUrl: "https://maps.google.com/?q=Nicholson+Road+Ambala+Cantt",
+    slug: "phagwara",
+    name: "Phagwara",
+    address: "G.T. Road, Phagwara, Punjab 144401",
+    locality: "G.T. Road",
+    phone: "+91 98881 22262",
+    phoneHref: "tel:+919888122262",
+    mapUrl: "https://maps.google.com/?q=GT+Road+Phagwara",
     blurb:
-      "Our Haryana centre, running the programming, data and government-exam typing tracks with hostel guidance for outstation students.",
-    labs: "3 labs · 65 seats",
+      "Close to the university belt, with batch timings built around college hours and campus tie-ups for industrial training.",
+    labs: "2 labs · 50 seats",
     highlights: [
-      "Programming and data tracks",
-      "Government exam typing preparation",
-      "Hostel guidance for outstation students",
-      "Monthly placement drives",
+      "Campus tie-ups with nearby universities",
+      "Batch timings around college hours",
+      "Industrial training specialists",
+      "Student transport support",
+    ],
+  },
+  {
+    slug: "maqsudan",
+    name: "Maqsudan",
+    address: "Maqsudan, Jalandhar, Punjab 144008",
+    locality: "Maqsudan",
+    phone: "+91 98881 22263",
+    phoneHref: "tel:+919888122263",
+    mapUrl: "https://maps.google.com/?q=Maqsudan+Jalandhar",
+    blurb:
+      "A second Jalandhar centre for the Maqsudan side of the city, running the same syllabus as our Model Town campus.",
+    labs: "2 labs · 45 seats",
+    highlights: [
+      "Same syllabus as the Model Town campus",
+      "Weekday and weekend batches",
+      "Local doubt-clearing sessions",
+      "Walk-in counselling",
+    ],
+  },
+  {
+    slug: "hoshiarpur",
+    name: "Hoshiarpur",
+    address: "Adalat Bazar, Hoshiarpur, Punjab 146001",
+    locality: "Adalat Bazar",
+    phone: "+91 98881 22264",
+    phoneHref: "tel:+919888122264",
+    mapUrl: "https://maps.google.com/?q=Adalat+Bazar+Hoshiarpur",
+    blurb:
+      "Our newest Punjab centre, bringing the same industry-practitioner trainers and placement cell to a smaller-batch campus.",
+    labs: "2 labs · 40 seats",
+    highlights: [
+      "Small batches, close trainer attention",
+      "Programming and office skills tracks",
+      "Free counselling and demo classes",
+      "Placement support after course completion",
+    ],
+  },
+  {
+    slug: "amritsar",
+    name: "Amritsar",
+    address: "Mall Road, Amritsar, Punjab 143001",
+    locality: "Mall Road",
+    phone: "+91 98881 22265",
+    phoneHref: "tel:+919888122265",
+    mapUrl: "https://maps.google.com/?q=Mall+Road+Amritsar",
+    blurb:
+      "Serving the Majha region, with a full lab floor for AI, cyber security and full-stack tracks.",
+    labs: "3 labs · 60 seats",
+    highlights: [
+      "AI and cyber security lab access",
+      "Full-stack and cloud tracks",
+      "Placement drives with local employers",
+      "Weekend batches for students and professionals",
     ],
   },
 ];
@@ -147,18 +147,18 @@ export interface ServiceArea {
 }
 
 export const serviceAreas: ServiceArea[] = [
-  { slug: "chandigarh", name: "Chandigarh", nearestBranch: "chandigarh", distance: "On site", note: "All sectors served from the Sector 34-A campus." },
-  { slug: "mohali", name: "Mohali", nearestBranch: "mohali", distance: "On site", note: "Phase 7 centre, minutes from the Phase 8 IT parks." },
-  { slug: "panchkula", name: "Panchkula", nearestBranch: "panchkula", distance: "On site", note: "Sector 11 centre serving all Panchkula sectors." },
-  { slug: "zirakpur", name: "Zirakpur", nearestBranch: "zirakpur", distance: "On site", note: "VIP Road centre on the Ambala highway." },
-  { slug: "kharar", name: "Kharar", nearestBranch: "kharar", distance: "On site", note: "Landran Road centre in the university belt." },
-  { slug: "dera-bassi", name: "Dera Bassi", nearestBranch: "zirakpur", distance: "12 km", note: "Nearest centre is Zirakpur, on the same highway." },
-  { slug: "banur", name: "Banur", nearestBranch: "zirakpur", distance: "16 km", note: "Direct bus routes to the Zirakpur centre." },
-  { slug: "landran", name: "Landran", nearestBranch: "kharar", distance: "6 km", note: "Kharar centre serves the entire Landran college belt." },
-  { slug: "new-chandigarh", name: "New Chandigarh", nearestBranch: "kharar", distance: "9 km", note: "Kharar centre is the closest campus." },
-  { slug: "pinjore", name: "Pinjore", nearestBranch: "panchkula", distance: "20 km", note: "Student transport route runs to Panchkula." },
-  { slug: "rajpura", name: "Rajpura", nearestBranch: "zirakpur", distance: "24 km", note: "Weekend batches available at Zirakpur." },
-  { slug: "morinda", name: "Morinda", nearestBranch: "kharar", distance: "22 km", note: "Kharar centre with weekend batch options." },
+  { slug: "jalandhar", name: "Jalandhar", nearestBranch: "jalandhar", distance: "On site", note: "All sectors served from the Model Town campus." },
+  { slug: "ludhiana", name: "Ludhiana", nearestBranch: "ludhiana", distance: "On site", note: "Ferozepur Road centre serving all of Ludhiana." },
+  { slug: "phagwara", name: "Phagwara", nearestBranch: "phagwara", distance: "On site", note: "G.T. Road centre in the university belt." },
+  { slug: "maqsudan", name: "Maqsudan", nearestBranch: "maqsudan", distance: "On site", note: "Second Jalandhar campus on the Maqsudan side of the city." },
+  { slug: "hoshiarpur", name: "Hoshiarpur", nearestBranch: "hoshiarpur", distance: "On site", note: "Adalat Bazar centre serving all of Hoshiarpur." },
+  { slug: "amritsar", name: "Amritsar", nearestBranch: "amritsar", distance: "On site", note: "Mall Road centre serving all of Amritsar." },
+  { slug: "nakodar", name: "Nakodar", nearestBranch: "jalandhar", distance: "25 km", note: "Nearest centre is Model Town, Jalandhar." },
+  { slug: "phillaur", name: "Phillaur", nearestBranch: "jalandhar", distance: "20 km", note: "Direct bus routes to the Jalandhar centre." },
+  { slug: "khanna", name: "Khanna", nearestBranch: "ludhiana", distance: "35 km", note: "Nearest centre is Ferozepur Road, Ludhiana." },
+  { slug: "jagraon", name: "Jagraon", nearestBranch: "ludhiana", distance: "40 km", note: "Weekend batches available at the Ludhiana centre." },
+  { slug: "nawanshahr", name: "Nawanshahr", nearestBranch: "phagwara", distance: "20 km", note: "Nearest centre is the Phagwara campus." },
+  { slug: "tarn-taran", name: "Tarn Taran", nearestBranch: "amritsar", distance: "25 km", note: "Nearest centre is Mall Road, Amritsar." },
 ];
 
 export const serviceAreasBySlug = new Map(serviceAreas.map((a) => [a.slug, a]));

@@ -59,7 +59,8 @@ export type NavPanel =
       columns: AiPanelColumn[];
       featured: { title: string; badge: string; href: string; icon: string };
       cta: { heading: string; buttonLabel: string; href: string };
-    };
+    }
+  | { kind: "simple"; links: NavLink[] };
 
 export interface NavItem {
   label: string;
@@ -365,16 +366,11 @@ export const navItems: NavItem[] = [
     label: "Branches",
     href: "/branches",
     panel: {
-      kind: "tiles",
-      tiles: branches.map((branch) => ({
+      kind: "simple",
+      links: branches.map((branch) => ({
         label: branch.name,
         href: `/branches/${branch.slug}`,
-        icon: "map-pin",
       })),
-      footer: {
-        quote: "Same syllabus, same assessments, same placement process at every centre.",
-        cta: { label: "See all centres", href: "/branches" },
-      },
     },
   },
   { label: "Contact", href: "/contact" },

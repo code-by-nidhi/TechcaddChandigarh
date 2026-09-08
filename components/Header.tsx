@@ -129,6 +129,30 @@ function TilesPanel({ tiles, footer }: { tiles: NavTile[]; footer?: NavFooter })
   );
 }
 
+/** A short, plain link list in a small rounded card — e.g. Branches. No mega-panel width. */
+/** Fixed width of `SimplePanel`, in px — kept in sync with its `w-56` class so
+ * the header can centre the panel under its nav item before it ever renders. */
+const SIMPLE_PANEL_WIDTH = 224;
+
+function SimplePanel({ links }: { links: NavLink[] }) {
+  return (
+    <div className="menu-panel-in w-56 rounded-3xl border border-white/60 bg-[#f3f5f9] p-3 shadow-[0_32px_80px_-24px_rgba(6,14,43,0.45)] ring-1 ring-hero-950/5">
+      <ul className="max-h-[70vh] overflow-y-auto">
+        {links.map((item) => (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              className="block rounded-lg px-3 py-2.5 text-sm font-medium text-hero-950/85 transition-colors hover:bg-white hover:text-brand-600"
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /** Distinct backdrops per featured card, so a row of 3 doesn't read as one repeated tile. */
 const CARD_TREATMENTS = [
   "from-hero-950 via-hero-900 to-hero-800",
@@ -381,6 +405,8 @@ function MegaPanel({ item }: { item: NavItem }) {
           cta={item.panel.cta}
         />
       );
+    case "simple":
+      return <SimplePanel links={item.panel.links} />;
   }
 }
 
@@ -395,6 +421,32 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [demoOpen, setDemoOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const itemRefs = useRef<Record<string, HTMLLIElement | null>>({});
+  const dropdownRailRef = useRef<HTMLDivElement>(null);
+  const [simpleLeft, setSimpleLeft] = useState(0);
+
+  // A "simple" panel (e.g. Branches) is narrow, so it anchors under its own
+  // nav item instead of stretching the full width like the mega panels.
+  useEffect(() => {
+    const item = navItems.find((i) => i.label === open);
+    if (!open || item?.panel?.kind !== "simple") return;
+
+    const update = () => {
+      const li = itemRefs.current[open];
+      const rail = dropdownRailRef.current;
+      if (!li || !rail) return;
+      // `margin-left` on the child starts from the rail's padding box, so its
+      // own padding-left has to come back out of the raw edge-to-edge delta.
+      const railPaddingLeft = parseFloat(getComputedStyle(rail).paddingLeft) || 0;
+      const liRect = li.getBoundingClientRect();
+      const railRect = rail.getBoundingClientRect();
+      const liCenter = liRect.left + liRect.width / 2 - railRect.left - railPaddingLeft;
+      setSimpleLeft(liCenter - SIMPLE_PANEL_WIDTH / 2);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [open]);
 
   /**
    * Inner pages open on a navy banner, so the bar starts transparent there too;
@@ -492,7 +544,13 @@ export function Header() {
                 const active = isActive(item.href);
 
                 return (
-                  <li key={item.label} onMouseEnter={() => hasPanel && openMenu(item.label)}>
+                  <li
+                    key={item.label}
+                    ref={(el) => {
+                      itemRefs.current[item.label] = el;
+                    }}
+                    onMouseEnter={() => hasPanel && openMenu(item.label)}
+                  >
                     <Link
                       href={item.href}
                       aria-expanded={hasPanel ? open === item.label : undefined}
@@ -576,16 +634,29 @@ export function Header() {
         </div>
       </div>
 
-      {/* Desktop mega panel — one wide, centred sheet for every menu */}
-      {open ? (
-        <div className="absolute inset-x-0 top-full hidden pt-2 xl:block">
-          <div className="rail">
-            <div className="-mx-3 lg:-mx-6">
-              <MegaPanel item={navItems.find((i) => i.label === open)!} />
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {/* Desktop mega panel — one wide, centred sheet for every menu, except a
+          "simple" panel (e.g. Branches), which anchors under its own item. */}
+      {open
+        ? (() => {
+            const item = navItems.find((i) => i.label === open)!;
+            const isSimple = item.panel?.kind === "simple";
+            return (
+              <div className="absolute inset-x-0 top-full hidden pt-2 xl:block">
+                <div className="rail" ref={dropdownRailRef}>
+                  {isSimple ? (
+                    <div style={{ marginLeft: simpleLeft }} className="w-fit">
+                      <MegaPanel item={item} />
+                    </div>
+                  ) : (
+                    <div className="-mx-3 lg:-mx-6">
+                      <MegaPanel item={item} />
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()
+        : null}
 
       {mobileOpen ? (
         <MobileMenu
@@ -618,6 +689,8 @@ function flatten(item: NavItem): { title?: string; links: NavLink[] }[] {
       return [{ links: [...item.panel.links, item.panel.cta] }];
     case "ai":
       return item.panel.columns.map((c) => ({ title: c.title, links: c.links }));
+    case "simple":
+      return [{ links: item.panel.links }];
   }
 }
 
