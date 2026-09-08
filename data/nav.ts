@@ -157,7 +157,7 @@ export const navItems: NavItem[] = [
           links: [
             link("agentic-ai"),
             link("ai-powered-marketing"),
-            link("rag-development", "RAG (Retrieval-Augmented Generation)"),
+            link("rag", "RAG (Retrieval-Augmented Generation)"),
             { label: "AI-Powered Courses", href: "/courses#ai" },
             { label: `All AI Courses in ${site.city}`, href: "/courses#ai" },
           ],

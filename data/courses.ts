@@ -239,7 +239,7 @@ export const courses: Course[] = [
     careers: ["AI Generalist", "Executive Assistant", "Content Creator", "Operations Associate"],
   },
   {
-    id: "rag-development",
+    id: "rag",
     name: "RAG (Retrieval-Augmented Generation)",
     category: "ai",
     duration: "6 – 8 weeks",
