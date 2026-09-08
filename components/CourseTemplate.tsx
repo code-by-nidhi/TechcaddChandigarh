@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { CourseBody } from "@/components/CourseDetail";
 import { CourseEnquirySection } from "@/components/CourseEnquirySection";
-import { FaqSection } from "@/components/sections/Home";
 import { Breadcrumbs, ButtonLink, Icon } from "@/components/ui";
 import { HeroReveal } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
@@ -297,7 +296,6 @@ export function CourseTemplate({
         }
       />
 
-      <FaqSection items={faqs.slice(0, 6)} />
       <CourseEnquirySection course={course} />
       <script
         type="application/ld+json"
