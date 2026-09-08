@@ -311,50 +311,42 @@ export const navItems: NavItem[] = [
     label: "Resources",
     href: "/blogs",
     panel: {
-      kind: "columns",
-      columns: [
+      kind: "cards",
+      links: [
+        { label: "Find My Career Track", href: "/tools/career-track-finder", badge: "New" },
+        { label: "Training Matcher", href: "/tools/training-matcher", badge: "New" },
+        { label: "Salary Estimator", href: "/tools/salary-estimator", badge: "New" },
+        { label: "Blogs", href: "/blogs" },
+        { label: "Events", href: "/events" },
+        { label: "Gallery", href: "/gallery" },
+        { label: "FAQ", href: "/faq" },
+        { label: "Reviews", href: "/reviews" },
+        { label: "College Partnerships", href: "/college-partnerships" },
+      ],
+      cta: { label: "Ask us a question", href: "/contact#enquire" },
+      cards: [
         {
-          title: "Learn",
-          subtitle: "Guides and classroom notes",
-          links: [
-            { label: "Blogs", href: "/blogs" },
-            { label: "Events", href: "/events" },
-            { label: "Gallery", href: "/gallery" },
-            { label: "Student Reviews", href: "/reviews" },
-          ],
+          title: "Find My Career Track",
+          href: "/tools/career-track-finder",
+          badge: "Free tool",
+          meta: "4 questions",
+          icon: "target",
         },
         {
-          title: "Free tools",
-          subtitle: "No sign-up, results shown instantly",
-          links: [
-            { label: "Career Track Finder", href: "/tools/career-track-finder" },
-            { label: "Salary Estimator", href: "/tools/salary-estimator" },
-            { label: "Training Matcher", href: "/tools/training-matcher" },
-            { label: "All free tools", href: "/tools" },
-          ],
+          title: "Training Matcher",
+          href: "/tools/training-matcher",
+          badge: "Free tool",
+          meta: "Instant match",
+          icon: "refresh",
         },
         {
-          title: "Training",
-          subtitle: "University and internship formats",
-          links: trainingFormats
-            .slice(0, 5)
-            .map((format) => ({ label: `${format.label} Training`, href: `/${format.slug}` })),
-        },
-        {
-          title: "Support",
-          subtitle: "Before and after you enrol",
-          links: [
-            { label: "FAQs", href: "/faq" },
-            { label: "Placement Support", href: "/placement" },
-            { label: "Internship Program", href: "/internship-training" },
-            { label: "Contact", href: "/contact" },
-          ],
+          title: "Salary Estimator",
+          href: "/tools/salary-estimator",
+          badge: "Free tool",
+          meta: "Tricity market",
+          icon: "chart",
         },
       ],
-      footer: {
-        quote: "Written by the trainers who teach the course, not a content agency.",
-        cta: { label: "Visit the blog", href: "/blogs" },
-      },
     },
   },
   {

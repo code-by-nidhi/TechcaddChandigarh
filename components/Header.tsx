@@ -23,7 +23,7 @@ import { Badge, Button, Icon, badgeTone, cx } from "./ui";
 
 function PanelShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="fade-up overflow-hidden rounded-3xl border border-white/60 bg-[#f3f5f9] shadow-[0_32px_80px_-24px_rgba(6,14,43,0.45)] ring-1 ring-hero-950/5">
+    <div className="menu-panel-in overflow-hidden rounded-3xl border border-white/60 bg-[#f3f5f9] shadow-[0_32px_80px_-24px_rgba(6,14,43,0.45)] ring-1 ring-hero-950/5">
       {children}
     </div>
   );
@@ -128,6 +128,13 @@ function TilesPanel({ tiles, footer }: { tiles: NavTile[]; footer?: NavFooter })
   );
 }
 
+/** Distinct backdrops per featured card, so a row of 3 doesn't read as one repeated tile. */
+const CARD_TREATMENTS = [
+  "from-hero-950 via-hero-900 to-hero-800",
+  "from-[#0B1E4D] via-[#123285] to-[#1E6FD9]",
+  "from-[#08243D] via-[#0E4A63] to-[#0EA5A0]",
+];
+
 function CardsPanel({
   links,
   cta,
@@ -146,9 +153,14 @@ function CardsPanel({
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="-mx-2 block rounded-lg px-2 py-1.5 text-sm font-medium text-hero-950/85 transition-colors hover:bg-white hover:text-brand-600"
+                  className="-mx-2 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-hero-950/85 transition-colors hover:bg-white hover:text-brand-600"
                 >
-                  {item.label}
+                  <span className="truncate">{item.label}</span>
+                  {item.badge ? (
+                    <Badge tone={badgeTone(item.badge)} className="shrink-0">
+                      {item.badge}
+                    </Badge>
+                  ) : null}
                 </Link>
               </li>
             ))}
@@ -168,28 +180,44 @@ function CardsPanel({
         <div aria-hidden="true" className="hidden bg-hero-950/10 lg:block" />
 
         <div className="grid gap-4 sm:grid-cols-3">
-          {cards.map((card) => (
-            <Link key={card.href} href={card.href} className="group">
-              {/* Placeholder visual — swap for <Image> once campus photography lands. */}
-              <span className="hero-surface relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl">
-                <Icon
-                  name={card.icon}
-                  className="size-9 text-white/70 transition-transform duration-500 group-hover:scale-110"
-                />
-              </span>
-              <span className="mt-3 block font-display text-sm font-bold tracking-tight text-hero-950">
-                {card.title}
-              </span>
-              <span className="mt-1.5 flex items-center gap-2">
-                <span className="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-700">
-                  {card.badge}
+          {CARD_TREATMENTS.map((treatment, i) => {
+            const card = cards[i];
+            if (!card) return null;
+            return (
+              <Link
+                key={card.href}
+                href={card.href}
+                className="group rounded-2xl transition-transform duration-300 will-change-transform hover:-translate-y-1 hover:scale-[1.02]"
+              >
+                <span
+                  className={cx(
+                    "relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br shadow-sm transition-shadow duration-300 group-hover:shadow-xl",
+                    treatment,
+                  )}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.6)_1px,transparent_1.5px)] [background-size:16px_16px]"
+                  />
+                  <Icon
+                    name={card.icon}
+                    className="relative size-9 text-white/90 transition-transform duration-500 group-hover:scale-110"
+                  />
                 </span>
-                <span className="truncate text-[11px] uppercase tracking-wider text-muted">
-                  {card.meta}
+                <span className="mt-3 block font-display text-sm font-bold tracking-tight text-hero-950">
+                  {card.title}
                 </span>
-              </span>
-            </Link>
-          ))}
+                <span className="mt-1.5 flex items-center gap-2">
+                  <span className="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-700">
+                    {card.badge}
+                  </span>
+                  <span className="truncate text-[11px] uppercase tracking-wider text-muted">
+                    {card.meta}
+                  </span>
+                </span>
+              </Link>
+            );
+          })}
         </div>
       </div>
     </PanelShell>

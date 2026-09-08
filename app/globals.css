@@ -390,6 +390,27 @@
   }
 }
 
+/* Nav mega-panel open transition — quicker than the page-scroll fade-up,
+   since a dropdown needs to feel instant rather than choreographed. */
+@keyframes menu-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility menu-panel-in {
+  animation: menu-panel-in 250ms ease-out both;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 /* ---------------------------------------------------------------------------
    Ambient motion — the slow, always-on layer: glows that drift, icons that
    breathe, the scroll cue under the hero. All of it is decorative, so all of
