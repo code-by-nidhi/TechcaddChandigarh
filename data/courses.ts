@@ -28,6 +28,8 @@ export interface Course {
   featured?: boolean;
   /** Also publish a `<id>-training-in-<city>` page, as the flagship tracks do. */
   training?: boolean;
+  /** Real hero artwork for this course, shown in place of the generic orbit graphic. */
+  heroImage?: string;
   tools: string[];
   modules: CourseModule[];
   outcomes: string[];
@@ -441,6 +443,7 @@ export const courses: Course[] = [
     summary:
       "The language behind AI, automation and back-end work — taught through projects, not slides.",
     featured: true,
+    heroImage: "/images/python.jpeg",
     tools: ["Python", "VS Code", "Git", "Flask", "SQLite", "Pytest"],
     modules: [
       { title: "Core Python", topics: ["Syntax & types", "Control flow", "Functions", "Error handling"] },
