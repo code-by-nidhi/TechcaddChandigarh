@@ -1,5 +1,5 @@
 import { site } from "./site";
-import { courseSlug, courses, courseCategories } from "./courses";
+import { courseSlug, courses, courseCategories, trainingSlug } from "./courses";
 import { programDurations, programTracks, trainingFormats, after12Courses } from "./programs";
 import { branches } from "./branches";
 
@@ -41,10 +41,25 @@ export interface NavFooter {
   cta: { label: string; href: string };
 }
 
+/** A link column with a lead icon — the AI panel's two "Fundamentals / Development" groups. */
+export interface AiPanelColumn {
+  icon: string;
+  title: string;
+  links: NavLink[];
+}
+
 export type NavPanel =
   | { kind: "columns"; columns: NavColumn[]; footer?: NavFooter }
   | { kind: "tiles"; tiles: NavTile[]; footer?: NavFooter }
-  | { kind: "cards"; links: NavLink[]; cta: NavLink; cards: NavCard[] };
+  | { kind: "cards"; links: NavLink[]; cta: NavLink; cards: NavCard[] }
+  | {
+      kind: "ai";
+      heading: string;
+      subtitle: string;
+      columns: AiPanelColumn[];
+      featured: { title: string; badge: string; href: string; icon: string };
+      cta: { heading: string; buttonLabel: string; href: string };
+    };
 
 export interface NavItem {
   label: string;
@@ -121,45 +136,42 @@ export const navItems: NavItem[] = [
     href: "/courses#ai",
     highlight: true,
     panel: {
-      kind: "columns",
+      kind: "ai",
+      heading: "Learn AI Skills.",
+      subtitle: "Build projects with machine learning, data science, automation, and generative AI.",
       columns: [
         {
+          icon: "sparkles",
           title: "AI Fundamentals",
-          subtitle: "Where everyone starts",
           links: [
             link("generative-ai"),
             link("artificial-intelligence"),
             link("prompt-engineering"),
             link("chatgpt-ai-tools"),
-            link("machine-learning"),
-            link("deep-learning"),
           ],
         },
         {
+          icon: "rocket",
           title: "AI Development",
-          subtitle: "Agents, retrieval and tooling",
           links: [
             link("agentic-ai"),
-            link("rag-development"),
             link("ai-powered-marketing"),
-            link("python", "Python for AI"),
-          ],
-        },
-        {
-          title: "AI & Data",
-          subtitle: "The data stack underneath",
-          links: [
-            link("data-science"),
-            link("data-analytics"),
-            link("power-bi"),
-            link("tableau"),
+            link("rag-development", "RAG (Retrieval-Augmented Generation)"),
+            { label: "AI-Powered Courses", href: "/courses#ai" },
+            { label: `All AI Courses in ${site.city}`, href: "/courses#ai" },
           ],
         },
       ],
-      footer: {
-        quote: "The best way to predict the future is to invent it.",
-        attribution: "Alan Kay",
-        cta: { label: "Explore all AI courses", href: "/courses#ai" },
+      featured: {
+        title: `Artificial Intelligence Training in ${site.city}`,
+        badge: "Featured AI Course",
+        href: `/${trainingSlug("artificial-intelligence")}`,
+        icon: "sparkles",
+      },
+      cta: {
+        heading: "Start with AI fundamentals, then move into real projects and career-ready tools.",
+        buttonLabel: "Explore AI",
+        href: "/courses#ai",
       },
     },
   },

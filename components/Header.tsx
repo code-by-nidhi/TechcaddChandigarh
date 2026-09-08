@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
   navItems,
+  type AiPanelColumn,
   type NavCard,
   type NavColumn,
   type NavFooter,
@@ -224,6 +225,141 @@ function CardsPanel({
   );
 }
 
+/** Solid dark-panel badge colors — the shared `Badge` tones are tuned for light backgrounds. */
+const AI_BADGE_STYLES: Record<string, string> = {
+  Hot: "bg-orange-500 text-white",
+  New: "bg-violet-500 text-white",
+  Trending: "bg-cyan-500 text-hero-950",
+};
+
+function AiBadge({ badge }: { badge: string }) {
+  return (
+    <span
+      className={cx(
+        "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+        AI_BADGE_STYLES[badge] ?? "bg-white/15 text-white",
+      )}
+    >
+      {badge}
+    </span>
+  );
+}
+
+function AiMegaPanel({
+  heading,
+  subtitle,
+  columns,
+  featured,
+  cta,
+}: {
+  heading: string;
+  subtitle: string;
+  columns: AiPanelColumn[];
+  featured: { title: string; badge: string; href: string; icon: string };
+  cta: { heading: string; buttonLabel: string; href: string };
+}) {
+  return (
+    <div className="menu-panel-in hero-surface relative isolate overflow-hidden rounded-[32px] border border-white/10 shadow-[0_40px_100px_-24px_rgba(6,14,43,0.65)]">
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.1]"
+      >
+        <defs>
+          <pattern id="ai-menu-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0H0V40" fill="none" stroke="white" strokeWidth="0.5" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#ai-menu-grid)" />
+      </svg>
+      <span
+        aria-hidden="true"
+        className="drift-slow pointer-events-none absolute -top-10 right-24 -z-10 size-56 rounded-full bg-[#00D4FF]/20 blur-3xl"
+      />
+      <span
+        aria-hidden="true"
+        className="drift-slow-reverse pointer-events-none absolute bottom-0 left-1/3 -z-10 size-64 rounded-full bg-brand-600/25 blur-3xl"
+      />
+
+      <div className="grid gap-8 p-8 lg:grid-cols-[1.7fr_1fr_1fr]">
+        <div>
+          <h3 className="font-display text-2xl font-bold tracking-tight text-white lg:text-[1.75rem]">
+            {heading}
+          </h3>
+          <p className="mt-2.5 max-w-md text-sm leading-relaxed text-white/65">{subtitle}</p>
+
+          <div className="mt-7 grid gap-8 sm:grid-cols-2">
+            {columns.map((column) => (
+              <div key={column.title}>
+                <div className="flex items-center gap-2.5">
+                  <span className="grid size-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-[#00D4FF] text-white">
+                    <Icon name={column.icon} className="size-4" />
+                  </span>
+                  <h4 className="font-display text-sm font-bold tracking-tight text-white">
+                    {column.title}
+                  </h4>
+                </div>
+                <ul className="mt-4 space-y-0.5">
+                  {column.links.map((item) => (
+                    <li key={item.href + item.label}>
+                      <Link
+                        href={item.href}
+                        className="group -mx-2 flex items-start justify-between gap-2 rounded-lg px-2 py-1.5 text-sm text-white/75 transition-all duration-200 hover:translate-x-1 hover:bg-white/5 hover:text-white"
+                      >
+                        <span className="leading-snug">{item.label}</span>
+                        {item.badge ? <AiBadge badge={item.badge} /> : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Link
+          href={featured.href}
+          className="group block overflow-hidden rounded-[24px] bg-white shadow-[0_20px_45px_-15px_rgba(0,0,0,0.4)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_60px_-15px_rgba(0,212,255,0.35)]"
+        >
+          <span className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-hero-950 via-hero-900 to-hero-800">
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.5)_1px,transparent_1.5px)] [background-size:18px_18px]"
+            />
+            <Icon
+              name={featured.icon}
+              className="relative size-10 text-white/80 transition-transform duration-500 group-hover:scale-110"
+            />
+          </span>
+          <span className="block p-4">
+            <span className="inline-flex items-center rounded-full bg-rose-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
+              {featured.badge}
+            </span>
+            <span className="mt-2.5 block font-display text-sm leading-snug font-bold tracking-tight text-hero-950">
+              {featured.title}
+            </span>
+          </span>
+        </Link>
+
+        <div className="flex flex-col justify-between rounded-[24px] bg-gradient-to-br from-brand-600 to-[#00D4FF] p-6">
+          <p className="font-display text-lg leading-snug font-bold tracking-tight text-white">
+            {cta.heading}
+          </p>
+          <Link
+            href={cta.href}
+            className="group mt-6 inline-flex w-fit items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-brand-700 transition-shadow duration-300 hover:shadow-[0_0_0_6px_rgba(255,255,255,0.2)]"
+          >
+            {cta.buttonLabel}
+            <Icon
+              name="arrow-right"
+              className="size-4 transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function MegaPanel({ item }: { item: NavItem }) {
   if (!item.panel) return null;
   switch (item.panel.kind) {
@@ -234,6 +370,16 @@ function MegaPanel({ item }: { item: NavItem }) {
     case "cards":
       return (
         <CardsPanel links={item.panel.links} cta={item.panel.cta} cards={item.panel.cards} />
+      );
+    case "ai":
+      return (
+        <AiMegaPanel
+          heading={item.panel.heading}
+          subtitle={item.panel.subtitle}
+          columns={item.panel.columns}
+          featured={item.panel.featured}
+          cta={item.panel.cta}
+        />
       );
   }
 }
@@ -470,6 +616,8 @@ function flatten(item: NavItem): { title?: string; links: NavLink[] }[] {
       return [{ links: item.panel.tiles.map((t) => ({ label: t.label, href: t.href, badge: t.badge })) }];
     case "cards":
       return [{ links: [...item.panel.links, item.panel.cta] }];
+    case "ai":
+      return item.panel.columns.map((c) => ({ title: c.title, links: c.links }));
   }
 }
 
