@@ -20,12 +20,12 @@ export function Footer() {
   const year = new Date().getFullYear();
   const pathname = usePathname();
   const resolved = resolveSlug(pathname.replace(/^\//, ""));
-  const isCoursePage = resolved?.kind === "course";
+  const hasOwnClosingCta = resolved?.kind === "course" || resolved?.kind === "program";
 
   return (
     <footer className="relative overflow-hidden border-t border-line bg-subtle">
-      {/* Closing call to action — course pages already end with an equivalent CTA */}
-      {isCoursePage ? null : (
+      {/* Closing call to action — course and certificate program pages already end with an equivalent CTA */}
+      {hasOwnClosingCta ? null : (
         <div className="border-b border-line bg-white">
           <div className="rail">
             <div className="flex flex-col items-start gap-6 py-10 sm:flex-row sm:items-center sm:justify-between lg:py-12">

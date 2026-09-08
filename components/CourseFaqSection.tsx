@@ -6,8 +6,9 @@ import { site } from "@/data/site";
 import { rupees } from "@/lib/routes";
 import { Icon, cx } from "./ui";
 
-export function CourseFaqSection({ course }: { course: Course }) {
+export function CourseFaqSection({ course, duration }: { course: Course; duration?: string }) {
   const [open, setOpen] = useState<number | null>(0);
+  const courseDuration = duration ?? course.duration;
 
   const feeAnswer = course.fee
     ? `The current fee is ${rupees(course.fee.offer)}, listed at ${rupees(course.fee.original)}. EMI options are available and there is no registration fee.`
@@ -16,7 +17,7 @@ export function CourseFaqSection({ course }: { course: Course }) {
   const items = [
     {
       q: `What is the duration of the ${course.name} program in ${site.city}?`,
-      a: `techcadd runs ${course.name} over ${course.duration}. Weekday, evening and weekend batches cover the same syllabus, and 1-on-1 training is available if you would rather set your own pace.`,
+      a: `techcadd runs ${course.name} over ${courseDuration}. Weekday, evening and weekend batches cover the same syllabus, and 1-on-1 training is available if you would rather set your own pace.`,
     },
     {
       q: `What is the fee for the ${course.name} program in ${site.city}?`,

@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { getCategory, type Course, type CourseModule } from "@/data/courses";
 import { site } from "@/data/site";
-import { testimonials, includedItems } from "@/data/content";
-import { Icon, SectionHeading, ButtonLink, cx } from "./ui";
+import { testimonials, includedItems, PLACEMENT_ITEMS } from "@/data/content";
+import { BuildStagesPanel } from "./BuildStagesPanel";
+import { Icon, SectionHeading, ButtonLink, cx, joinNatural, variantIndex } from "./ui";
 
 /* ------------------------------ Overview network ------------------------------ */
 
@@ -723,150 +724,71 @@ export function ProjectsSection({ course }: { course: Course }) {
 
 /* -------------------------------- Working loop -------------------------------- */
 
-const PLACEMENT_ITEMS = [
-  "A live client project you keep in your portfolio",
-  "Documented internship on real work",
-  "CV review, mock interviews and aptitude drills",
-  "Placement drives with our hiring partner network",
-];
+/**
+ * Splits into 3 roughly-even, non-empty groups (as long as `items` has 3+
+ * entries) — a plain `Math.ceil(n/3)` stride leaves the last group empty
+ * whenever `n` divides evenly into the first two, which then silently
+ * duplicates group 2's content into the fallback.
+ */
+export function splitIntoThirds<T>(items: T[]): [T[], T[], T[]] {
+  const n = items.length;
+  if (n === 0) return [[], [], []];
+  if (n === 1) return [items, items, items];
+  if (n === 2) return [[items[0]!], [items[1]!], items];
+  const size1 = Math.ceil(n / 3);
+  const size2 = Math.ceil((n - size1) / 2);
+  return [items.slice(0, size1), items.slice(size1, size1 + size2), items.slice(size1 + size2)];
+}
 
 export function WorkingLoopSection({ course }: { course: Course }) {
   const modules = course.modules;
-  const third = Math.max(1, Math.ceil(modules.length / 3));
-  const group1 = modules.slice(0, third);
-  const group2 = modules.slice(third, third * 2);
-  const group3raw = modules.slice(third * 2);
-  const group3 = group3raw.length ? group3raw : group2;
+  const [group1, group2, group3] = splitIntoThirds(modules);
 
-  const topicLine = (mods: typeof modules) =>
-    mods.flatMap((m) => m.topics).slice(0, 2).join(" • ") ||
-    `Core ${course.name.toLowerCase()} fundamentals`;
-
-  const stages = [
-    { step: "01", title: "Foundations", body: topicLine(group1) },
-    { step: "02", title: "Core Skills", body: topicLine(group2) },
-    { step: "03", title: "Applied Work", body: topicLine(group3) },
-    { step: "04", title: "Live Project & Placement Prep", body: PLACEMENT_ITEMS.join(" • ") },
-  ];
-  const active = stages[stages.length - 1]!;
-
-  const tools = course.tools.length ? course.tools : [course.name, "Practice", "Delivery"];
-  const nodeLeft = tools[0]!;
-  const nodeCenter = tools[Math.min(1, tools.length - 1)]!;
-  const nodeRight = tools[tools.length - 1]!;
+  const g1Topics = joinNatural(group1.flatMap((m) => m.topics).slice(0, 5)).toLowerCase();
+  const g2Topics = joinNatural(group2.flatMap((m) => m.topics).slice(0, 4)).toLowerCase();
+  const g3Topics = joinNatural(group3.flatMap((m) => m.topics).slice(0, 3)).toLowerCase();
+  const v = variantIndex(course.id, 2);
+  const stageOpeners = [
+    ["The first stage covers", "The next stage moves into", "The final stage adds"],
+    ["Early modules cover", "From there the syllabus moves into", "The closing stage brings in"],
+  ][v]!;
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center rounded-full bg-brand-50 px-4 py-1.5 text-xs font-bold tracking-wide text-brand-600 uppercase">
-          Syllabus
-        </span>
-        <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-bold tracking-wide text-emerald-600 uppercase">
-          Hands-on
-        </span>
-      </div>
-
-      <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-        <h2 className="font-display text-4xl font-bold tracking-tight text-hero-950 lg:text-5xl">
-          What you will actually <span className="italic text-brand-600">build</span>
-        </h2>
-        <p className="max-w-md leading-relaxed text-muted lg:text-right">
-          The syllabus is arranged so every module produces an asset rather than a set of notes.
-          Modules run in the order a real project runs: foundations first, then the core skills,
-          then applied work under supervision, then the portfolio and interview preparation that
-          turn all of it into an offer letter.
-        </p>
-      </div>
-
-      <div className="relative mt-10 overflow-hidden rounded-[28px] border border-line bg-gradient-to-br from-brand-50/50 via-white to-rose-50/40 p-6 lg:p-8">
+      <div className="relative">
         <span
           aria-hidden="true"
-          className="float-slow absolute top-6 right-10 size-8 rounded-full border-2 border-brand-300"
+          className="absolute -top-10 left-0 hidden size-10 rounded-full border-2 border-brand-300 sm:block"
         />
-        <div className="grid gap-6 lg:grid-cols-2">
-          <div className="space-y-4">
-            {stages.map((stage, i) => {
-              const isActive = i === stages.length - 1;
-              return (
-                <div
-                  key={stage.step}
-                  className={cx("rounded-2xl p-5", isActive ? "bg-hero-950" : "bg-white/80")}
-                >
-                  <span
-                    className={cx(
-                      "text-xs font-bold tracking-widest",
-                      isActive ? "text-accent-400" : "text-brand-600",
-                    )}
-                  >
-                    {stage.step}
-                  </span>
-                  <p
-                    className={cx(
-                      "mt-1 font-display text-base font-bold tracking-tight",
-                      isActive ? "text-white" : "text-hero-950",
-                    )}
-                  >
-                    {stage.title}
-                  </p>
-                  <p
-                    className={cx(
-                      "mt-1 text-sm leading-relaxed",
-                      isActive ? "text-white/70" : "text-muted",
-                    )}
-                  >
-                    {stage.body}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center rounded-full bg-brand-50 px-4 py-1.5 text-xs font-bold tracking-wide text-brand-600 uppercase">
+            Syllabus
+          </span>
+          <span className="inline-flex items-center rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-bold tracking-wide text-emerald-600 uppercase">
+            Live projects
+          </span>
+        </div>
 
-          <div className="space-y-6">
-            <div className="rounded-2xl bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
-              <div className="flex items-center justify-between gap-3">
-                <span className="rounded-full bg-subtle px-3 py-1 text-xs font-bold tracking-widest text-muted uppercase">
-                  {course.name}
-                </span>
-                <span className="shrink-0 rounded-full bg-subtle px-3 py-1 text-xs font-bold text-muted">
-                  {stages.length}/{stages.length}
-                </span>
-              </div>
-              <h3 className="mt-4 font-display text-2xl font-bold tracking-tight text-hero-950">
-                {active.title}
-              </h3>
-              <ul className="mt-4 space-y-2.5">
-                {PLACEMENT_ITEMS.map((item) => (
-                  <li key={item} className="flex items-start gap-2.5 text-sm leading-relaxed text-muted">
-                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand-600" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
+        <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between lg:gap-16">
+          <h2 className="font-display text-4xl font-bold tracking-tight text-hero-950 lg:text-5xl">
+            What you will
+            <br />
+            actually <span className="italic text-brand-600">build</span>
+          </h2>
 
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-50 to-rose-50 p-8">
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 opacity-40 [background-image:radial-gradient(rgba(37,99,235,0.15)_1px,transparent_1.5px)] [background-size:20px_20px]"
-              />
-              <div className="relative flex flex-wrap items-center justify-center gap-4">
-                <span className="grid min-w-18 place-items-center rounded-2xl border-2 border-white bg-white px-3 py-3 text-center text-[10px] leading-tight font-bold tracking-wide text-hero-950 uppercase shadow-sm">
-                  {nodeLeft}
-                </span>
-                <span className="grid min-w-24 place-items-center rounded-3xl bg-brand-600 px-5 py-5 text-center text-xs leading-tight font-bold tracking-wide text-white uppercase shadow-lg">
-                  {nodeCenter}
-                </span>
-                <span className="grid min-w-18 place-items-center rounded-2xl border-2 border-white bg-white px-3 py-3 text-center text-[10px] leading-tight font-bold tracking-wide text-hero-950 uppercase shadow-sm">
-                  {nodeRight}
-                </span>
-              </div>
-              <p className="relative mt-6 text-center text-xs font-bold tracking-[0.2em] text-muted uppercase">
-                Learn / Build / Deploy
-              </p>
-            </div>
-          </div>
+          <p className="max-w-md text-justify leading-relaxed text-muted">
+            The syllabus is arranged so every module produces an asset rather than a set of notes.{" "}
+            {g1Topics ? <>{stageOpeners[0]} {g1Topics}. </> : null}
+            {g2Topics ? <>{stageOpeners[1]} {g2Topics}. </> : null}
+            {stageOpeners[2]}{g3Topics ? <> {g3Topics}, alongside</> : ""} a live client project, CV
+            preparation and placement drives. Modules run in the order a real project runs:
+            foundations first, then core skills, then applied work under supervision, then the
+            portfolio and interview preparation that turn all of it into an offer letter.
+          </p>
         </div>
       </div>
+
+      <BuildStagesPanel course={course} group1={group1} group2={group2} group3={group3} />
     </div>
   );
 }
@@ -1106,16 +1028,47 @@ export function matchingTestimonials(course: Course) {
   );
 }
 
+function GoogleBadge() {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-line bg-white px-2.5 py-1">
+      <svg viewBox="0 0 24 24" className="size-3.5" aria-hidden="true">
+        <path
+          fill="#4285F4"
+          d="M23.52 12.27c0-.85-.08-1.67-.22-2.45H12v4.64h6.47a5.54 5.54 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.57-5.17 3.57-8.82Z"
+        />
+        <path
+          fill="#34A853"
+          d="M12 24c3.24 0 5.96-1.07 7.95-2.91l-3.88-3a7.4 7.4 0 0 1-4.07 1.14c-3.13 0-5.78-2.11-6.73-4.96H1.27v3.1A12 12 0 0 0 12 24Z"
+        />
+        <path fill="#FBBC05" d="M5.27 14.27a7.2 7.2 0 0 1 0-4.54v-3.1H1.27a12 12 0 0 0 0 10.74l4-3.1Z" />
+        <path
+          fill="#EA4335"
+          d="M12 4.75c1.76 0 3.34.6 4.58 1.79l3.44-3.44C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.69 1.27 6.63l4 3.1C6.22 6.87 8.87 4.75 12 4.75Z"
+        />
+      </svg>
+      <span className="text-xs font-semibold text-[#5F6368]">Google</span>
+    </span>
+  );
+}
+
 function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
   return (
     <figure
       className={cx(
-        "flex h-[230px] w-[300px] shrink-0 flex-col rounded-[20px] border border-line bg-white p-6",
+        "flex h-[260px] w-[300px] shrink-0 flex-col rounded-[20px] border border-line bg-white p-6",
         "shadow-[0_4px_20px_rgba(15,23,42,0.05)] transition-all duration-300",
         "hover:-translate-y-2 hover:border-brand-200 hover:shadow-[0_20px_40px_rgba(37,99,235,0.16)]",
       )}
     >
-      <blockquote className="line-clamp-5 flex-1 text-sm leading-relaxed text-muted">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-0.5" aria-label="5 out of 5 stars">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Icon key={i} name="star" className="size-3.5 text-amber-400" />
+          ))}
+        </div>
+        <GoogleBadge />
+      </div>
+      <blockquote className="line-clamp-5 mt-4 flex-1 text-sm leading-relaxed text-muted">
         &ldquo;{t.quote}&rdquo;
       </blockquote>
       <figcaption className="mt-4 flex items-center gap-3 border-t border-line pt-4">

@@ -8,6 +8,20 @@ export { Icon };
 export const cx = (...parts: (string | false | null | undefined)[]) =>
   parts.filter(Boolean).join(" ");
 
+/** "a, b and c" from a plain string list — used to keep generated copy readable. */
+export function joinNatural(items: string[]): string {
+  if (items.length <= 1) return items[0] ?? "";
+  if (items.length === 2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
+/** Stable per-id index into a variant array — the same id always picks the same variant. */
+export function variantIndex(id: string, count: number): number {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) | 0;
+  return Math.abs(hash) % count;
+}
+
 /* -------------------------------- Container -------------------------------- */
 
 export function Rail({

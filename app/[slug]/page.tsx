@@ -9,8 +9,8 @@ import { EnquiryForm } from "@/components/EnquiryForm";
 import { ButtonLink, Icon, Rail } from "@/components/ui";
 import { allRootSlugs, resolveSlug, rupees } from "@/lib/routes";
 import { site } from "@/data/site";
-import { courseSlug } from "@/data/courses";
-import { programsForTrack, trainingFormats } from "@/data/programs";
+import { courseSlug, getCourse } from "@/data/courses";
+import { trainingFormats } from "@/data/programs";
 import { faqs } from "@/data/content";
 import { courseSchema, faqPageSchema } from "@/lib/schema";
 
@@ -93,57 +93,17 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   }
 
   /* ------------------------------- Program page ------------------------------- */
+  // Certificate Program pages render through the exact same CourseTemplate as
+  // course pages — `program.track.id` matches a real Course id, so the whole
+  // page (overview, highlights, tools, certification, curriculum, compare,
+  // FAQ, enquiry form) is identical; only the hero title/duration/badge and
+  // breadcrumb reflect the program specifically.
   if (resolved.kind === "program") {
     const { program } = resolved;
-    const { duration } = program;
-    const schema = courseSchema({
-      name: program.title,
-      description: program.summary,
-      url: `${site.url}/${slug}`,
-    });
-    const faqSchema = faqPageSchema(faqs.slice(0, 6));
+    const course = getCourse(program.track.id);
+    if (!course) notFound();
 
-    return (
-      <>
-        <PageHeader
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            {
-              label: program.after12th ? "After 12th" : "Certificate Programs",
-              href: program.after12th ? "/after-12th-courses" : "/certificate-programs",
-            },
-            { label: `${duration.label} ${program.track.name}` },
-          ]}
-          eyebrow={duration.tier}
-          title={program.title}
-          body={program.summary}
-          meta={[
-            { label: "Duration", value: duration.label },
-            { label: "Contact hours", value: duration.hours },
-            { label: "Award", value: duration.tier },
-            { label: "Mode", value: "Classroom / online" },
-          ]}
-        >
-          <ButtonLink href="/contact#enquire" variant="onDark" size="lg">
-            Book a free demo
-            <Icon name="arrow-right" className="size-4" />
-          </ButtonLink>
-        </PageHeader>
-
-        <ProgramBody slug={slug} />
-
-        <FaqSection items={faqs.slice(0, 6)} />
-        <CtaSection />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-      </>
-    );
+    return <CourseTemplate course={course} slug={slug} program={program} />;
   }
 
   /* --------------------------- Training format page --------------------------- */
@@ -390,88 +350,3 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   );
 }
 
-/* ------------------------- Program page body (shared) ------------------------- */
-
-function ProgramBody({ slug }: { slug: string }) {
-  const resolved = resolveSlug(slug);
-  if (resolved?.kind !== "program") return null;
-  const { program } = resolved;
-  const { duration, track } = program;
-  const course = resolveCourseForTrack(track.id);
-  if (!course) return null;
-
-  const siblings = programsForTrack(track.id).filter(
-    (p) => p.after12th === program.after12th && p.slug !== program.slug,
-  );
-
-  return (
-    <CourseBody
-      course={course}
-      duration={duration.label}
-      syllabusTitle={`${duration.label} syllabus`}
-      intro={
-        <>
-          <p>{program.summary}</p>
-          <p>
-            The {duration.label.toLowerCase()} format runs to roughly {duration.hours} of classroom
-            and supervised lab time at our {site.city} centre, and leads to a{" "}
-            {duration.tier.toLowerCase()}.
-          </p>
-        </>
-      }
-      extra={
-        <>
-          <div>
-            <h2 className="font-display text-2xl font-bold tracking-tight">
-              What the {duration.label.toLowerCase()} format includes
-            </h2>
-            <ul className="mt-8 grid gap-3 sm:grid-cols-2">
-              {duration.includes.map((item) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-3 rounded-xl border border-line bg-white p-5"
-                >
-                  <Icon name="check" className="mt-0.5 size-5 shrink-0 text-emerald-600" />
-                  <span className="text-sm leading-relaxed">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {siblings.length ? (
-            <div>
-              <h2 className="font-display text-2xl font-bold tracking-tight">
-                Compare the other durations
-              </h2>
-              <div className="mt-8 grid gap-3 sm:grid-cols-2">
-                {siblings.map((sibling) => (
-                  <Link
-                    key={sibling.slug}
-                    href={`/${sibling.slug}`}
-                    className="card-hover rounded-2xl border border-line bg-white p-5"
-                  >
-                    <p className="font-display text-lg font-bold tracking-tight">
-                      {sibling.duration.label}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-brand-600">
-                      {sibling.duration.tier} · {sibling.duration.hours}
-                    </p>
-                    <p className="mt-3 text-xs leading-relaxed text-muted">
-                      {sibling.duration.summary}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </>
-      }
-    />
-  );
-}
-
-function resolveCourseForTrack(trackId: string) {
-  const slug = courseSlug(trackId);
-  const resolved = resolveSlug(slug);
-  return resolved?.kind === "course" ? resolved.course : null;
-}

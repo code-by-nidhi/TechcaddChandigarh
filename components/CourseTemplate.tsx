@@ -6,7 +6,7 @@ import { Breadcrumbs, ButtonLink, Icon } from "@/components/ui";
 import { HeroReveal } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
 import { getCategory, type Course } from "@/data/courses";
-import { programsForTrack } from "@/data/programs";
+import { programsForTrack, type Program } from "@/data/programs";
 import { faqs } from "@/data/content";
 import { courseSchema, faqPageSchema } from "@/lib/schema";
 
@@ -25,23 +25,60 @@ const ORBIT_ICONS = ["mail", "monitor", "cloud", "chart", "shield", "box"];
  * FAQ, enquiry form and schema are all defined once here. A course page is
  * never anything but `<CourseTemplate course={course} slug={slug} />`; only
  * the `course` data (and the course/training `variant`) changes per page.
+ *
+ * Certificate Program pages render through this exact same template — a
+ * `program` (whose `track.id` matches a real `Course.id`) only swaps the
+ * hero title, breadcrumb, duration and badge; every section below the hero
+ * is identical to the course page for that same track.
  */
 export function CourseTemplate({
   course,
   slug,
   variant = "course",
+  program,
 }: {
   course: Course;
   slug: string;
   variant?: "course" | "training";
+  program?: Program;
 }) {
   const noun = variant === "training" ? "Training" : "Course";
-  const trackPrograms = programsForTrack(course.id).filter((p) => !p.after12th);
+  const trackPrograms = programsForTrack(course.id).filter(
+    (p) => !p.after12th && p.slug !== slug,
+  );
   const category = getCategory(course.category);
 
+  const heroTitle = program ? program.title : `Best ${course.name} ${noun} in ${site.city}`;
+  const heroSummary = program ? program.summary : course.summary;
+  const heroDuration = program ? program.duration.label : course.duration;
+  const heroBadge = program
+    ? program.duration.tier
+    : course.badge
+      ? `${course.badge} Track`
+      : "Industry-Ready Curriculum";
+  const heroIncludes = program
+    ? program.duration.includes.some((i) => /internship/i.test(i))
+      ? "Internship Letter"
+      : "Industry Certificate"
+    : "Internship Letter";
+  const breadcrumbItems = program
+    ? [
+        { label: "Home", href: "/" },
+        {
+          label: program.after12th ? "After 12th" : "Certificate Programs",
+          href: program.after12th ? "/after-12th-courses" : "/certificate-programs",
+        },
+        { label: `${program.duration.label} ${program.track.name}` },
+      ]
+    : [
+        { label: "Home", href: "/" },
+        { label: "Courses", href: "/courses" },
+        { label: course.name },
+      ];
+
   const schema = courseSchema({
-    name: `${course.name} ${noun} in ${site.city}`,
-    description: course.summary,
+    name: heroTitle,
+    description: heroSummary,
     url: `${site.url}/${slug}`,
     priceInr: course.fee?.offer,
   });
@@ -65,14 +102,7 @@ export function CourseTemplate({
 
         <HeroReveal className="rail relative">
           <div data-hero-item>
-            <Breadcrumbs
-              items={[
-                { label: "Home", href: "/" },
-                { label: "Courses", href: "/courses" },
-                { label: course.name },
-              ]}
-              onDark
-            />
+            <Breadcrumbs items={breadcrumbItems} onDark />
           </div>
 
           <div data-hero-item className="mt-8 flex flex-wrap items-center gap-3">
@@ -84,7 +114,7 @@ export function CourseTemplate({
             </span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-1.5 text-sm font-semibold text-amber-300">
               <Icon name="sparkles" className="size-3.5" />
-              {course.badge ? `${course.badge} Track` : "Industry-Ready Curriculum"}
+              {heroBadge}
             </span>
           </div>
 
@@ -94,13 +124,13 @@ export function CourseTemplate({
                 data-hero-item
                 className="mt-6 max-w-2xl font-display text-4xl leading-[1.08] font-extrabold tracking-tight text-balance sm:text-5xl lg:text-6xl"
               >
-                Best {course.name} {noun} in {site.city}
+                {heroTitle}
               </h1>
               <p
                 data-hero-item
                 className="mt-6 max-w-xl leading-relaxed text-pretty text-brand-100/85 lg:text-lg"
               >
-                {course.summary}
+                {heroSummary}
               </p>
 
               <div data-hero-item className="mt-8 flex flex-wrap items-center gap-4">
@@ -170,10 +200,10 @@ export function CourseTemplate({
             className="mt-10 grid grid-cols-2 gap-6 border-t border-white/10 pt-8 sm:grid-cols-4"
           >
             {[
-              { label: "Duration", value: course.duration },
+              { label: "Duration", value: heroDuration },
               { label: "Mode", value: "Classroom, Weekend & 1-on-1" },
               { label: "Eligibility", value: "12th Pass Onward" },
-              { label: "Includes", value: "Internship Letter" },
+              { label: "Includes", value: heroIncludes },
             ].map((item) => (
               <div key={item.label}>
                 <p className="text-[11px] font-bold tracking-widest text-brand-200/70 uppercase">
@@ -216,33 +246,32 @@ export function CourseTemplate({
 
       <CourseBody
         course={course}
+        duration={program?.duration.label}
         showExtras
         extra={
           trackPrograms.length ? (
             <div>
               <h2 className="font-display text-2xl font-bold tracking-tight">
-                Available as a certificate program
+                {program ? "Other durations for this track" : "Available as a certificate program"}
               </h2>
               <p className="mt-4 leading-relaxed text-muted">
-                The same track runs at three depths. Pick the one that matches your timeline — the
-                syllabus below is the three-month core, and longer formats add advanced modules, a
-                live project and an internship.
+                {program
+                  ? "The same track runs at other depths too. Pick whichever timeline matches yours — each format adds its own advanced modules, live projects and placement support."
+                  : "The same track runs at three depths. Pick the one that matches your timeline — the syllabus below is the three-month core, and longer formats add advanced modules, a live project and an internship."}
               </p>
               <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                {trackPrograms.map((program) => (
+                {trackPrograms.map((p) => (
                   <Link
-                    key={program.slug}
-                    href={`/${program.slug}`}
+                    key={p.slug}
+                    href={`/${p.slug}`}
                     className="card-hover rounded-2xl border border-line bg-white p-5"
                   >
                     <p className="font-display text-lg font-bold tracking-tight">
-                      {program.duration.label}
+                      {p.duration.label}
                     </p>
-                    <p className="mt-1 text-xs font-semibold text-brand-600">
-                      {program.duration.tier}
-                    </p>
+                    <p className="mt-1 text-xs font-semibold text-brand-600">{p.duration.tier}</p>
                     <p className="mt-3 text-xs leading-relaxed text-muted">
-                      {program.duration.hours} of classroom and lab time
+                      {p.duration.hours} of classroom and lab time
                     </p>
                   </Link>
                 ))}

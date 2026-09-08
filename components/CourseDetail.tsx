@@ -8,7 +8,17 @@ import { CourseCard } from "./CourseCard";
 import { CourseFaqSection } from "./CourseFaqSection";
 import { EnquiryForm } from "./EnquiryForm";
 import { SyllabusLadderSection } from "./SyllabusLadderSection";
-import { Badge, ButtonLink, cx, Icon, Rail, SectionHeading, badgeTone } from "./ui";
+import {
+  Badge,
+  ButtonLink,
+  cx,
+  Icon,
+  joinNatural,
+  Rail,
+  SectionHeading,
+  badgeTone,
+  variantIndex,
+} from "./ui";
 import {
   OverviewNetworkGraphic,
   IndustryTrainingSection,
@@ -123,6 +133,94 @@ function Row({ label, value }: { label: string; value: string }) {
   );
 }
 
+/* ------------------------------- Course overview copy ------------------------------- */
+
+/**
+ * Builds the SEO-rich middle paragraph of "Course overview" from the course's
+ * own modules and tools, so every one of the 44 course pages gets a genuinely
+ * technical, keyword-dense paragraph without hand-writing 44 of them — and it
+ * can never drift out of sync with the real curriculum data. The connecting
+ * phrases rotate per course so 44 pages don't all read as one template with
+ * the nouns swapped.
+ */
+function courseCurriculumArc(course: Course): ReactNode {
+  const modules = course.modules;
+  const first = modules[0];
+  const rest = modules.slice(1);
+  const firstTopics = first ? joinNatural(first.topics.slice(0, 2)).toLowerCase() : null;
+  const laterTopics = rest.flatMap((m) => m.topics).slice(0, 5);
+  const tools = course.tools.slice(0, 6);
+  const v = variantIndex(course.id, 3);
+
+  const openers = [
+    <>The early stretch covers {firstTopics}, so nothing later depends on guesswork. </>,
+    <>Weeks one and two are spent on {firstTopics}, before anything else gets layered on. </>,
+    <>You start with {firstTopics} — the part most self-taught learners skip and later regret. </>,
+  ];
+  const bridges = [
+    <>From there you move through {joinNatural(laterTopics).toLowerCase()}, in the order a working project actually needs them. </>,
+    <>The programme then builds through {joinNatural(laterTopics).toLowerCase()}, each stage assuming the last one stuck. </>,
+    <>Next comes {joinNatural(laterTopics).toLowerCase()}, taught in the sequence a real brief would demand them. </>,
+  ];
+  const toolTails = [
+    ", the same tools used on live client work rather than a classroom-only sandbox.",
+    ", the exact stack our trainers use on paid client projects, not a simplified teaching version.",
+    ", chosen because employers around " + site.city + " actually ask for them by name.",
+  ];
+
+  return (
+    <p>
+      {firstTopics ? openers[v] : null}
+      {laterTopics.length ? bridges[v] : null}
+      {tools.length ? (
+        <>
+          Along the way you work hands-on in{" "}
+          {tools.map((tool, i) => (
+            <span key={tool}>
+              {i > 0 ? (i === tools.length - 1 ? " and " : ", ") : ""}
+              <strong>{tool}</strong>
+            </span>
+          ))}
+          {toolTails[v]}
+        </>
+      ) : null}
+    </p>
+  );
+}
+
+function defaultCourseOverview(course: Course, duration?: string): ReactNode {
+  const careers = joinNatural(course.careers.slice(0, 3));
+  const v = variantIndex(course.id, 3);
+  const closers = [
+    <>
+      Sessions are hands-on: you attempt real work under a trainer&rsquo;s eye and fix what does
+      not land the same week. Batches stay small enough for that, running{" "}
+      {duration ?? course.duration} at our {site.city} centre.
+    </>,
+    <>
+      Every session is practical rather than lecture-first — you build, a trainer reviews it, and
+      you correct it before the next class. The full track runs {duration ?? course.duration} out
+      of our {site.city} centre, in batches small enough for that kind of attention.
+    </>,
+    <>
+      Nothing here is watch-only: each session ends with work a trainer has actually looked at, not
+      a recorded video you can skip. The programme runs {duration ?? course.duration} at our{" "}
+      {site.city} centre, in small batches by design.
+    </>,
+  ];
+  return (
+    <>
+      <p>{course.summary}</p>
+      {courseCurriculumArc(course)}
+      <p>
+        {closers[v]} Each module ends in something you have built and a trainer has reviewed, so
+        you finish with a portfolio, an industry certificate and — on the six-month and nine-month
+        formats — an internship letter, aimed at {careers} roles.
+      </p>
+    </>
+  );
+}
+
 /* ------------------------------- Full page body ------------------------------- */
 
 export function CourseBody({
@@ -229,23 +327,7 @@ export function CourseBody({
                   />
                 </h2>
                 <div className="mt-5 max-w-3xl space-y-4 text-justify leading-relaxed text-muted">
-                  {intro ?? (
-                    <>
-                      <p>{course.summary}</p>
-                      <p>
-                        This is {/^[aeiou]/i.test(course.level) ? "an" : "a"}{" "}
-                        {course.level.toLowerCase()} track running over{" "}
-                        {duration ?? course.duration} at our {site.city} centre. Batches are small
-                        enough that a trainer can sit with you when something is not working, and
-                        every module ends with lab work rather than a quiz.
-                      </p>
-                      <p>
-                        You finish with a portfolio you built yourself, an industry certificate, and
-                        — on the six-month and nine-month formats — an internship letter for real
-                        client work.
-                      </p>
-                    </>
-                  )}
+                  {intro ?? defaultCourseOverview(course, duration)}
                 </div>
 
                 {showExtras ? null : (
@@ -390,7 +472,7 @@ export function CourseBody({
 
           <section className="hero-surface py-20 lg:py-28">
             <Rail>
-              <CourseFaqSection course={course} />
+              <CourseFaqSection course={course} duration={duration} />
             </Rail>
           </section>
 

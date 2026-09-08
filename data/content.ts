@@ -347,3 +347,11 @@ export const trustPoints = [
   "No registration fee",
   "EMI options available",
 ];
+
+/** The generic "final stage" of every course syllabus — live work, internship, placement prep. */
+export const PLACEMENT_ITEMS = [
+  "A live client project you keep in your portfolio",
+  "Documented internship on real work",
+  "CV review, mock interviews and aptitude drills",
+  "Placement drives with our hiring partner network",
+];
