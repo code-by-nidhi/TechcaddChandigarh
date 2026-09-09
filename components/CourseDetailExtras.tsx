@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getCategory, type Course, type CourseModule } from "@/data/courses";
@@ -224,9 +225,22 @@ export function CertificationSection({ course }: { course: Course }) {
   return (
     <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
       <div>
-        <span className="inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold tracking-wide text-white/80 uppercase">
-          Certification
-        </span>
+        <div className="flex items-center gap-3">
+          {course.heroImage ? (
+            <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/5 p-1.5">
+              <Image
+                src={course.heroImage}
+                alt=""
+                width={40}
+                height={40}
+                className="size-full object-contain"
+              />
+            </span>
+          ) : null}
+          <span className="inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold tracking-wide text-white/80 uppercase">
+            Certification
+          </span>
+        </div>
         <h2 className="mt-6 font-display text-3xl font-bold tracking-tight text-balance text-white lg:text-4xl">
           Get Certified in {course.name}
         </h2>

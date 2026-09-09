@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { courseSlug, getCategory, type Course } from "@/data/courses";
 import { Badge, Icon, badgeTone } from "./ui";
@@ -6,69 +7,86 @@ export function CourseCard({ course, compact = false }: { course: Course; compac
   const category = getCategory(course.category);
 
   return (
-    <article className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6">
-      <div className="flex items-start justify-between gap-3">
-        <span className="inline-flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-          <Icon name={category.icon} className="size-5" />
-        </span>
-        {course.badge ? <Badge tone={badgeTone(course.badge)}>{course.badge}</Badge> : null}
-      </div>
-
-      <h3 className="mt-5 font-display text-lg font-bold tracking-tight">
-        <Link href={`/${courseSlug(course.id)}`} className="before:absolute before:inset-0">
-          {course.name}
-        </Link>
-      </h3>
-
-      <p className="mt-2.5 line-clamp-3 text-sm leading-relaxed text-muted">{course.summary}</p>
-
-      {!compact ? (
-        <div className="mt-5 flex flex-wrap gap-1.5">
-          {course.tools.slice(0, 4).map((tool) => (
-            <span
-              key={tool}
-              className="rounded-md bg-subtle px-2 py-1 text-[11px] font-medium text-muted"
-            >
-              {tool}
-            </span>
-          ))}
-          {course.tools.length > 4 ? (
-            <span className="rounded-md bg-subtle px-2 py-1 text-[11px] font-medium text-muted">
-              +{course.tools.length - 4}
-            </span>
-          ) : null}
+    <article className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-line bg-white p-6">
+      {course.heroImage ? (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-5 -right-5 z-0 size-32 scale-90 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-100 group-hover:opacity-90 sm:size-36"
+        >
+          <Image
+            src={course.heroImage}
+            alt=""
+            fill
+            sizes="144px"
+            className="object-contain drop-shadow-[0_15px_30px_rgba(15,23,42,0.18)]"
+          />
         </div>
       ) : null}
 
-      <div className="mt-auto flex items-center justify-between gap-3 pt-6 text-xs font-medium text-muted">
-        <span className="inline-flex items-center gap-1.5">
-          <Icon name="clock" className="size-3.5" />
-          {course.duration}
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <Icon name="target" className="size-3.5" />
-          {course.level}
-        </span>
-      </div>
+      <div className="relative z-10 flex flex-1 flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <span className="inline-flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+            <Icon name={category.icon} className="size-5" />
+          </span>
+          {course.badge ? <Badge tone={badgeTone(course.badge)}>{course.badge}</Badge> : null}
+        </div>
 
-      {course.fee ? (
-        <div className="mt-4 flex items-baseline gap-2 border-t border-line pt-4">
-          <span className="font-display text-lg font-bold text-foreground">
-            ₹{course.fee.offer.toLocaleString("en-IN")}
+        <h3 className="mt-5 font-display text-lg font-bold tracking-tight">
+          <Link href={`/${courseSlug(course.id)}`} className="before:absolute before:inset-0">
+            {course.name}
+          </Link>
+        </h3>
+
+        <p className="mt-2.5 line-clamp-3 text-sm leading-relaxed text-muted">{course.summary}</p>
+
+        {!compact ? (
+          <div className="mt-5 flex flex-wrap gap-1.5">
+            {course.tools.slice(0, 4).map((tool) => (
+              <span
+                key={tool}
+                className="rounded-md bg-subtle px-2 py-1 text-[11px] font-medium text-muted"
+              >
+                {tool}
+              </span>
+            ))}
+            {course.tools.length > 4 ? (
+              <span className="rounded-md bg-subtle px-2 py-1 text-[11px] font-medium text-muted">
+                +{course.tools.length - 4}
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+
+        <div className="mt-auto flex items-center justify-between gap-3 pt-6 text-xs font-medium text-muted">
+          <span className="inline-flex items-center gap-1.5">
+            <Icon name="clock" className="size-3.5" />
+            {course.duration}
           </span>
-          <span className="text-sm text-muted line-through">
-            ₹{course.fee.original.toLocaleString("en-IN")}
-          </span>
-          <span className="ml-auto text-xs font-semibold text-emerald-600">
-            Save ₹{(course.fee.original - course.fee.offer).toLocaleString("en-IN")}
+          <span className="inline-flex items-center gap-1.5">
+            <Icon name="target" className="size-3.5" />
+            {course.level}
           </span>
         </div>
-      ) : null}
 
-      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 transition-transform duration-300 group-hover:translate-x-1">
-        View syllabus
-        <Icon name="arrow-right" className="size-4" />
-      </span>
+        {course.fee ? (
+          <div className="mt-4 flex items-baseline gap-2 border-t border-line pt-4">
+            <span className="font-display text-lg font-bold text-foreground">
+              ₹{course.fee.offer.toLocaleString("en-IN")}
+            </span>
+            <span className="text-sm text-muted line-through">
+              ₹{course.fee.original.toLocaleString("en-IN")}
+            </span>
+            <span className="ml-auto text-xs font-semibold text-emerald-600">
+              Save ₹{(course.fee.original - course.fee.offer).toLocaleString("en-IN")}
+            </span>
+          </div>
+        ) : null}
+
+        <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 transition-transform duration-300 group-hover:translate-x-1">
+          View syllabus
+          <Icon name="arrow-right" className="size-4" />
+        </span>
+      </div>
     </article>
   );
 }

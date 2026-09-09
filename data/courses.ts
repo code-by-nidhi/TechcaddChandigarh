@@ -443,7 +443,6 @@ export const courses: Course[] = [
     summary:
       "The language behind AI, automation and back-end work — taught through projects, not slides.",
     featured: true,
-    heroImage: "/images/python.jpeg",
     tools: ["Python", "VS Code", "Git", "Flask", "SQLite", "Pytest"],
     modules: [
       { title: "Core Python", topics: ["Syntax & types", "Control flow", "Functions", "Error handling"] },
@@ -1164,6 +1163,51 @@ export const courses: Course[] = [
     careers: ["Graphic Designer", "DTP Operator", "Print Designer", "Freelance Designer"],
   },
 ];
+
+/* --------------------------------- Artwork --------------------------------- */
+
+/**
+ * Courses with a real illustrated hero image in `/public/images/courses/`.
+ * Anything not listed here falls back to the generic gradient + category
+ * icon everywhere `course.heroImage` is read — no course gets a fabricated
+ * photo just to fill the slot.
+ */
+const COURSES_WITH_ARTWORK = new Set([
+  "artificial-intelligence",
+  "machine-learning",
+  "deep-learning",
+  "data-science",
+  "data-analytics",
+  "power-bi",
+  "tableau",
+  "python",
+  "java",
+  "c-plus-plus",
+  "kotlin",
+  "linux",
+  "full-stack-development",
+  "mern-stack-development",
+  "mean-stack-development",
+  "php-full-stack",
+  "web-development",
+  "web-designing",
+  "wordpress",
+  "shopify",
+  "flutter-app-development",
+  "digital-marketing",
+  "seo",
+  "social-media-marketing",
+  "google-ads",
+  "cyber-security",
+  "ethical-hacking",
+  "cloud-computing",
+]);
+
+for (const course of courses) {
+  if (COURSES_WITH_ARTWORK.has(course.id)) {
+    course.heroImage = `/images/courses/${course.id}.webp`;
+  }
+}
 
 /* --------------------------------- Lookups --------------------------------- */
 

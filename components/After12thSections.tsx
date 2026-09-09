@@ -1,11 +1,13 @@
+import Image from "next/image";
 import Link from "next/link";
-import type { Course } from "@/data/courses";
+import { getCourse, type Course } from "@/data/courses";
 import type { Program } from "@/data/programs";
 import { programs } from "@/data/programs";
 import { branches } from "@/data/branches";
 import { site } from "@/data/site";
 import { splitIntoThirds } from "./CourseDetailExtras";
-import { A12ToolCarousel } from "./A12ToolCarousel";
+import { A12ToolEcosystem } from "./A12ToolEcosystem";
+import { A12Timeline } from "./A12Timeline";
 import { Icon, ButtonLink, cx, joinNatural } from "./ui";
 
 const topicLine = (mods: Course["modules"]) =>
@@ -67,10 +69,22 @@ export function A12WhatYoullLearn({ course }: { course: Course }) {
 
   return (
     <div className="relative isolate">
-      <span
-        aria-hidden="true"
-        className="absolute -top-8 left-0 hidden size-9 rounded-full border-2 border-brand-300 sm:block"
-      />
+      {course.heroImage ? (
+        <span className="mb-5 grid size-14 place-items-center rounded-2xl border border-white/10 bg-white/5 p-2">
+          <Image
+            src={course.heroImage}
+            alt=""
+            width={44}
+            height={44}
+            className="size-full object-contain"
+          />
+        </span>
+      ) : (
+        <span
+          aria-hidden="true"
+          className="absolute -top-8 left-0 hidden size-9 rounded-full border-2 border-brand-300 sm:block"
+        />
+      )}
       <h2 className="font-display text-2xl font-bold tracking-tight text-white lg:text-3xl">
         What You&rsquo;ll Learn
       </h2>
@@ -79,43 +93,8 @@ export function A12WhatYoullLearn({ course }: { course: Course }) {
         below is work you will have done rather than topics you will have heard about.
       </p>
 
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        className="pointer-events-none absolute inset-0 top-24 hidden h-[calc(100%-6rem)] w-full opacity-40 lg:block"
-      >
-        <polyline
-          points="18,18 78,32 18,62 78,80"
-          fill="none"
-          stroke="#facc15"
-          strokeWidth="0.3"
-        />
-      </svg>
-
-      <div className="relative mt-10 grid gap-6 lg:grid-cols-2 lg:gap-x-16 lg:gap-y-16">
-        {items.map((item, i) => (
-          <div
-            key={item.title}
-            className={cx(
-              "rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm lg:w-[85%]",
-              i % 2 === 1 ? "lg:ml-auto" : "",
-            )}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/10 text-white">
-                <Icon name={item.icon} className="size-4" />
-              </span>
-              <span className="grid size-6 shrink-0 place-items-center rounded-full bg-amber-400 text-[11px] font-bold text-hero-950">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-            </div>
-            <h3 className="mt-4 font-display text-sm font-bold tracking-tight text-white">
-              {item.title}
-            </h3>
-            <p className="mt-2 text-xs leading-relaxed text-white/60">{item.body}</p>
-          </div>
-        ))}
+      <div className="mt-10">
+        <A12Timeline items={items} />
       </div>
     </div>
   );
@@ -123,48 +102,23 @@ export function A12WhatYoullLearn({ course }: { course: Course }) {
 
 /* ------------------------------------ Tools ----------------------------------- */
 
-export function A12ToolsRow({ course }: { course: Course }) {
+export function A12ToolsRow({ course, program }: { course: Course; program: Program }) {
   return (
-    <div className="relative text-center">
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 h-40 w-full -translate-y-1/2 opacity-30"
-        viewBox="0 0 1000 160"
-        preserveAspectRatio="none"
-      >
-        <path
-          d="M0 130 C 200 20, 350 20, 500 80 S 800 140, 1000 30"
-          fill="none"
-          stroke="url(#a12-tool-line)"
-          strokeWidth="1.5"
-        />
-        <path
-          d="M0 40 C 220 150, 380 150, 500 90 S 780 10, 1000 120"
-          fill="none"
-          stroke="url(#a12-tool-line)"
-          strokeWidth="1.5"
-        />
-        <defs>
-          <linearGradient id="a12-tool-line" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#00D4FF" stopOpacity="0" />
-            <stop offset="50%" stopColor="#00D4FF" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#00D4FF" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-      </svg>
-
+    <div className="text-center">
       <span className="inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold tracking-wide text-amber-300 uppercase">
-        The toolchain
+        The tool ecosystem
       </span>
       <h2 className="mt-6 font-display text-2xl font-bold tracking-tight text-white lg:text-3xl">
-        Tools you will actually work in
+        Everything this course revolves around
       </h2>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/65">
-        Everything here is installed on the lab machines and used on live client work, not shown
-        once in a slide and forgotten. Drag, scroll or wait — it keeps moving on its own.
+        These are the tools and platforms you will actually work in — hover any node to see what
+        it does and where it shows up in the curriculum.
       </p>
 
-      <A12ToolCarousel tools={course.tools} />
+      <div className="mt-14">
+        <A12ToolEcosystem course={course} program={program} />
+      </div>
     </div>
   );
 }
@@ -384,16 +338,53 @@ export function A12WhyChoose() {
         {site.stats.reviews} reviews, and a syllabus that is updated every year to match current
         industry needs.
       </p>
-      <div className="mt-10 grid gap-4 text-left sm:grid-cols-2">
+      <div className="group/cards mt-10 grid gap-5 text-left sm:grid-cols-2">
         {cards.map((card) => (
           <div
             key={card.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm"
+            className={cx(
+              "group/card relative isolate overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] p-7",
+              "cursor-pointer backdrop-blur-sm transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "hover:z-10 hover:-translate-y-3.5 hover:scale-[1.03] hover:border-[#00D4FF]/40 hover:bg-white/[0.08]",
+              "hover:shadow-[0_35px_70px_-20px_rgba(0,0,0,0.55),0_0_45px_-12px_rgba(0,212,255,0.4)]",
+              "group-has-[:hover]/cards:opacity-55 hover:opacity-100!",
+            )}
           >
-            <h3 className="font-display text-base font-bold tracking-tight text-white">
+            {/* Spotlight glow, only painted in on hover */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(0,212,255,0.16),transparent_75%)] opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
+            />
+            {/* Arrow, slides diagonally up and fades in on hover */}
+            <span
+              aria-hidden="true"
+              className="absolute top-6 right-6 grid size-8 place-items-center rounded-full border border-white/15 text-white/40 opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:translate-x-1 group-hover/card:-translate-y-1 group-hover/card:border-[#00D4FF]/50 group-hover/card:text-[#00D4FF] group-hover/card:opacity-100"
+            >
+              <Icon name="arrow-up-right" className="size-4" />
+            </span>
+
+            <h3 className="pr-10 font-display text-lg font-bold tracking-tight text-white transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:-translate-y-0.5">
               {card.title}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-white/60">{card.body}</p>
+            <p className="mt-2.5 text-sm leading-relaxed text-white/60 transition-colors duration-500 group-hover/card:text-white/85">
+              {card.body}
+            </p>
+
+            {/* Hidden tag row — expands open on hover */}
+            <div className="grid grid-rows-[0fr] transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:grid-rows-[1fr]">
+              <div className="overflow-hidden">
+                <div className="mt-5 flex flex-wrap gap-2 border-t border-white/10 pt-4 opacity-0 transition-opacity delay-100 duration-300 group-hover/card:opacity-100">
+                  {["Industry Mentors", "Live Projects", "Placement Support"].map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-white/70"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -442,17 +433,48 @@ export function A12WorkingLoop({ course }: { course: Course }) {
         Every project moves through the same loop: understand the brief, build with guidance, then
         explain the decisions behind your work.
       </p>
-      <div className="mt-10 grid gap-4 text-left sm:grid-cols-3">
+      <div className="group/cards mt-10 grid gap-5 text-left sm:grid-cols-3">
         {steps.map((step, i) => (
-          <div key={step.title} className="rounded-2xl border border-line bg-subtle p-6">
-            <span className="grid size-9 place-items-center rounded-full bg-white text-xs font-bold text-brand-600 shadow-sm">
-              {String(i + 1).padStart(2, "0")}
-            </span>
+          <div
+            key={step.title}
+            className={cx(
+              "group/card relative isolate overflow-hidden rounded-[28px] border border-line",
+              "bg-gradient-to-br from-white via-white to-brand-50/60 p-7",
+              "cursor-pointer transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+              "hover:z-10 hover:-translate-y-3.5 hover:scale-[1.03] hover:border-brand-300 hover:bg-white",
+              "hover:shadow-[0_35px_70px_-24px_rgba(15,23,42,0.28),0_0_40px_-14px_rgba(37,99,235,0.35)]",
+              "group-has-[:hover]/cards:opacity-60 hover:opacity-100!",
+            )}
+          >
+            {/* Soft spotlight glow */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(65%_55%_at_20%_0%,rgba(37,99,235,0.12),transparent_75%)] opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
+            />
+            {/* Glass reflection sheen */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute -inset-x-10 -top-1/2 h-full -rotate-12 bg-gradient-to-b from-white/70 to-transparent opacity-0 transition-opacity duration-500 group-hover/card:opacity-60"
+            />
+
+            <div className="flex items-center justify-between">
+              <span className="grid size-9 place-items-center rounded-full bg-white text-xs font-bold text-brand-600 shadow-sm transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:-translate-y-1">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <span
+                aria-hidden="true"
+                className="grid size-8 -translate-x-2 place-items-center rounded-full border border-line text-muted opacity-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:translate-x-0 group-hover/card:border-brand-300 group-hover/card:text-brand-600 group-hover/card:opacity-100"
+              >
+                <Icon name="arrow-right" className="size-4" />
+              </span>
+            </div>
             <h3 className="mt-4 font-display text-base font-bold tracking-tight text-hero-950">
               {step.title}
             </h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted">{step.body}</p>
-            <p className="mt-4 border-t border-line pt-3 text-xs font-semibold text-hero-950">
+            <p className="mt-2 text-sm leading-relaxed text-muted transition-colors duration-500 group-hover/card:text-hero-950/75">
+              {step.body}
+            </p>
+            <p className="mt-4 border-t border-line pt-3 text-xs font-semibold text-hero-950 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover/card:translate-x-1">
               {step.project}
             </p>
           </div>
@@ -463,6 +485,26 @@ export function A12WorkingLoop({ course }: { course: Course }) {
 }
 
 /* --------------------------------- Popular programs -------------------------------- */
+
+/**
+ * A themed icon + gradient per track, standing in for a course photo — no
+ * real course poster exists for these programs, so a distinct decorative
+ * mark (shield for security, cloud for cloud computing, etc.) is used
+ * instead of a fabricated or reused stock photo.
+ */
+const TRACK_VISUAL: Record<string, { icon: string; gradient: string }> = {
+  "artificial-intelligence": { icon: "network", gradient: "from-brand-400 to-hero-800" },
+  "agentic-ai": { icon: "sparkles", gradient: "from-violet-400 to-hero-800" },
+  "data-science": { icon: "chart", gradient: "from-blue-400 to-hero-800" },
+  "data-analytics": { icon: "monitor", gradient: "from-cyan-400 to-hero-800" },
+  "full-stack-development": { icon: "code", gradient: "from-emerald-400 to-teal-700" },
+  "mern-stack-development": { icon: "layers", gradient: "from-emerald-400 to-cyan-700" },
+  "flutter-app-development": { icon: "smartphone", gradient: "from-sky-400 to-blue-700" },
+  "cyber-security": { icon: "shield", gradient: "from-indigo-400 to-slate-900" },
+  "cloud-computing": { icon: "cloud", gradient: "from-blue-400 to-indigo-800" },
+  "digital-marketing": { icon: "megaphone", gradient: "from-rose-400 to-orange-600" },
+};
+const DEFAULT_TRACK_VISUAL = { icon: "sparkles", gradient: "from-slate-400 to-slate-800" };
 
 export function A12PopularPrograms({ program }: { program: Program }) {
   const siblings = programs
@@ -483,29 +525,68 @@ export function A12PopularPrograms({ program }: { program: Program }) {
         Learn from industry trainers on the tracks students most often take next.
       </p>
       <div className="mt-10 grid gap-4 text-left sm:grid-cols-2">
-        {siblings.map((sibling) => (
-          <Link
-            key={sibling.slug}
-            href={`/${sibling.slug}`}
-            className="group rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm transition-colors hover:bg-white/[0.08]"
-          >
-            <span className="text-xs font-bold tracking-wide text-amber-300 uppercase">
-              {sibling.after12th ? "After 12th" : ""} {sibling.duration.label} Program
-            </span>
-            <h3 className="mt-2 font-display text-lg font-bold tracking-tight text-white">
-              {sibling.track.name} {sibling.duration.tier === "Diploma" ? "Diploma" : "Certificate"}{" "}
-              Program
-            </h3>
-            <p className="mt-2 text-sm leading-relaxed text-white/60">{sibling.track.blurb}</p>
-            <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300">
-              View course
-              <Icon
-                name="arrow-right"
-                className="size-3.5 transition-transform duration-300 group-hover:translate-x-1"
+        {siblings.map((sibling) => {
+          const siblingCourse = getCourse(sibling.track.id);
+          const visual = TRACK_VISUAL[sibling.track.id] ?? DEFAULT_TRACK_VISUAL;
+          return (
+            <Link
+              key={sibling.slug}
+              href={`/${sibling.slug}`}
+              className="group relative isolate overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1 hover:border-amber-300/30 hover:bg-white/[0.07] hover:shadow-[0_35px_70px_-25px_rgba(0,0,0,0.65)]"
+            >
+              {/* Ambient glow that blooms in on hover — the "border glow" cue. */}
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_100%_0%,rgba(251,191,36,0.14),transparent_70%)] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               />
-            </span>
-          </Link>
-        ))}
+
+              <div className="grid grid-cols-[1fr_0rem] items-center gap-0 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:grid-cols-[1fr_6rem] group-hover:gap-5">
+                <div className="min-w-0">
+                  <span className="text-xs font-bold tracking-wide text-amber-300 uppercase">
+                    {sibling.after12th ? "After 12th" : ""} {sibling.duration.label} Program
+                  </span>
+                  <h3 className="mt-2 line-clamp-2 min-h-[3.375rem] font-display text-lg font-bold tracking-tight text-white">
+                    {sibling.track.name}{" "}
+                    {sibling.duration.tier === "Diploma" ? "Diploma" : "Certificate"} Program
+                  </h3>
+                  <p className="mt-2 line-clamp-2 min-h-[2.75rem] text-sm leading-relaxed text-white/60">
+                    {sibling.track.blurb}
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-amber-300">
+                    View course
+                    <Icon
+                      name="arrow-right"
+                      className="size-3.5 transition-transform duration-300 group-hover:translate-x-1.5"
+                    />
+                  </span>
+                </div>
+
+                <div className="min-w-0 overflow-hidden">
+                  <div
+                    className={cx(
+                      "grid size-24 shrink-0 -translate-x-[30px] scale-95 place-items-center rounded-[28px] border border-white/15 opacity-0 shadow-[0_20px_45px_-15px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0 group-hover:scale-100 group-hover:opacity-100",
+                      siblingCourse?.heroImage ? "bg-white/5 p-2.5" : cx("bg-gradient-to-br", visual.gradient),
+                    )}
+                  >
+                    {siblingCourse?.heroImage ? (
+                      <Image
+                        src={siblingCourse.heroImage}
+                        alt=""
+                        width={70}
+                        height={70}
+                        className="size-full object-contain"
+                      />
+                    ) : (
+                      <span className="grid size-11 place-items-center rounded-2xl bg-white/15 text-white">
+                        <Icon name={visual.icon} className="size-5" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

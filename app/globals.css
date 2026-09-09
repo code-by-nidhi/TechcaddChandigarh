@@ -411,25 +411,6 @@
   }
 }
 
-/* After-12th tool carousel — the centred card's glow. Position/scale/opacity
-   are painted straight to the element every frame from JS (see
-   A12ToolCarousel), so only the properties that JS never touches (shadow,
-   border) are animated here; a CSS transition on those two composes cleanly
-   with the per-frame transform without fighting it. */
-.a12-tool-card {
-  transition:
-    box-shadow 0.35s ease,
-    border-color 0.35s ease;
-}
-
-.a12-tool-active {
-  border-color: rgba(0, 212, 255, 0.55);
-  box-shadow:
-    0 30px 60px -15px rgba(37, 99, 235, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.5) inset,
-    0 0 45px -5px rgba(0, 212, 255, 0.45);
-}
-
 /* ---------------------------------------------------------------------------
    Ambient motion — the slow, always-on layer: glows that drift, icons that
    breathe, the scroll cue under the hero. All of it is decorative, so all of

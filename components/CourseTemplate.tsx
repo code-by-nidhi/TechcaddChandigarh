@@ -175,13 +175,13 @@ export function CourseTemplate({
                 className="pointer-events-none absolute inset-8 rounded-full bg-gradient-to-br from-[#1E88FF] to-[#00D4FF] opacity-30 blur-3xl"
               />
               {course.heroImage ? (
-                <div className="relative isolate size-full overflow-hidden rounded-[28px] border border-white/10 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]">
+                <div className="relative isolate size-full">
                   <Image
                     src={course.heroImage}
                     alt={`${course.name} course illustration`}
                     fill
                     sizes="384px"
-                    className="object-contain"
+                    className="object-contain drop-shadow-[0_25px_45px_rgba(0,0,0,0.45)]"
                     priority
                   />
                 </div>

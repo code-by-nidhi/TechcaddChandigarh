@@ -206,7 +206,7 @@ export function After12thTemplate({
 
       <section className="hero-surface py-20 lg:py-28">
         <div className="rail">
-          <A12ToolsRow course={course} />
+          <A12ToolsRow course={course} program={program} />
         </div>
       </section>
 
