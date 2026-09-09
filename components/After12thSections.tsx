@@ -5,6 +5,7 @@ import { programs } from "@/data/programs";
 import { branches } from "@/data/branches";
 import { site } from "@/data/site";
 import { splitIntoThirds } from "./CourseDetailExtras";
+import { A12ToolCarousel } from "./A12ToolCarousel";
 import { Icon, ButtonLink, cx, joinNatural } from "./ui";
 
 const topicLine = (mods: Course["modules"]) =>
@@ -124,7 +125,34 @@ export function A12WhatYoullLearn({ course }: { course: Course }) {
 
 export function A12ToolsRow({ course }: { course: Course }) {
   return (
-    <div className="text-center">
+    <div className="relative text-center">
+      <svg
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-1/2 -z-10 h-40 w-full -translate-y-1/2 opacity-30"
+        viewBox="0 0 1000 160"
+        preserveAspectRatio="none"
+      >
+        <path
+          d="M0 130 C 200 20, 350 20, 500 80 S 800 140, 1000 30"
+          fill="none"
+          stroke="url(#a12-tool-line)"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M0 40 C 220 150, 380 150, 500 90 S 780 10, 1000 120"
+          fill="none"
+          stroke="url(#a12-tool-line)"
+          strokeWidth="1.5"
+        />
+        <defs>
+          <linearGradient id="a12-tool-line" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#00D4FF" stopOpacity="0" />
+            <stop offset="50%" stopColor="#00D4FF" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#00D4FF" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+      </svg>
+
       <span className="inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-bold tracking-wide text-amber-300 uppercase">
         The toolchain
       </span>
@@ -133,19 +161,10 @@ export function A12ToolsRow({ course }: { course: Course }) {
       </h2>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/65">
         Everything here is installed on the lab machines and used on live client work, not shown
-        once in a slide and forgotten.
+        once in a slide and forgotten. Drag, scroll or wait — it keeps moving on its own.
       </p>
-      <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-        {course.tools.map((tool) => (
-          <span
-            key={tool}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white"
-          >
-            <Icon name="code" className="size-4 text-amber-300" />
-            {tool}
-          </span>
-        ))}
-      </div>
+
+      <A12ToolCarousel tools={course.tools} />
     </div>
   );
 }

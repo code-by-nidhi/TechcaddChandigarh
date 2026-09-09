@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Breadcrumbs, Icon } from "@/components/ui";
+import { Breadcrumbs, Icon, joinNatural } from "@/components/ui";
 import { HeroReveal } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
 import type { Course } from "@/data/courses";
@@ -24,6 +24,27 @@ import {
   A12PopularPrograms,
 } from "@/components/After12thSections";
 import { A12CurriculumTabs, A12CareerRoles, A12Faq } from "@/components/After12thInteractive";
+
+/**
+ * A richer hero paragraph than `program.summary` (which stays generic for
+ * schema/meta use) — built from the course's own first module and tools, so
+ * it reads like a real curriculum walkthrough instead of one template
+ * sentence reused across all ten tracks.
+ */
+function a12HeroSummary(course: Course, program: Program): string {
+  const first = course.modules[0];
+  const firstTopics = first
+    ? joinNatural(first.topics.slice(0, 3)).toLowerCase()
+    : `${course.name.toLowerCase()} fundamentals`;
+  const tools = course.tools.slice(0, 3);
+
+  return (
+    `${program.duration.label} that take you from ${firstTopics} to a real, portfolio-ready ` +
+    `${course.name} project you can show in an interview` +
+    (tools.length ? ` — ${joinNatural(tools)} from the ground up, then hands-on practice.` : ".") +
+    " No prior experience needed."
+  );
+}
 
 /**
  * A dedicated template for After 12th program pages, mirroring the reference
@@ -53,7 +74,7 @@ export function After12thTemplate({
   return (
     <>
       {/* --------------------------------------- Hero --------------------------------------- */}
-      <section className="hero-surface relative isolate overflow-hidden pt-24 pb-16 text-white lg:pt-28 lg:pb-20">
+      <section className="hero-surface relative isolate overflow-hidden pt-28 pb-20 text-white lg:pt-36 lg:pb-24">
         <svg
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 -z-10 size-full opacity-[0.12]"
@@ -78,11 +99,11 @@ export function After12thTemplate({
             />
           </div>
 
-          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-12">
+          <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-14">
             <div>
               <h1
                 data-hero-item
-                className="mt-6 max-w-2xl font-display text-4xl leading-[1.1] font-extrabold tracking-tight text-balance sm:text-5xl"
+                className="mt-8 max-w-3xl font-display text-5xl leading-[1.1] font-extrabold tracking-tight text-balance sm:text-6xl"
               >
                 Best After 12th {program.duration.label}{" "}
                 <span className="text-amber-400 underline decoration-2 underline-offset-4">
@@ -92,30 +113,30 @@ export function After12thTemplate({
               </h1>
               <p
                 data-hero-item
-                className="mt-6 max-w-xl leading-relaxed text-pretty text-brand-100/85 lg:text-lg"
+                className="mt-8 max-w-xl leading-relaxed text-pretty text-brand-100/85 lg:text-lg"
               >
-                {program.summary}
+                {a12HeroSummary(course, program)}
               </p>
             </div>
 
             <div
               data-hero-item
-              className="rounded-2xl border border-white/15 bg-white/5 p-6 text-center backdrop-blur-sm"
+              className="rounded-2xl border border-white/15 bg-white/5 p-7 text-center backdrop-blur-sm lg:p-8"
             >
               <p className="text-xs font-semibold tracking-wide text-white/60 uppercase">
                 Rated on Google
               </p>
-              <p className="mt-2 flex items-center justify-center gap-1.5 font-display text-3xl font-extrabold text-[#00D4FF]">
+              <p className="mt-3 flex items-center justify-center gap-1.5 font-display text-4xl font-extrabold text-[#00D4FF]">
                 {site.stats.rating}
-                <Icon name="star" className="size-6" />
+                <Icon name="star" className="size-7" />
               </p>
-              <p className="mt-1 text-xs text-white/60">{site.stats.reviews} reviews</p>
+              <p className="mt-1.5 text-xs text-white/60">{site.stats.reviews} reviews</p>
             </div>
           </div>
 
           <div
             data-hero-item
-            className="relative isolate mt-10 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] p-6 backdrop-blur-sm lg:p-9"
+            className="relative isolate mt-14 overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.04] p-7 backdrop-blur-sm lg:p-10"
           >
             <span
               aria-hidden="true"
