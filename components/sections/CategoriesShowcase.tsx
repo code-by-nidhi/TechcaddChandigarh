@@ -333,16 +333,27 @@ export function CategoriesShowcase() {
                   }}
                   onFocus={() => apiRef.current?.goTo(i)}
                   className={cx(
-                    "group relative flex size-full flex-col justify-between overflow-hidden rounded-[26px] border bg-gradient-to-br p-4 text-white transition-[box-shadow,border-color] duration-500 sm:p-5",
+                    "group relative flex size-full flex-col justify-between overflow-hidden rounded-[26px] bg-gradient-to-br p-4 text-white transition-shadow duration-500 sm:p-5",
                     THEMES[category.id],
                     isActive
-                      ? "border-white/45 shadow-[0_50px_90px_-30px_rgba(0,0,0,0.9),0_0_0_1px_rgba(255,255,255,0.12)]"
-                      : "border-white/12 shadow-[0_40px_70px_-35px_rgba(0,0,0,0.85)]",
+                      ? "shadow-[0_50px_90px_-30px_rgba(0,0,0,0.9)]"
+                      : "shadow-[0_40px_70px_-35px_rgba(0,0,0,0.85)]",
                   )}
                 >
+                  {category.image && (
+                    <img
+                      src={category.image}
+                      alt=""
+                      draggable={false}
+                      className="pointer-events-none absolute inset-0 size-full object-cover"
+                    />
+                  )}
                   <span
                     aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_75%_at_50%_-10%,rgba(255,255,255,0.3),transparent_62%)]"
+                    className={cx(
+                      "pointer-events-none absolute inset-0 bg-[radial-gradient(120%_75%_at_50%_-10%,rgba(255,255,255,0.3),transparent_62%)]",
+                      category.image && "bg-black/20",
+                    )}
                   />
                   <span
                     aria-hidden="true"

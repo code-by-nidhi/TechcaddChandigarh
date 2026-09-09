@@ -118,6 +118,13 @@
   );
 }
 
+/*
+ * Wide AND tall enough to hold a one-viewport section without squeezing it.
+ * A 1366x768 laptop clears the width but leaves ~640px of viewport height,
+ * which is not enough for the About stage — there it grows and scrolls instead.
+ */
+@custom-variant roomy (@media (min-width: 64rem) and (min-height: 50rem));
+
 /* The 1304px content rail used site-wide. */
 @utility rail {
   margin-inline: auto;
@@ -625,5 +632,40 @@
 
   .float-card {
     transform: rotate(var(--tilt, 0deg));
+  }
+}
+
+/* Entrance for the rotating word in the About section headline. Keyed remounts
+   replay it on every phase change; held still for reduced-motion visitors. */
+@keyframes about-word-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.about-word {
+  animation: about-word-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-word {
+    animation: none;
+  }
+}
+
+/* Supporting points under the About headline. Shares the headline's keyframe,
+   staggered by an inline animation-delay so the list arrives line by line. */
+.about-point {
+  animation: about-word-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-point {
+    animation: none;
   }
 }

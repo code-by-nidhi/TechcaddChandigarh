@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { site } from "@/data/site";
 import { footerColumns, legalLinks } from "@/data/nav";
-import { branches } from "@/data/branches";
 import { resolveSlug } from "@/lib/routes";
 import { Logo } from "./Logo";
 import { ButtonLink, Icon } from "./ui";
@@ -165,22 +164,6 @@ export function Footer() {
                 ))}
               </ul>
             </nav>
-          ))}
-        </div>
-
-        {/* Branch strip */}
-        <div className="mt-12 flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-line pt-8 text-sm">
-          <span className="font-medium text-foreground">Our centres:</span>
-          {branches.map((branch, i) => (
-            <span key={branch.slug} className="text-muted">
-              <Link
-                href={`/branches/${branch.slug}`}
-                className="transition-colors hover:text-brand-600"
-              >
-                {branch.name}
-              </Link>
-              {i < branches.length - 1 ? <span className="ml-3 opacity-40">·</span> : null}
-            </span>
           ))}
         </div>
 

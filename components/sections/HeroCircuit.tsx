@@ -90,6 +90,43 @@ const NODES: { tech: TechName; x: number; y: number; label: string }[] = [
   { tech: "chip", x: 90, y: 130, label: "Machine learning" },
 ];
 
+/**
+ * The real vendor mark each node flips to while a pulse is passing over it.
+ * Slugs are devicon paths, all checked against the CDN.
+ *
+ * Four nodes stand for a discipline rather than a product — SQL, Cloud, AI and
+ * the ML chip — so each borrows the mark of the tool that discipline is
+ * actually taught with here.
+ */
+const NODE_LOGO: Record<TechName, string> = {
+  react: "react/react-original",
+  python: "python/python-original",
+  node: "nodejs/nodejs-original",
+  javascript: "javascript/javascript-original",
+  docker: "docker/docker-original",
+  kubernetes: "kubernetes/kubernetes-original",
+  aws: "amazonwebservices/amazonwebservices-original-wordmark",
+  git: "git/git-original",
+  figma: "figma/figma-original",
+  java: "java/java-original",
+  typescript: "typescript/typescript-original",
+  sql: "mysql/mysql-original",
+  cloud: "azure/azure-original",
+  ai: "tensorflow/tensorflow-original",
+  chip: "pytorch/pytorch-original",
+};
+
+const DEVICON = "https://cdn.jsdelivr.net/gh/devicons/devicon/icons";
+
+/** How close a pulse's centre must come to a node before it lights up. */
+const HIT = 36;
+/**
+ * A pulse crosses a tile in a couple of frames, which is far too brief to
+ * register. Once tripped, a node holds the real logo for this long so the swap
+ * is actually readable.
+ */
+const HOLD_MS = 750;
+
 const TILE = 54;
 const HUB_R = 30;
 
@@ -104,6 +141,8 @@ export function HeroCircuit({ className }: { className?: string }) {
   useIsomorphicLayoutEffect(() => {
     const el = ref.current;
     if (!el || prefersReducedMotion()) return;
+
+    let cleanup = () => {};
 
     const ctx = gsap.context(() => {
       // Each node bobs on its own loop. Seeding the offsets from the index keeps
@@ -143,6 +182,60 @@ export function HeroCircuit({ className }: { className?: string }) {
           .to(pulse, { opacity: 0, duration: 0.5 }, spec.speed - 0.5);
       });
 
+      /*
+       * Swap each node to its real logo while a pulse is over it.
+       *
+       * Driven off the GSAP ticker rather than per-pulse callbacks: the pulses
+       * and the nodes are independent timelines, so proximity is the only thing
+       * that actually relates them. Positions are read with `getProperty`,
+       * which returns the motion-path translation in SVG user units — the
+       * pulse groups sit at the origin, so that translation is the point on the
+       * trace itself.
+       */
+      const nodeEls = gsap.utils.toArray<SVGGElement>("[data-node]");
+      const lines = nodeEls.map((n) => n.querySelector<SVGGElement>("[data-mark-line]"));
+      const logos = nodeEls.map((n) => n.querySelector<SVGImageElement>("[data-mark-logo]"));
+      const pulses = TRACES.map((_, i) => el.querySelector<SVGGElement>(`#hc-pulse-${i}`));
+
+      const lit = new Array<boolean>(NODES.length).fill(false);
+      const holdUntil = new Array<number>(NODES.length).fill(0);
+
+      const scan = () => {
+        const now = performance.now();
+
+        for (let n = 0; n < NODES.length; n++) {
+          const { x, y } = NODES[n];
+          let near = false;
+
+          for (const pulse of pulses) {
+            // A pulse that has faded out for its loop reset is still on the
+            // path; ignore it or nodes would blink with nothing visible there.
+            if (!pulse || (gsap.getProperty(pulse, "opacity") as number) < 0.35) continue;
+
+            const px = gsap.getProperty(pulse, "x") as number;
+            const py = gsap.getProperty(pulse, "y") as number;
+            if (Math.abs(px - x) < HIT && Math.abs(py - y) < HIT) {
+              near = true;
+              break;
+            }
+          }
+
+          if (near) holdUntil[n] = now + HOLD_MS;
+          const show = near || now < holdUntil[n];
+          if (show === lit[n]) continue;
+
+          lit[n] = show;
+          const logo = logos[n];
+          const line = lines[n];
+          if (logo) logo.style.opacity = show ? "1" : "0";
+          if (line) line.style.opacity = show ? "0" : "1";
+        }
+      };
+
+      gsap.ticker.add(scan);
+      // `gsap.context` reverts tweens, not ticker callbacks.
+      cleanup = () => gsap.ticker.remove(scan);
+
       gsap.to("[data-hub-ring]", {
         scale: 1.35,
         opacity: 0,
@@ -153,7 +246,10 @@ export function HeroCircuit({ className }: { className?: string }) {
       });
     }, el);
 
-    return () => ctx.revert();
+    return () => {
+      cleanup();
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -215,9 +311,26 @@ export function HeroCircuit({ className }: { className?: string }) {
               stroke="#ffffff"
               strokeOpacity="0.16"
             />
-            <g transform="translate(-13 -13) scale(1.0833)">
+            <g
+              data-mark-line
+              transform="translate(-13 -13) scale(1.0833)"
+              style={{ transition: "opacity 260ms ease" }}
+            >
               <TechMark name={node.tech} />
             </g>
+            {/* Rendered up front at zero opacity so the file is already
+                decoded when a pulse arrives — fetching on demand would miss
+                the pass entirely. */}
+            <image
+              data-mark-logo
+              href={`${DEVICON}/${NODE_LOGO[node.tech]}.svg`}
+              x={-15}
+              y={-15}
+              width={30}
+              height={30}
+              opacity={0}
+              style={{ transition: "opacity 260ms ease" }}
+            />
           </g>
         </g>
       ))}

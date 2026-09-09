@@ -6,31 +6,51 @@ export interface ProcessStep {
   step: string;
   title: string;
   body: string;
+  /** The supporting line under the body — set in quieter type. */
+  note: string;
 }
 
 export const processSteps: ProcessStep[] = [
   {
     step: "01",
-    title: "Career counselling",
-    body: "A free session where we look at your background, your degree timeline and the roles you are actually targeting — then recommend a track and a duration. No pressure to enrol on the day.",
+    title: "Discover Your Direction",
+    body: "Start with career counselling to understand your interests, existing skills, educational background, and career goals.",
+    note: "Whether you want to become a developer, data professional, digital marketer, cybersecurity professional, designer, AI practitioner or technology specialist, we help you explore the right learning path.",
   },
   {
     step: "02",
-    title: "Classroom & lab",
-    body: "Small batches with a trainer in the room. Concepts in the first half, supervised lab work in the second. You write code every single day rather than watching someone else write it.",
+    title: "Learn the Fundamentals",
+    body: "Build a strong foundation before moving into advanced concepts.",
+    note: "Our approach focuses on understanding why something works, not simply memorising how it works.",
   },
   {
     step: "03",
-    title: "Live project & internship",
-    body: "You join a real client project with sprint planning, code review and deployment. This is what fills the experience section of your CV and gives you something to talk about in interviews.",
+    title: "Practise What You Learn",
+    body: "Turn concepts into practical skills through hands-on exercises, guided practice and technology-based assignments.",
+    note: "The objective is simple: learn it, use it, understand it.",
   },
   {
     step: "04",
-    title: "Placement drives",
-    body: "CV and portfolio review, mock interviews, then drives with our hiring partners. Placement support continues after your course finishes until you are placed.",
+    title: "Build Real Projects",
+    body: "Move beyond tutorial-based learning and apply your knowledge to projects and practical applications.",
+    note: "Projects help students develop problem-solving ability, understand workflows, improve decision-making and create work they can discuss with confidence.",
+  },
+  {
+    step: "05",
+    title: "Prepare for the Professional World",
+    body: "Training does not end with completing a syllabus.",
+    note: "Students can develop portfolios, strengthen resumes, practise interviews, improve professional communication and receive career-oriented guidance.",
+  },
+  {
+    step: "06",
+    title: "Keep Growing",
+    body: "Technology never stops evolving—and neither should your skills.",
+    note: "techcadd encourages learners to keep upgrading their knowledge and adapting to emerging technologies throughout their careers.",
   },
 ];
 
+/** The sign-off under the six steps. */
+export const processCadence = ["Learn", "Practise", "Build", "Grow"];
 /* ------------------------------ Training formats ------------------------------ */
 
 export interface FormatCard {
@@ -103,28 +123,35 @@ export const differences: Difference[] = [
 export interface IncludedItem {
   title: string;
   body: string;
+  /** Three keywords listed on the stacked module card. */
+  points: string[];
 }
 
 export const includedItems: IncludedItem[] = [
   {
     title: "Industry certificate",
     body: "Verifiable online, issued on completion of your assessment and project.",
+    points: ["Assessment", "Project", "Verification"],
   },
   {
     title: "Internship letter",
     body: "Issued for real client work you contributed to — not for attendance.",
+    points: ["Real brief", "Contribution", "Sign-off"],
   },
   {
     title: "Live client projects",
     body: "Actual briefs with deadlines, reviews and a deployment at the end.",
+    points: ["Deadlines", "Code review", "Deployment"],
   },
   {
     title: "Doubt-clearing sessions",
     body: "Scheduled weekly, plus open lab hours whenever a trainer is on the floor.",
+    points: ["Weekly slots", "Open lab", "Trainer on floor"],
   },
   {
     title: "Interview preparation",
     body: "CV review, portfolio polish, mock interviews and aptitude practice.",
+    points: ["CV review", "Mock interviews", "Aptitude"],
   },
 ];
 
@@ -287,6 +314,32 @@ export const faqs: Faq[] = [
   },
 ];
 
+/* ------------------------------ Why techcadd ------------------------------ */
+
+/** The four figures revealed once the panel fills the screen. */
+export const whyMetrics = [
+  {
+    value: site.stats.placement,
+    label: "Placement rate",
+    body: "Drives run on campus with companies that have hired from us before.",
+  },
+  {
+    value: site.stats.alumni,
+    label: `Students trained since ${site.founded}`,
+    body: "Small batches with a trainer in the room, writing code every day.",
+  },
+  {
+    value: site.stats.partners,
+    label: "Hiring partners",
+    body: "Recruiters return because our students arrive knowing Git and deployment.",
+  },
+  {
+    value: site.stats.technologies,
+    label: "Technologies taught",
+    body: "Modules are rewritten whenever the job descriptions move.",
+  },
+];
+
 /* ------------------------------- Technologies ------------------------------- */
 
 export interface TechGroup {
@@ -308,6 +361,10 @@ export const techGroups: TechGroup[] = [
     items: ["TensorFlow", "PyTorch", "Keras", "scikit-learn", "Hugging Face", "LangChain", "LangGraph", "OpenAI", "Anthropic", "OpenCV", "Pandas", "NumPy", "Jupyter", "Streamlit"],
   },
   {
+    name: "Cyber Security",
+    items: ["Kali Linux", "Burp Suite", "Wireshark", "Metasploit", "Nmap", "Splunk"],
+  },
+  {
     name: "Databases",
     items: ["MySQL", "PostgreSQL", "MongoDB", "Redis", "SQLite", "Pinecone", "pgvector"],
   },
@@ -318,10 +375,6 @@ export const techGroups: TechGroup[] = [
   {
     name: "Cloud",
     items: ["AWS", "Azure", "Google Cloud", "Vercel", "Firebase", "Cloudflare"],
-  },
-  {
-    name: "Security",
-    items: ["Kali Linux", "Burp Suite", "Wireshark", "Metasploit", "Nmap", "Splunk"],
   },
   {
     name: "CAD & Design",
@@ -354,4 +407,62 @@ export const PLACEMENT_ITEMS = [
   "Documented internship on real work",
   "CV review, mock interviews and aptitude drills",
   "Placement drives with our hiring partner network",
+];
+
+/* ------------------------------- About stage ------------------------------- */
+
+/**
+ * The rotating phases of the homepage About section. The headline phrase, the
+ * supporting points and both photo slots advance together on a timer.
+ *
+ * No photography is in the repository yet, so a slide without `image` renders a
+ * branded panel carrying its icon — the layout does not move when you fill one
+ * in. To add real photos: drop the files into `public/images/` and set `image`
+ * to the path (e.g. "/images/about-skills.jpg").
+ */
+export const aboutSlides = [
+  {
+    word: "Empowering Skills",
+    points: [
+      "Learn industry-relevant technologies through practical, hands-on training.",
+      "Develop skills that go beyond textbooks and classroom theory.",
+      "Work on real-world projects to turn knowledge into capability.",
+      "Build the confidence to take on today’s evolving technology landscape.",
+    ],
+    caption: "Hands-on training on the tools industry actually uses.",
+    icon: "graduation-cap",
+    image: undefined as string | undefined,
+  },
+  {
+    word: "Enabling Careers",
+    points: [
+      "Get career-focused training designed around real industry requirements.",
+      "Build a strong portfolio that showcases your practical abilities.",
+      "Prepare for interviews, professional challenges and workplace expectations.",
+      "Take your skills from the classroom to meaningful career opportunities.",
+    ],
+    caption: "Portfolio, interview practice and placement support.",
+    icon: "briefcase",
+    image: undefined as string | undefined,
+  },
+  {
+    word: "Building the Future",
+    points: [
+      "Stay ahead by learning technologies shaping the future of the digital world.",
+      "Explore AI, Data Science, Full Stack Development, Cybersecurity, Cloud and more.",
+      "Develop a mindset of continuous learning, innovation and problem-solving.",
+      "Build the skills today that can help shape your tomorrow.",
+    ],
+    caption: "AI, data, cloud and security — the stack that is hiring.",
+    icon: "rocket",
+    image: undefined as string | undefined,
+  },
+];
+
+export const aboutStats = [
+  { value: site.stats.alumni, label: "Students trained" },
+  { value: site.stats.partners, label: "Hiring partners" },
+  { value: site.stats.placement, label: "Placement rate" },
+  { value: site.stats.technologies, label: "Technologies taught" },
+  { value: `${new Date().getFullYear() - site.founded}+`, label: "Years of training" },
 ];

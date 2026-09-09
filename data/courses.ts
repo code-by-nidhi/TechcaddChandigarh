@@ -43,6 +43,8 @@ export interface CourseCategory {
   short: string;
   blurb: string;
   icon: string;
+  /** Optional artwork used on the homepage category carousel. */
+  image?: string;
 }
 
 export const courseCategories: CourseCategory[] = [
@@ -92,6 +94,7 @@ export const courseCategories: CourseCategory[] = [
     short: "CAD & Design",
     blurb: "Drafting and modelling for civil, mechanical and architectural roles.",
     icon: "compass",
+    image: "/images/cad-design.jpeg",
   },
   {
     id: "office",

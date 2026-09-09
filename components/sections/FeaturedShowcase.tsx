@@ -3,6 +3,9 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactElement } from "react";
 import Link from "next/link";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 import { courseSlug, courses } from "@/data/courses";
 import { cx, Icon } from "@/components/ui";
 
@@ -48,7 +51,6 @@ const DECK: Slot[] = [
   { course: "data-science", variant: "gradient" },
   { course: "artificial-intelligence", variant: "screen" },
   { course: "digital-marketing", variant: "photo" },
-  { course: "data-analytics", variant: "grid" },
   { course: "generative-ai", variant: "mono" },
   { course: "mern-stack-development", variant: "editorial" },
   { course: "python", variant: "typo" },
@@ -70,21 +72,21 @@ const CARD = { w: 300, h: 400 };
 interface Layout {
   /** Multiplier on the cards and on every distance below. */
   unit: number;
-  /** Centre-to-neighbour offset, in px. */
-  gap: number;
-  /** Extra offset each card further out adds — small, so they stack. */
-  step: number;
+  /** Radius of the circle the cards ride, in px. Bigger = shallower arc. */
+  radius: number;
+  /** Degrees of that circle each card occupies. */
+  arc: number;
   /** Cards further out than this are not drawn at all. */
   reach: number;
 }
 
 /** Widest query first — the first match wins. */
 const LAYOUTS: { query: string; layout: Layout }[] = [
-  { query: "(min-width: 1536px)", layout: { unit: 1, gap: 224, step: 88, reach: 4 } },
-  { query: "(min-width: 1280px)", layout: { unit: 0.92, gap: 210, step: 82, reach: 4 } },
-  { query: "(min-width: 1024px)", layout: { unit: 0.84, gap: 192, step: 74, reach: 3 } },
-  { query: "(min-width: 768px)", layout: { unit: 0.72, gap: 168, step: 62, reach: 3 } },
-  { query: "(min-width: 0px)", layout: { unit: 0.58, gap: 134, step: 46, reach: 2 } },
+  { query: "(min-width: 1536px)", layout: { unit: 1, radius: 900, arc: 12, reach: 3 } },
+  { query: "(min-width: 1280px)", layout: { unit: 0.92, radius: 840, arc: 12.5, reach: 3 } },
+  { query: "(min-width: 1024px)", layout: { unit: 0.84, radius: 760, arc: 13, reach: 3 } },
+  { query: "(min-width: 768px)", layout: { unit: 0.72, radius: 640, arc: 14.5, reach: 3 } },
+  { query: "(min-width: 0px)", layout: { unit: 0.58, radius: 470, arc: 17, reach: 2 } },
 ];
 
 const readLayout = (): Layout =>
@@ -130,34 +132,61 @@ const easeOut = (() => {
 })();
 
 /**
- * Y rotation for a card `offset` slots from centre. Flat in the middle, ramping
- * to 25° at the neighbours and easing out toward 45° further along the arc.
+ * Where a card sits on the arc.
+ *
+ * The cards ride the top of a large circle: `offset` slots from centre is
+ * `arc` degrees around it, so x follows the sine and y the cosine, and each
+ * card is tilted by that same angle to stay tangent to the curve. That tilt is
+ * an in-plane `rotateZ` — a `rotateY` would turn the card away from the viewer
+ * (coverflow) rather than lay it along the arc.
  */
-const angleFor = (offset: number) => {
-  const d = Math.abs(offset);
-  if (d < 1) return -offset * 25;
-  return -Math.sign(offset) * (25 + 20 * (1 - Math.exp(-(d - 1) * 0.85)));
+const poseFor = (offset: number, radius: number, arc: number) => {
+  const deg = offset * arc;
+  const rad = (deg * Math.PI) / 180;
+  return {
+    x: Math.sin(rad) * radius,
+    // 0 at the crown, falling away to either side.
+    y: (1 - Math.cos(rad)) * radius,
+    rot: deg,
+  };
 };
 
-/** Horizontal offset. Beyond the first neighbour the cards stack tightly. */
-const xFor = (offset: number, gap: number, step: number) => {
-  const d = Math.abs(offset);
-  if (d < 1) return offset * gap;
-  return Math.sign(offset) * (gap + (d - 1) * step);
+/**
+ * Shortest signed distance from a card to the current position, over a deck of
+ * `count`. This is what makes the arc endless: a card that falls off one side
+ * is re-expressed as being just off the other, so both wings of the fan always
+ * have cards in them. A bounded strip left one side empty near either end.
+ */
+const wrapOffset = (offset: number, count: number) => {
+  const half = count / 2;
+  return ((((offset + half) % count) + count) % count) - half;
 };
 
-/** Depth. The centre card is pulled toward the viewer; the rest fall back. */
-const zFor = (offset: number) => {
-  const d = Math.abs(offset);
-  return 100 - Math.min(1, d) * 100 - d * 90;
-};
+/** Depth-of-field scaling: 1 at centre, easing down along the arc. */
+const scaleFor = (offset: number) => Math.max(0.68, 1 - Math.abs(offset) * 0.075);
 
-/** Depth-of-field scaling: 1 at centre, 0.85 at the neighbours, down to 0.7. */
-const scaleFor = (offset: number) => {
-  const d = Math.abs(offset);
-  if (d < 1) return 1 - d * 0.15;
-  return Math.max(0.7, 0.85 - (d - 1) * 0.075);
-};
+/**
+ * The deck's opening pose: a loose pile, before it squares up.
+ *
+ * Deterministic from the index rather than random — a random pose would differ
+ * between the server render and the client and trip hydration.
+ */
+const pileFor = (i: number) => ({
+  rot: ((i * 37) % 19) - 9,
+  x: ((i * 53) % 27) - 13,
+  y: ((i * 29) % 21) - 10,
+});
+
+/**
+ * The intro runs in two halves. Up to SETTLE the pile squares up into one neat
+ * stack; past it the stack fans out along the arc. Splitting them means the
+ * deck visibly *becomes* a stack before it scatters, rather than going from
+ * mess to arc in one move.
+ */
+const SETTLE = 0.45;
+
+/** Seconds each card holds before the carousel advances on its own. */
+const AUTO_SECONDS = 3.6;
 
 /** How many px of drag advances the carousel by one card. */
 const DRAG_PER_CARD = 220;
@@ -193,6 +222,10 @@ export function FeaturedShowcase() {
     let visible = true;
     let position = START;
     let activeIndex = START;
+    /** 0 = loose pile, SETTLE = squared-up stack, 1 = full arc. Scroll-driven. */
+    let intro = reduced ? 1 : 0;
+    /** Seconds since the carousel last advanced by itself. */
+    let idle = 0;
 
     /** In-flight snap. Written by `goTo`, advanced by `tick`. */
     const tween = { active: false, from: START, to: START, start: 0, duration: 0 };
@@ -216,59 +249,108 @@ export function FeaturedShowcase() {
 
     /** Single writer for every transform on the stage. */
     const render = () => {
-      const { gap, step, reach, unit } = layout;
+      const { radius, arc, reach, unit } = layout;
+      /*
+       * The crown of the arc sits at the container's centre, so every other
+       * card hangs below it and the fan looks bottom-heavy. Lifting everything
+       * by a share of the outermost drop re-centres the whole curve.
+       */
+      const lift = (1 - Math.cos((reach * arc * Math.PI) / 180)) * radius * 0.5;
+
+      // Two independent 0..1 ramps carved out of `intro`.
+      const settled = clamp01(intro / SETTLE);
+      const spread = clamp01((intro - SETTLE) / (1 - SETTLE));
 
       els.forEach((el, i) => {
         if (!el) return;
-        const offset = i - position;
+        const offset = wrapOffset(i - position, count);
         const d = Math.abs(offset);
 
-        if (d > reach + 1) {
+        // The off-arc cull only applies once the cards have actually fanned
+        // out. While they are still stacked every card sits at the centre, so
+        // culling by distance would hide most of the deck.
+        if (spread > 0.98 && d > reach + 1) {
           el.style.opacity = "0";
           el.style.pointerEvents = "none";
           return;
         }
 
-        const x = xFor(offset, gap, step) * unit;
-        const z = zFor(offset) * unit;
-        const opacity = clamp01(reach + 1 - d);
+        const pile = pileFor(i);
+        const loose = 1 - settled;
+        const pose = poseFor(offset, radius, arc);
+
+        // Arc pose, faded in by `spread`; pile pose, faded out by `settled`.
+        const x = pose.x * unit * spread + pile.x * loose;
+        const y = (pose.y - lift) * unit * spread + pile.y * loose;
+        // Only enough depth to keep the crown card in front of its neighbours.
+        const z = (-d * 26 * spread + -i * 7 * (1 - spread)) * unit;
+        // Tilt along the arc once fanned; the pile's scatter before that.
+        const rotZ = pose.rot * spread + pile.rot * loose;
+        const scale = 1 + (scaleFor(offset) - 1) * spread;
+
+        // Arc opacity only bites as the cards spread; the stack stays solid.
+        const opacity = 1 - (1 - clamp01(reach + 1 - d)) * spread;
 
         el.style.transform =
-          `translate3d(calc(-50% + ${x.toFixed(2)}px), -50%, ${z.toFixed(2)}px) ` +
-          `rotateY(${angleFor(offset).toFixed(2)}deg) scale(${scaleFor(offset).toFixed(4)})`;
+          `translate3d(calc(-50% + ${x.toFixed(2)}px), calc(-50% + ${y.toFixed(2)}px), ${z.toFixed(2)}px) ` +
+          `rotateZ(${rotZ.toFixed(2)}deg) scale(${scale.toFixed(4)})`;
         el.style.opacity = opacity.toFixed(3);
-        el.style.zIndex = String(100 - Math.round(d * 10));
-        el.style.pointerEvents = opacity > 0.35 ? "auto" : "none";
+        // Stacked, the deck must layer front-to-back; fanned, by distance.
+        el.style.zIndex = String(
+          spread > 0.5 ? 100 - Math.round(d * 10) : 100 - i,
+        );
+        el.style.pointerEvents = opacity > 0.35 && spread > 0.9 ? "auto" : "none";
       });
 
       // The frame shares the centre card's plane, so it lines up under
       // perspective instead of reading as a smaller rectangle in front of it.
-      const settled = clamp01(1 - Math.abs(position - Math.round(position)) * 2);
+      const snapped = clamp01(1 - Math.abs(position - Math.round(position)) * 2);
       frame.style.transform =
-        `translate(-50%, -50%) translateZ(${(100 * layout.unit).toFixed(2)}px) ` +
+        `translate(-50%, -50%) translateY(${(-lift * layout.unit).toFixed(2)}px) ` +
         `scale(${(0.97 + 0.03 * settled).toFixed(4)})`;
-      frame.style.opacity = (0.25 + 0.75 * settled).toFixed(3);
+      frame.style.opacity = ((0.25 + 0.75 * snapped) * spread).toFixed(3);
 
-      const next = clamp(Math.round(position), 0, last);
+      const next = ((Math.round(position) % count) + count) % count;
       if (next !== activeIndex) {
         activeIndex = next;
         setActive(next);
       }
     };
 
-    function tick() {
+    function tick(_time: number, delta: number) {
       if (!visible) return;
+
       if (tween.active) {
         const p = clamp01((performance.now() - tween.start) / tween.duration);
         position = tween.from + (tween.to - tween.from) * easeOut(p);
         if (p >= 1) tween.active = false;
       }
+
+      /*
+       * Advance on its own, but only once the deck has finished fanning out and
+       * while nothing else has the wheel. Any drag or key press resets the
+       * clock, so the carousel never yanks itself away mid-interaction. It
+       * bounces at the ends rather than wrapping, since `position` is clamped
+       * to the deck and a jump back to zero would fly the whole arc past.
+       */
+      if (!reduced && intro >= 1 && !drag.active && !tween.active) {
+        idle += Math.min(delta, 64) / 1000;
+        if (idle >= AUTO_SECONDS) {
+          idle = 0;
+          goTo(Math.round(position) + 1);
+        }
+      } else {
+        idle = 0;
+      }
+
       render();
     }
 
     /** Snap to a card. Longer throws get a little more time, so they stay even. */
     const goTo = (index: number) => {
-      const target = clamp(index, 0, last);
+      // Unbounded on purpose: `position` runs past either end and the wrap in
+      // `render` folds it back, so the fan never runs out of cards.
+      const target = index;
       const distance = Math.abs(target - position);
       if (reduced) {
         tween.active = false;
@@ -293,6 +375,11 @@ export function FeaturedShowcase() {
 
     apiRef.current = goTo;
 
+    /** Manual input postpones the next automatic advance. */
+    const stall = () => {
+      idle = 0;
+    };
+
     /* ------------------------------ pointer drag ----------------------------- */
 
     const onPointerMove = (event: PointerEvent) => {
@@ -300,11 +387,8 @@ export function FeaturedShowcase() {
       const dx = event.clientX - drag.startX;
       if (Math.abs(dx) > 5) draggedRef.current = true;
 
-      let next = drag.startPos - dx / (DRAG_PER_CARD * layout.unit);
-      // Rubber-banding past either end, so the ends feel like ends.
-      if (next < 0) next = next / 3;
-      else if (next > last) next = last + (next - last) / 3;
-      position = next;
+      // No rubber-banding: the deck is endless, so there is no end to resist.
+      position = drag.startPos - dx / (DRAG_PER_CARD * layout.unit);
 
       const now = performance.now();
       const dt = now - drag.lastT;
@@ -330,6 +414,7 @@ export function FeaturedShowcase() {
     };
 
     const onPointerDown = (event: PointerEvent) => {
+      stall();
       if (event.pointerType === "mouse" && event.button !== 0) return;
       tween.active = false;
       draggedRef.current = false;
@@ -349,6 +434,7 @@ export function FeaturedShowcase() {
     /* -------------------------------- keyboard ------------------------------- */
 
     const onKeyDown = (event: KeyboardEvent) => {
+      stall();
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         goTo(targetIndex() - 1);
@@ -357,10 +443,11 @@ export function FeaturedShowcase() {
         goTo(targetIndex() + 1);
       } else if (event.key === "Home") {
         event.preventDefault();
-        goTo(0);
+        // Nearest copy of card 0, so the arc turns the short way round.
+        goTo(targetIndex() + wrapOffset(0 - targetIndex(), count));
       } else if (event.key === "End") {
         event.preventDefault();
-        goTo(last);
+        goTo(targetIndex() + wrapOffset(last - targetIndex(), count));
       }
     };
 
@@ -380,12 +467,36 @@ export function FeaturedShowcase() {
     });
     io.observe(stage);
 
+    /*
+     * The deck assembles as the section arrives rather than on a pin: progress
+     * is taken from the stage's own travel through the viewport, so the cards
+     * are a pile when it enters the fold and a finished arc by the time it is
+     * comfortably on screen.
+     */
+    const trigger = reduced
+      ? null
+      : ScrollTrigger.create({
+          trigger: stage,
+          start: "top 88%",
+          end: "top 32%",
+          scrub: true,
+          onUpdate: (self) => {
+            intro = self.progress;
+            render();
+          },
+          onRefresh: (self) => {
+            intro = self.progress;
+            render();
+          },
+        });
+
     measure();
     render();
     gsap.ticker.add(tick);
 
     return () => {
       gsap.ticker.remove(tick);
+      trigger?.kill();
       io.disconnect();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("pointermove", onPointerMove);
@@ -415,8 +526,8 @@ export function FeaturedShowcase() {
         aria-roledescription="carousel"
         aria-label="Featured courses"
         className={cx(
-          "relative mt-8 h-[300px] w-full cursor-grab touch-pan-y outline-none",
-          "active:cursor-grabbing sm:h-[380px] lg:h-[460px] xl:h-[520px]",
+          "relative mt-8 h-[330px] w-full cursor-grab touch-pan-y outline-none",
+          "active:cursor-grabbing sm:h-[410px] lg:h-[500px] xl:h-[560px]",
           "[perspective:1200px] [perspective-origin:50%_50%]",
         )}
       >
