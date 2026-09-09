@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { CourseBody } from "@/components/CourseDetail";
 import { CourseEnquirySection } from "@/components/CourseEnquirySection";
+import { CourseHeroIllustration } from "@/components/CourseHeroIllustration";
 import { Breadcrumbs, ButtonLink, Icon } from "@/components/ui";
 import { HeroReveal } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
@@ -16,8 +16,6 @@ const FEATURE_CHIPS = [
   "Placement support",
   "Certificate + internship",
 ];
-
-const ORBIT_ICONS = ["mail", "monitor", "cloud", "chart", "shield", "box"];
 
 /**
  * The single template every course page renders through — hero, background,
@@ -166,47 +164,8 @@ export function CourseTemplate({
               </ul>
             </div>
 
-            <div
-              data-hero-item
-              className="relative isolate mx-auto hidden aspect-square w-full max-w-sm lg:block"
-            >
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-8 rounded-full bg-gradient-to-br from-[#1E88FF] to-[#00D4FF] opacity-30 blur-3xl"
-              />
-              {course.heroImage ? (
-                <div className="relative isolate size-full">
-                  <Image
-                    src={course.heroImage}
-                    alt={`${course.name} course illustration`}
-                    fill
-                    sizes="384px"
-                    className="object-contain drop-shadow-[0_25px_45px_rgba(0,0,0,0.45)]"
-                    priority
-                  />
-                </div>
-              ) : (
-                <>
-                  <span className="absolute top-1/2 left-1/2 grid size-40 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-gradient-to-br from-[#1E88FF] to-[#00D4FF] shadow-[0_30px_70px_-20px_rgba(0,212,255,0.6)]">
-                    <Icon name={category.icon} className="size-16 text-white" />
-                  </span>
-                  {ORBIT_ICONS.map((iconName, i) => {
-                    const angle = (i / ORBIT_ICONS.length) * Math.PI * 2;
-                    const x = 50 + Math.cos(angle) * 38;
-                    const y = 50 + Math.sin(angle) * 38;
-                    return (
-                      <span
-                        key={iconName}
-                        aria-hidden="true"
-                        className="absolute grid size-11 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-2xl border border-white/15 bg-white/10 text-white backdrop-blur-sm"
-                        style={{ left: `${x}%`, top: `${y}%` }}
-                      >
-                        <Icon name={iconName} className="size-5" />
-                      </span>
-                    );
-                  })}
-                </>
-              )}
+            <div data-hero-item>
+              <CourseHeroIllustration course={course} />
             </div>
           </div>
 

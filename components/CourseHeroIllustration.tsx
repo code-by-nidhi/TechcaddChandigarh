@@ -82,34 +82,6 @@ export function CourseHeroIllustration({ course }: { course: Course }) {
         transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Glowing orbit ring, rotating slowly around the centre */}
-      <motion.svg
-        aria-hidden="true"
-        viewBox="0 0 200 200"
-        className="pointer-events-none absolute inset-0 size-full opacity-70 transition-opacity duration-500 group-hover:opacity-100"
-        animate={reduced ? undefined : { rotate: 360 }}
-        transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
-        style={{ willChange: "transform" }}
-      >
-        <defs>
-          <linearGradient id="hero-orbit-gradient" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#00D4FF" stopOpacity="0" />
-            <stop offset="50%" stopColor="#00D4FF" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#00D4FF" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-        <circle
-          cx="100"
-          cy="100"
-          r="92"
-          fill="none"
-          stroke="url(#hero-orbit-gradient)"
-          strokeWidth="1.5"
-          strokeDasharray="6 11"
-          strokeLinecap="round"
-        />
-      </motion.svg>
-
       {/* Soft floating particles */}
       {!reduced &&
         PARTICLES.map((p, i) => (
