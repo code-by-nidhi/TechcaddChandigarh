@@ -1177,6 +1177,12 @@ export const courses: Course[] = [
  */
 const COURSES_WITH_ARTWORK = new Set([
   "artificial-intelligence",
+  "generative-ai",
+  "prompt-engineering",
+  "chatgpt-ai-tools",
+  "agentic-ai",
+  "rag",
+  "ai-powered-marketing",
   "machine-learning",
   "deep-learning",
   "data-science",
