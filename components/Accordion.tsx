@@ -12,15 +12,24 @@ export function Accordion({
   items,
   defaultOpen = 0,
   className,
+  onDark = false,
 }: {
   items: AccordionItem[];
   defaultOpen?: number | null;
   className?: string;
+  /** Invert the rules, labels and marker for a dark section. */
+  onDark?: boolean;
 }) {
   const [open, setOpen] = useState<number | null>(defaultOpen);
 
   return (
-    <div className={cx("divide-y divide-line border-y border-line", className)}>
+    <div
+      className={cx(
+        "divide-y border-y",
+        onDark ? "divide-white/12 border-white/12" : "divide-line border-line",
+        className,
+      )}
+    >
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
@@ -35,7 +44,13 @@ export function Accordion({
                 <span
                   className={cx(
                     "font-display text-base font-semibold transition-colors lg:text-lg",
-                    isOpen ? "text-brand-600" : "text-foreground",
+                    isOpen
+                      ? onDark
+                        ? "text-accent-400"
+                        : "text-brand-600"
+                      : onDark
+                        ? "text-white"
+                        : "text-foreground",
                   )}
                 >
                   {item.question}
@@ -44,8 +59,12 @@ export function Accordion({
                   className={cx(
                     "mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full border transition-colors",
                     isOpen
-                      ? "border-brand-600 bg-brand-600 text-white"
-                      : "border-line text-muted",
+                      ? onDark
+                        ? "border-accent-400 bg-accent-400 text-hero-950"
+                        : "border-brand-600 bg-brand-600 text-white"
+                      : onDark
+                        ? "border-white/25 text-brand-100/70"
+                        : "border-line text-muted",
                   )}
                 >
                   <Icon name={isOpen ? "minus" : "plus"} className="size-3.5" />
@@ -59,7 +78,12 @@ export function Accordion({
               )}
             >
               <div className="overflow-hidden">
-                <p className="pr-12 pb-5 text-sm leading-relaxed text-muted lg:text-base">
+                <p
+                  className={cx(
+                    "pr-12 pb-5 text-sm leading-relaxed lg:text-base",
+                    onDark ? "text-brand-100/70" : "text-muted",
+                  )}
+                >
                   {item.answer}
                 </p>
               </div>

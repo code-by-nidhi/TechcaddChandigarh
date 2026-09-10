@@ -69,44 +69,70 @@ function PanelFooter({ footer }: { footer: NavFooter }) {
   );
 }
 
-function ColumnsPanel({ columns, footer }: { columns: NavColumn[]; footer?: NavFooter }) {
+function ColumnsPanel({
+  columns,
+  footer,
+  backgroundText,
+  subtitle,
+}: {
+  columns: NavColumn[];
+  footer?: NavFooter;
+  backgroundText?: string;
+  subtitle?: string;
+}) {
   return (
     <PanelShell>
-      <div
-        className="grid gap-x-8 gap-y-8 px-7 py-7"
-        style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }}
-      >
-        {columns.map((column, i) => (
-          <div key={column.title}>
-            <p className="text-xs font-medium text-muted/70">
-              {String(i + 1).padStart(2, "0")}
-            </p>
-            <h3 className="mt-2 font-display text-lg font-bold tracking-tight text-hero-950">
-              {column.title}
-            </h3>
-            {column.subtitle ? (
-              <p className="mt-1 text-[13px] leading-snug text-muted">{column.subtitle}</p>
-            ) : null}
-            <hr className="mt-4 border-hero-950/10" />
-            <ul className="mt-4 space-y-0.5">
-              {column.links.map((item) => (
-                <li key={item.href + item.label}>
-                  <Link
-                    href={item.href}
-                    className="group -mx-2 flex items-center gap-2 rounded-lg px-2 py-1 text-sm text-hero-950/85 transition-colors hover:bg-white hover:text-brand-600"
-                  >
-                    <span className="truncate">{item.label}</span>
-                    {item.badge ? (
-                      <Badge tone={badgeTone(item.badge)} className="shrink-0">
-                        {item.badge}
-                      </Badge>
-                    ) : null}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+      <div className="relative overflow-hidden">
+        {backgroundText ? (
+          <p
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 flex items-center justify-center px-7 text-center text-2xl leading-tight font-extrabold tracking-tight whitespace-nowrap text-hero-950/[0.04] select-none lg:text-4xl"
+          >
+            {backgroundText}
+          </p>
+        ) : null}
+        {subtitle ? (
+          <p className="relative px-7 pt-7 text-sm leading-relaxed text-muted">{subtitle}</p>
+        ) : null}
+        <div
+          className={cx(
+            "relative grid gap-x-8 gap-y-8 px-7 pb-7",
+            subtitle ? "pt-5" : "pt-7",
+          )}
+          style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))` }}
+        >
+          {columns.map((column, i) => (
+            <div key={column.title}>
+              <p className="text-xs font-medium text-muted/70">
+                {String(i + 1).padStart(2, "0")}
+              </p>
+              <h3 className="mt-2 font-display text-lg font-bold tracking-tight text-hero-950">
+                {column.title}
+              </h3>
+              {column.subtitle ? (
+                <p className="mt-1 text-[13px] leading-snug text-muted">{column.subtitle}</p>
+              ) : null}
+              <hr className="mt-4 border-hero-950/10" />
+              <ul className="mt-4 space-y-0.5">
+                {column.links.map((item) => (
+                  <li key={item.href + item.label}>
+                    <Link
+                      href={item.href}
+                      className="group -mx-2 flex items-center gap-2 rounded-lg px-2 py-1 text-sm text-hero-950/85 transition-colors hover:bg-white hover:text-brand-600"
+                    >
+                      <span className="truncate">{item.label}</span>
+                      {item.badge ? (
+                        <Badge tone={badgeTone(item.badge)} className="shrink-0">
+                          {item.badge}
+                        </Badge>
+                      ) : null}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
       {footer ? <PanelFooter footer={footer} /> : null}
     </PanelShell>
@@ -453,7 +479,14 @@ function MegaPanel({ item, resources }: { item: NavItem; resources?: CmsResource
   if (!item.panel) return null;
   switch (item.panel.kind) {
     case "columns":
-      return <ColumnsPanel columns={item.panel.columns} footer={item.panel.footer} />;
+      return (
+        <ColumnsPanel
+          columns={item.panel.columns}
+          footer={item.panel.footer}
+          backgroundText={item.panel.backgroundText}
+          subtitle={item.panel.subtitle}
+        />
+      );
     case "tiles":
       return <TilesPanel tiles={item.panel.tiles} footer={item.panel.footer} />;
     case "cards":

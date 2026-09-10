@@ -91,6 +91,25 @@ function organizationSchemaFor(site: Awaited<ReturnType<typeof getSite>>) {
   };
 }
 
+/*
+ * Browsers restore the previous scroll position on reload. On a page whose
+ * sections are driven by scroll position that drops you into the middle of a
+ * pinned animation, so a reload is sent back to the top instead.
+ *
+ * Scoped to reloads only, via the Navigation Timing entry: back/forward still
+ * restore normally, and a URL carrying a hash still lands on its anchor.
+ * `scrollRestoration` is handed back to the browser once the load is done, so
+ * nothing after this point behaves differently.
+ */
+const scrollResetScript = `(function(){try{
+var n=performance.getEntriesByType("navigation")[0];
+var reload=n?n.type==="reload":(performance.navigation&&performance.navigation.type===1);
+if(!reload||location.hash)return;
+if("scrollRestoration" in history)history.scrollRestoration="manual";
+addEventListener("load",function(){scrollTo(0,0);
+if("scrollRestoration" in history)history.scrollRestoration="auto";});
+}catch(e){}})();`;
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   /*
    * One CMS read for the whole tree. Header and Footer are client components,
@@ -136,6 +155,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-dvh">
+        {/* Runs during parse, before the browser restores the old offset. */}
+        <script dangerouslySetInnerHTML={{ __html: scrollResetScript }} />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-full focus:bg-brand-600 focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import { CourseTemplate } from "@/components/CourseTemplate";
+import { After12thTemplate } from "@/components/After12thTemplate";
 import { CourseBody } from "@/components/CourseDetail";
 import { CtaSection, FaqSection } from "@/components/sections/Home";
 import { EnquiryForm } from "@/components/EnquiryForm";
@@ -100,11 +101,20 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   // course pages — `program.track.id` matches a real Course id, so the whole
   // page (overview, highlights, tools, certification, curriculum, compare,
   // FAQ, enquiry form) is identical; only the hero title/duration/badge and
-  // breadcrumb reflect the program specifically.
+  // breadcrumb reflect the program specifically. After 12th program pages use
+  // their own dedicated template instead, matching the reference site's
+  // distinct after-12th layout (zigzag "what you'll learn", tabbed curriculum,
+  // expandable career roles, light FAQ) — different enough from the regular
+  // course/program template that branching CourseTemplate section-by-section
+  // would be harder to follow than a separate template.
   if (resolved.kind === "program") {
     const { program } = resolved;
     const course = findCourse(await getCourses(), program.track.id);
     if (!course) notFound();
+
+    if (program.after12th) {
+      return <After12thTemplate course={course} program={program} slug={slug} />;
+    }
 
     return <CourseTemplate course={course} slug={slug} program={program} />;
   }

@@ -1,16 +1,17 @@
-import { Hero, OrbitStrip } from "@/components/sections/Hero";
+import { Hero } from "@/components/sections/Hero";
 import {
-  AboutSection,
   BlogSection,
   CategoriesSection,
   CtaSection,
-  DifferenceSection,
   FaqSection,
-  IncludedSection,
+  FeaturedSection,
   ProcessSection,
   TechnologiesSection,
   TestimonialsSection,
 } from "@/components/sections/Home";
+import { AboutStage } from "@/components/sections/AboutStage";
+import { ModulesStack } from "@/components/sections/ModulesStack";
+import { WhyZoom } from "@/components/sections/WhyZoom";
 import { getFaqs } from "@/lib/cms";
 import { site } from "@/data/site";
 import { faqPageSchema } from "@/lib/schema";
@@ -25,15 +26,15 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
-      <OrbitStrip />
-      <AboutSection />
+      <AboutStage />
       <ProcessSection />
       <CategoriesSection />
-      <DifferenceSection />
+      <FeaturedSection />
+      <WhyZoom />
       <TestimonialsSection />
-      <IncludedSection />
+      <ModulesStack />
       <TechnologiesSection />
-      <FaqSection items={faqs} />
+      <FaqSection items={faqs} tone="dark" />
       <BlogSection />
       <CtaSection />
       <script

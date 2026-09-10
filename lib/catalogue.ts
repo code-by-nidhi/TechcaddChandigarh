@@ -104,6 +104,20 @@ const KNOWN_BADGES = new Set<CourseBadge>(["Hot", "New", "Trending"]);
 const toBadge = (badge?: string): CourseBadge | undefined =>
   badge && KNOWN_BADGES.has(badge as CourseBadge) ? (badge as CourseBadge) : undefined;
 
+/**
+ * Artwork the site ships, indexed by course key and category key.
+ *
+ * `data/courses.ts` assigns `heroImage` from its own `COURSES_WITH_ARTWORK`
+ * set, and carries a category `image` for the homepage carousel. Neither is
+ * something the CMS holds, so without this every illustration would disappear
+ * the moment the CMS was switched on — the catalogue would be live and the
+ * pages would be blank gradients.
+ *
+ * A CMS-uploaded image still wins where there is one; this only fills the gap.
+ */
+const staticArtwork = new Map(staticCourses.map((course) => [course.id, course.heroImage]));
+const staticCategoryArt = new Map(staticCategories.map((category) => [category.id, category.image]));
+
 function toCourse(course: CmsCourse): Course {
   return {
     // The course key is the site's `id` — every slug is derived from it.
@@ -118,7 +132,7 @@ function toCourse(course: CmsCourse): Course {
     badge: toBadge(course.badge),
     featured: course.featured,
     training: course.hasTraining,
-    heroImage: course.heroImage?.url,
+    heroImage: course.heroImage?.url ?? staticArtwork.get(course.courseKey),
     tools: course.tools,
     modules: course.modules,
     outcomes: course.outcomes,
@@ -134,6 +148,7 @@ function toCategory(category: CmsCourseCategory): CourseCategory {
     short: category.shortName,
     blurb: category.blurb,
     icon: category.icon,
+    image: staticCategoryArt.get(category.slug as CourseCategoryId),
   };
 }
 

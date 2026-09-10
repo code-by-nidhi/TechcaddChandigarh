@@ -7,6 +7,7 @@ import type { SVGProps } from "react";
 const paths: Record<string, { d: string; fill?: boolean }[]> = {
   "arrow-right": [{ d: "M5 12h14M13 6l6 6-6 6" }],
   "arrow-up-right": [{ d: "M7 17 17 7M8 7h9v9" }],
+  download: [{ d: "M12 3v12m0 0-4.5-4.5M12 15l4.5-4.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" }],
   "chevron-down": [{ d: "m6 9 6 6 6-6" }],
   "chevron-right": [{ d: "m9 6 6 6-6 6" }],
   plus: [{ d: "M12 5v14M5 12h14" }],

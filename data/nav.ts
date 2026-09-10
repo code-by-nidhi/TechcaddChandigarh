@@ -1,6 +1,6 @@
 import { site } from "./site";
 import { courseSlug, courses, courseCategories, trainingSlug } from "./courses";
-import { programDurations, programTracks, trainingFormats, after12Courses } from "./programs";
+import { programTracks, trainingFormats, programs } from "./programs";
 import { branches } from "./branches";
 
 export interface NavLink {
@@ -49,7 +49,14 @@ export interface AiPanelColumn {
 }
 
 export type NavPanel =
-  | { kind: "columns"; columns: NavColumn[]; footer?: NavFooter }
+  | {
+      kind: "columns";
+      columns: NavColumn[];
+      footer?: NavFooter;
+      /** Large low-opacity display text behind the columns, plus a supporting line under it. */
+      backgroundText?: string;
+      subtitle?: string;
+    }
   | { kind: "tiles"; tiles: NavTile[]; footer?: NavFooter }
   | { kind: "cards"; links: NavLink[]; cta: NavLink; cards: NavCard[] }
   | {
@@ -90,6 +97,29 @@ const programmingQuote: NavFooter = {
   attribution: "Steve Jobs",
   cta: { label: "Browse all courses", href: "/courses" },
 };
+
+/** One column of the After 12th mega menu: every track's program at a given duration. */
+const AFTER_12TH_TRACK_ORDER = [
+  "cloud-computing",
+  "flutter-app-development",
+  "mern-stack-development",
+  "agentic-ai",
+  "digital-marketing",
+  "data-analytics",
+  "data-science",
+  "cyber-security",
+  "artificial-intelligence",
+  "full-stack-development",
+];
+
+const after12thColumn = (months: 3 | 6 | 9, suffix: string): NavLink[] =>
+  AFTER_12TH_TRACK_ORDER.map((trackId) => {
+    const track = programTracks.find((t) => t.id === trackId)!;
+    const program = programs.find(
+      (p) => p.after12th && p.duration.months === months && p.track.id === trackId,
+    )!;
+    return { label: `${track.name} ${suffix}`, href: `/${program.slug}` };
+  });
 
 export const navItems: NavItem[] = [
   { label: "Home", href: "/" },
@@ -268,55 +298,29 @@ export const navItems: NavItem[] = [
     href: "/after-12th-courses",
     panel: {
       kind: "columns",
+      backgroundText: "Build The Skills That Turn Your Curiosity Into A Job-Ready Engineering Career",
+      subtitle:
+        "Learn the AI, cloud, data, cybersecurity and full-stack systems businesses actually run on.",
       columns: [
         {
-          title: "AI & Data",
-          subtitle: "Foundation-first, no background needed",
-          links: after12Courses
-            .filter((c) =>
-              ["generative-ai", "data-science", "data-analytics", "machine-learning"].includes(
-                c.courseId,
-              ),
-            )
-            .map((c) => ({ label: c.title.replace(` in ${site.city}`, ""), href: `/${c.slug}` })),
+          title: "After 12th 3-Month Program",
+          subtitle: "One subject, one term, one live project",
+          links: after12thColumn(3, "Program"),
         },
         {
-          title: "Development",
-          subtitle: "Build and ship from day one",
-          links: after12Courses
-            .filter((c) =>
-              [
-                "python",
-                "full-stack-development",
-                "web-development",
-                "flutter-app-development",
-              ].includes(c.courseId),
-            )
-            .map((c) => ({ label: c.title.replace(` in ${site.city}`, ""), href: `/${c.slug}` })),
+          title: "After 12th 6-Month Program",
+          subtitle: "Half a year, finishing with a portfolio",
+          links: after12thColumn(6, "Certificate Program"),
         },
         {
-          title: "Marketing & Security",
-          subtitle: "Campaigns, labs and design",
-          links: after12Courses
-            .filter((c) =>
-              ["digital-marketing", "cyber-security", "ethical-hacking", "web-designing"].includes(
-                c.courseId,
-              ),
-            )
-            .map((c) => ({ label: c.title.replace(` in ${site.city}`, ""), href: `/${c.slug}` })),
-        },
-        {
-          title: "Longer programs",
-          subtitle: "Certificate and diploma routes",
-          links: programDurations.map((duration) => ({
-            label: `${duration.label} · ${duration.tier}`,
-            href: `/after-12th-${duration.slug}-${programTracks[0].id}-program-in-${site.citySlug}`,
-          })),
+          title: "After 12th 9-Month Program",
+          subtitle: "The longest track, with placement preparation",
+          links: after12thColumn(9, "Diploma Program"),
         },
       ],
       footer: {
-        quote: "Straight out of school into a technology career, without a degree first.",
-        cta: { label: "See all after-12th courses", href: "/after-12th-courses" },
+        ...programmingQuote,
+        cta: { label: "Browse After 12th Courses", href: "/after-12th-courses" },
       },
     },
   },
