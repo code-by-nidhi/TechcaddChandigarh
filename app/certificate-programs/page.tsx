@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection, FaqSection } from "@/components/sections/Home";
 import { Icon, Rail, SectionHeading } from "@/components/ui";
 import { site } from "@/data/site";
 import { programDurations, programTracks, programsForTrack, trainingFormats } from "@/data/programs";
-import { getCourse, courseSlug } from "@/data/courses";
+import { courseSlug } from "@/data/courses";
+import { findCourse, getCourses } from "@/lib/catalogue";
 import { faqs } from "@/data/content";
 import { faqPageSchema } from "@/lib/schema";
 
@@ -15,10 +16,12 @@ export const metadata: Metadata = {
   alternates: { canonical: `${site.url}/certificate-programs` },
 };
 
-export default function CertificateProgramsPage() {
+export default async function CertificateProgramsPage() {
+  const courses = await getCourses();
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="certificate-programs"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Certificate Programs" }]}
         eyebrow="Certificate programs"
         title="Same tracks, three depths"
@@ -101,7 +104,7 @@ export default function CertificateProgramsPage() {
 
           <div className="mt-14 space-y-4">
             {programTracks.map((track) => {
-              const course = getCourse(track.id);
+              const course = findCourse(courses, track.id);
               const trackPrograms = programsForTrack(track.id).filter((p) => !p.after12th);
               return (
                 <div

@@ -10,15 +10,18 @@ import { EnquiryForm } from "@/components/EnquiryForm";
 import { ButtonLink, Icon, Rail } from "@/components/ui";
 import { allRootSlugs, resolveSlug, rupees } from "@/lib/routes";
 import { site } from "@/data/site";
-import { courseSlug, getCourse } from "@/data/courses";
+import { courseSlug } from "@/data/courses";
+import { findCourse, getCourses } from "@/lib/catalogue";
 import { trainingFormats } from "@/data/programs";
 import { faqs } from "@/data/content";
 import { courseSchema, faqPageSchema } from "@/lib/schema";
 
 export const dynamicParams = false;
 
-export function generateStaticParams() {
-  return allRootSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams() {
+  // Built from the resolved catalogue, so a course added in the CMS gets its
+  // course page — and its training page, if it has one — without a code change.
+  return allRootSlugs(await getCourses()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
@@ -27,7 +30,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const resolved = resolveSlug(slug);
+  const resolved = resolveSlug(slug, await getCourses());
   if (!resolved) return {};
 
   const canonical = `${site.url}/${slug}`;
@@ -84,7 +87,7 @@ export async function generateMetadata({
 
 export default async function SlugPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const resolved = resolveSlug(slug);
+  const resolved = resolveSlug(slug, await getCourses());
   if (!resolved) notFound();
 
   /* ------------------------------- Course page ------------------------------- */
@@ -106,7 +109,7 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
   // would be harder to follow than a separate template.
   if (resolved.kind === "program") {
     const { program } = resolved;
-    const course = getCourse(program.track.id);
+    const course = findCourse(await getCourses(), program.track.id);
     if (!course) notFound();
 
     if (program.after12th) {

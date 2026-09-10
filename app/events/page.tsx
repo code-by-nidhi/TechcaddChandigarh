@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { Icon, Rail } from "@/components/ui";
-import { upcomingEvents } from "@/data/events";
+import { getEvents } from "@/lib/cms";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -12,10 +12,15 @@ export const metadata: Metadata = {
   alternates: { canonical: `${site.url}/events` },
 };
 
-export default function EventsPage() {
+export default async function EventsPage() {
+  // Soonest first. The CMS returns newest-first, which is right for an admin
+  // list and wrong for a calendar a visitor reads forwards.
+  const upcomingEvents = [...(await getEvents())].sort((a, b) => a.date.localeCompare(b.date));
+
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="events"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Events" }]}
         eyebrow="Events"
         title="Summits, workshops and placement drives"

@@ -17,5 +17,6 @@
     "paths": { "@/*": ["./*"] }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "//exclude": "cms-techcadd is a separate project with its own tsconfig, its own React version and Vite's import.meta types. Typechecking it from here reports errors that are not errors in its own build.",
+  "exclude": ["node_modules", "cms-techcadd"]
 }

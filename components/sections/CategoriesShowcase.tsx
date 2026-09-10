@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Icon, cx } from "@/components/ui";
-import { courseCategories, coursesByCategory } from "@/data/courses";
+import { useCatalogue } from "@/components/CatalogueProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -63,13 +63,25 @@ const MOMENTUM_TAU = 0.9;
 const MAX_SPIN = 3.5;
 
 export function CategoriesShowcase() {
+  const { categories, courses } = useCatalogue();
   const stageRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   /** `goTo` lives inside the animation effect; the card handlers reach it here. */
   const apiRef = useRef<{ goTo: (i: number) => void } | null>(null);
   const draggedRef = useRef(false);
 
-  const cards = ORDER.map((id) => courseCategories.find((c) => c.id === id)!);
+  /*
+   * `ORDER` fixes the carousel's arrangement, which is a design decision about
+   * this component rather than data. A category the CMS no longer has is
+   * dropped instead of crashing on a missing card, and one it has gained that
+   * `ORDER` does not name is appended so it is never silently invisible.
+   */
+  const cards = [
+    ...ORDER.map((id) => categories.find((c) => c.id === id)).filter(
+      (c): c is (typeof categories)[number] => Boolean(c),
+    ),
+    ...categories.filter((c) => !ORDER.includes(c.id)),
+  ];
   const count = cards.length;
   const start = Math.max(0, cards.findIndex((c) => c.id === "ai"));
 
@@ -308,7 +320,7 @@ export function CategoriesShowcase() {
         */}
         <div className="absolute inset-0 [perspective:1500px] [perspective-origin:50%_45%]">
           {cards.map((category, i) => {
-            const total = coursesByCategory(category.id).length;
+            const total = courses.filter((c) => c.category === category.id).length;
             const isActive = i === active;
             return (
               <div

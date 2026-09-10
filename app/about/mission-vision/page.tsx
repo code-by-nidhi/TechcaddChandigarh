@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { FutureCareerForm } from "@/components/sections/FutureCareerForm";
 import { Icon, Rail, SectionHeading, cx } from "@/components/ui";
 import { Reveal } from "@/components/motion/Reveal";
@@ -81,10 +81,11 @@ const visionPillars = [
   { icon: "shield", text: "Building a trusted name in software, services, and technology education" },
 ];
 
-export default function MissionVisionPage() {
+export default async function MissionVisionPage() {
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="about/mission-vision"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "About", href: "/about" },

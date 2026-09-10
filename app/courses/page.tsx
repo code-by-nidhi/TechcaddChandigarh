@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CourseCard } from "@/components/CourseCard";
 import { CtaSection } from "@/components/sections/Home";
 import { Icon, Rail } from "@/components/ui";
-import { courseCategories, courses, coursesByCategory } from "@/data/courses";
+import { coursesInCategory, getCourseCategories, getCourses } from "@/lib/catalogue";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -13,10 +13,15 @@ export const metadata: Metadata = {
   alternates: { canonical: `${site.url}/courses` },
 };
 
-export default function CoursesPage() {
+export default async function CoursesPage() {
+  const [courses, courseCategories] = await Promise.all([getCourses(), getCourseCategories()]);
+  const coursesByCategory = (id: (typeof courseCategories)[number]["id"]) =>
+    coursesInCategory(courses, id);
+
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="courses"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Courses" }]}
         eyebrow="Course catalogue"
         title={`Every course we run in ${site.city}`}

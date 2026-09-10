@@ -13,7 +13,20 @@ import {
   type NavLink,
   type NavTile,
 } from "@/data/nav";
-import { site } from "@/data/site";
+import { site as staticSite } from "@/data/site";
+import type { SiteConfig } from "@/lib/cms";
+
+/**
+ * The Resources menu entries that come from the CMS.
+ *
+ * Resolved in the root layout and passed down, because this is a client
+ * component and cannot fetch. Both default to empty, so a header rendered
+ * without them shows the static Resources list exactly as before.
+ */
+export interface CmsResources {
+  events: NavLink[];
+  pages: NavLink[];
+}
 import { BookDemoModal } from "./BookDemoModal";
 import { Logo } from "./Logo";
 import { Badge, Button, Icon, badgeTone, cx } from "./ui";
@@ -190,14 +203,30 @@ function CardsPanel({
   links,
   cta,
   cards,
+  resources,
 }: {
   links: NavLink[];
   cta: NavLink;
   cards: NavCard[];
+  resources?: CmsResources;
 }) {
+  // Only worth a column each once the CMS actually has some. An empty
+  // "Events" heading in the menu is worse than no heading.
+  const groups = [
+    { title: "Events", href: "/events", items: resources?.events ?? [] },
+    { title: "Pages", href: "/pages", items: resources?.pages ?? [] },
+  ].filter((group) => group.items.length > 0);
+
   return (
     <PanelShell>
-      <div className="grid gap-7 px-7 py-7 lg:grid-cols-[minmax(0,14rem)_1px_1fr] lg:gap-9">
+      <div
+        className={cx(
+          "grid gap-7 px-7 py-7 lg:gap-9",
+          groups.length > 0
+            ? "lg:grid-cols-[minmax(0,13rem)_minmax(0,13rem)_1px_1fr]"
+            : "lg:grid-cols-[minmax(0,14rem)_1px_1fr]",
+        )}
+      >
         <div>
           <ul className="space-y-1">
             {links.map((item) => (
@@ -227,6 +256,42 @@ function CardsPanel({
             />
           </Link>
         </div>
+
+        {groups.length > 0 ? (
+          <div className="space-y-5">
+            {groups.map((group) => (
+              <div key={group.title}>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-muted">
+                  {group.title}
+                </p>
+                <ul className="mt-2 space-y-1">
+                  {/*
+                    * Capped at six. This is a menu, not an index — the "All"
+                    * link below it goes to the full list.
+                    */}
+                  {group.items.slice(0, 6).map((entry) => (
+                    <li key={entry.href}>
+                      <Link
+                        href={entry.href}
+                        className="-mx-2 block truncate rounded-lg px-2 py-1.5 text-sm font-medium text-hero-950/85 transition-colors hover:bg-white hover:text-brand-600"
+                      >
+                        {entry.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                {group.items.length > 6 ? (
+                  <Link
+                    href={group.href}
+                    className="mt-1.5 -mx-2 block px-2 text-xs font-semibold text-brand-600"
+                  >
+                    All {group.items.length} {group.title.toLowerCase()}
+                  </Link>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        ) : null}
 
         <div aria-hidden="true" className="hidden bg-hero-950/10 lg:block" />
 
@@ -410,7 +475,7 @@ function AiMegaPanel({
   );
 }
 
-function MegaPanel({ item }: { item: NavItem }) {
+function MegaPanel({ item, resources }: { item: NavItem; resources?: CmsResources }) {
   if (!item.panel) return null;
   switch (item.panel.kind) {
     case "columns":
@@ -426,7 +491,12 @@ function MegaPanel({ item }: { item: NavItem }) {
       return <TilesPanel tiles={item.panel.tiles} footer={item.panel.footer} />;
     case "cards":
       return (
-        <CardsPanel links={item.panel.links} cta={item.panel.cta} cards={item.panel.cards} />
+        <CardsPanel
+          links={item.panel.links}
+          cta={item.panel.cta}
+          cards={item.panel.cards}
+          resources={resources}
+        />
       );
     case "ai":
       return (
@@ -447,7 +517,14 @@ function MegaPanel({ item }: { item: NavItem }) {
 /*                                   Header                                    */
 /* -------------------------------------------------------------------------- */
 
-export function Header() {
+/** See the note on `Footer` — the contact details are resolved upstream. */
+export function Header({
+  site = staticSite as SiteConfig,
+  resources,
+}: {
+  site?: SiteConfig
+  resources?: CmsResources
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
@@ -678,11 +755,11 @@ export function Header() {
                 <div className="rail" ref={dropdownRailRef}>
                   {isSimple ? (
                     <div style={{ marginLeft: simpleLeft }} className="w-fit">
-                      <MegaPanel item={item} />
+                      <MegaPanel item={item} resources={resources} />
                     </div>
                   ) : (
                     <div className="-mx-3 lg:-mx-6">
-                      <MegaPanel item={item} />
+                      <MegaPanel item={item} resources={resources} />
                     </div>
                   )}
                 </div>
@@ -693,6 +770,8 @@ export function Header() {
 
       {mobileOpen ? (
         <MobileMenu
+          site={site}
+          resources={resources}
           onNavigate={() => setMobileOpen(false)}
           onBookDemo={() => {
             setMobileOpen(false);
@@ -730,9 +809,13 @@ function flatten(item: NavItem): { title?: string; links: NavLink[] }[] {
 function MobileMenu({
   onNavigate,
   onBookDemo,
+  site,
+  resources,
 }: {
   onNavigate: () => void;
   onBookDemo: () => void;
+  site: SiteConfig;
+  resources?: CmsResources;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -741,7 +824,27 @@ function MobileMenu({
       <div className="fade-up -mx-3 max-h-[calc(100dvh-5rem)] lg:-mx-6 overflow-y-auto overscroll-contain rounded-3xl border border-white/70 bg-white p-5 shadow-[0_24px_60px_-20px_rgba(6,14,43,0.45)]">
         <ul className="divide-y divide-line">
           {navItems.map((item) => {
-            const groups = flatten(item);
+            const flattened = flatten(item);
+
+            /*
+             * The CMS entries are appended to Resources here rather than in
+             * `flatten`, which reads the static nav data and has nothing to
+             * fetch with. Empty groups are dropped so the accordion never
+             * opens on a heading with nothing under it.
+             */
+            const groups =
+              item.label === "Resources"
+                ? [
+                    ...flattened,
+                    ...(resources?.events?.length
+                      ? [{ title: "Events", links: resources.events }]
+                      : []),
+                    ...(resources?.pages?.length
+                      ? [{ title: "Pages", links: resources.pages }]
+                      : []),
+                  ]
+                : flattened;
+
             const isOpen = expanded === item.label;
 
             if (!groups.length) {

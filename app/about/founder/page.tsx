@@ -85,8 +85,8 @@ const founderStory = [
   {
     label: "Today",
     icon: "globe",
-    title: "A network across Punjab",
-    body: "techcadd now runs across Jalandhar, Ludhiana, Hoshiarpur, Phagwara, Amritsar, Patiala, Bathinda and Mukerian, works with universities on industrial training and placement drives, and continues under Mr. Gourav Gupta as Founder and CEO.",
+    title: "A network across Punjab and the tricity",
+    body: "techcadd now runs across Chandigarh, Mohali, Panchkula, Zirakpur, Kharar and Ambala, alongside its earlier centres in Jalandhar, Ludhiana, Hoshiarpur, Phagwara, Amritsar, Patiala, Bathinda and Mukerian. It works with universities on industrial training and placement drives, and continues under Mr. Gourav Gupta as Founder and CEO.",
   },
 ];
 
@@ -392,7 +392,7 @@ export default function FounderPage() {
           <SectionHeading
             align="center"
             eyebrow="Our founder story"
-            title="From one classroom in Jalandhar to a network across Punjab"
+            title="From one classroom in 2016 to a network across Punjab and the tricity"
             body="techcadd began with a single observation that has not changed since: students were finishing technical degrees without ever having built anything someone would pay for."
           />
 

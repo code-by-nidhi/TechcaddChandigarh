@@ -7,7 +7,7 @@ import { CourseCard } from "@/components/CourseCard";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { ButtonLink, Icon, Rail, SectionHeading } from "@/components/ui";
 import { branches, branchesBySlug, serviceAreas } from "@/data/branches";
-import { featuredCourses } from "@/data/courses";
+import { featuredFrom, getCourses } from "@/lib/catalogue";
 import { faqs } from "@/data/content";
 import { site } from "@/data/site";
 import { faqPageSchema } from "@/lib/schema";
@@ -35,6 +35,7 @@ export async function generateMetadata({
 }
 
 export default async function BranchPage({ params }: { params: Promise<{ branch: string }> }) {
+  const featuredCourses = featuredFrom(await getCourses());
   const { branch: slug } = await params;
   const branch = branchesBySlug.get(slug);
   if (!branch) notFound();

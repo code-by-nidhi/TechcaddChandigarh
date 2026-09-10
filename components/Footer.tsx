@@ -2,23 +2,39 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { site } from "@/data/site";
+import { site as staticSite } from "@/data/site";
+import type { SiteConfig } from "@/lib/cms";
 import { footerColumns, legalLinks } from "@/data/nav";
 import { resolveSlug } from "@/lib/routes";
+import { useCatalogue } from "@/components/CatalogueProvider";
 import { Logo } from "./Logo";
 import { ButtonLink, Icon } from "./ui";
 
-const socials = [
-  { name: "Instagram", icon: "instagram", href: site.social.instagram },
-  { name: "YouTube", icon: "youtube", href: site.social.youtube },
-  { name: "LinkedIn", icon: "linkedin", href: site.social.linkedin },
-  { name: "Facebook", icon: "facebook", href: site.social.facebook },
-];
+/**
+ * Contact details and social links come from the root layout, which resolves
+ * them against the CMS. The static config is the default so this component
+ * still renders on its own — in a test, or if it is ever mounted somewhere
+ * that has not done that lookup.
+ */
+export function Footer({ site = staticSite as SiteConfig }: { site?: SiteConfig }) {
+  const socials = [
+    { name: "Instagram", icon: "instagram", href: site.social.instagram },
+    { name: "YouTube", icon: "youtube", href: site.social.youtube },
+    { name: "LinkedIn", icon: "linkedin", href: site.social.linkedin },
+    { name: "Facebook", icon: "facebook", href: site.social.facebook },
+  ];
 
-export function Footer() {
   const year = new Date().getFullYear();
   const pathname = usePathname();
-  const resolved = resolveSlug(pathname.replace(/^\//, ""));
+
+  /*
+   * Only the kind of page matters here — a course or program page already ends
+   * with its own call to action, so the footer's would be the second in a row.
+   * The catalogue comes from context rather than a static import so a course
+   * that exists only in the CMS is recognised too.
+   */
+  const { courses } = useCatalogue();
+  const resolved = resolveSlug(pathname.replace(/^\//, ""), courses);
   const hasOwnClosingCta = resolved?.kind === "course" || resolved?.kind === "program";
 
   return (

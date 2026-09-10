@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection, FaqSection } from "@/components/sections/Home";
 import { Icon, Rail, SectionHeading } from "@/components/ui";
 import { site } from "@/data/site";
 import { after12Courses, programDurations, programTracks, programsForTrack } from "@/data/programs";
-import { getCourse, getCategory } from "@/data/courses";
+import { findCourse, getCourseCategories, getCourses } from "@/lib/catalogue";
 import { faqs } from "@/data/content";
 import { faqPageSchema } from "@/lib/schema";
 
@@ -38,10 +38,16 @@ const reasons = [
   },
 ];
 
-export default function After12Page() {
+export default async function After12Page() {
+  const [courses, categories] = await Promise.all([getCourses(), getCourseCategories()]);
+  // Indexed once rather than searched per card — the grid renders every
+  // after-12th entry and each one needs its course's group.
+  const categoriesById = new Map(categories.map((category) => [category.id, category]));
+
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="after-12th-courses"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "After 12th" }]}
         eyebrow="After 12th"
         title={`Technology courses after 12th in ${site.city}`}
@@ -83,8 +89,12 @@ export default function After12Page() {
           />
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {after12Courses.map((entry) => {
-              const course = getCourse(entry.courseId)!;
-              const category = getCategory(course.category);
+              const course = findCourse(courses, entry.courseId);
+              // A course removed in the CMS leaves its after-12th entry with
+              // nothing to describe, so the card is skipped rather than
+              // crashing the page on a missing record.
+              if (!course) return null;
+              const category = categoriesById.get(course.category);
               return (
                 <Link
                   key={entry.slug}
@@ -92,7 +102,7 @@ export default function After12Page() {
                   className="card-hover flex flex-col rounded-2xl border border-line bg-white p-6"
                 >
                   <span className="inline-flex size-10 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                    <Icon name={category.icon} className="size-5" />
+                    <Icon name={category?.icon ?? "sparkles"} className="size-5" />
                   </span>
                   <h3 className="mt-5 font-display text-lg font-bold tracking-tight">
                     {course.name}

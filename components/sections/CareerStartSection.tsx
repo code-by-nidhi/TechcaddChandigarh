@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { courses } from "@/data/courses";
+import { useCourseOptions } from "@/components/CatalogueProvider";
 import { Icon, Rail, cx } from "@/components/ui";
 import { submitEnquiry } from "@/lib/enquiry";
 import { site } from "@/data/site";
@@ -27,6 +27,7 @@ function makeChallenge() {
 }
 
 function CaptchaForm() {
+  const courses = useCourseOptions();
   const [challenge, setChallenge] = useState<{ a: number; b: number } | null>(null);
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState<string | null>(null);

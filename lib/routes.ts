@@ -1,5 +1,5 @@
 import { site } from "@/data/site";
-import { courses, courseSlug, trainingSlug, getCourse, type Course } from "@/data/courses";
+import { courses as staticCourses, courseSlug, trainingSlug, type Course } from "@/data/courses";
 import {
   after12CoursesBySlug,
   programsBySlug,
@@ -17,16 +17,34 @@ import {
  * because slugs such as `45-days-training-in-chandigarh` would otherwise be
  * mistaken for a course training variant.
  */
-export type Resolved =
-  | { kind: "course"; course: Course; variant: "course" | "training" }
+/**
+ * Generic in the course type because two very different callers resolve the
+ * same slugs: the server pages, which hold full `Course` records, and the
+ * footer, which holds only the id-and-name options the browser was sent.
+ */
+export type Resolved<T = Course> =
+  | { kind: "course"; course: T; variant: "course" | "training" }
   | { kind: "program"; program: Program }
   | { kind: "training-format"; format: TrainingFormat }
-  | { kind: "after-12th"; entry: After12Course; course: Course };
+  | { kind: "after-12th"; entry: After12Course; course: T };
 
 const COURSE_SUFFIX = `-course-in-${site.citySlug}`;
 const TRAINING_SUFFIX = `-training-in-${site.citySlug}`;
 
-export function resolveSlug(slug: string): Resolved | null {
+/**
+ * Resolves against a catalogue the caller supplies rather than importing one.
+ *
+ * Required, not defaulted: the two callers hold different things — the server
+ * pages have full `Course` records, the footer has only the id-and-name
+ * options the browser was sent — and a default would quietly resolve against
+ * the build-time catalogue in the one place that most needs the live one.
+ */
+export function resolveSlug<T extends { id: string; training?: boolean }>(
+  slug: string,
+  catalogue: readonly T[],
+): Resolved<T> | null {
+  const getCourse = (id: string) => catalogue.find((course) => course.id === id);
+
   const program = programsBySlug.get(slug);
   if (program) return { kind: "program", program };
 
@@ -53,21 +71,27 @@ export function resolveSlug(slug: string): Resolved | null {
 }
 
 /** Every root-level slug the site generates, for `generateStaticParams`. */
-export function allRootSlugs(): string[] {
+export function allRootSlugs(catalogue: Course[] = staticCourses): string[] {
   return [
-    ...courses.map((c) => courseSlug(c.id)),
-    ...courses.filter((c) => c.training).map((c) => trainingSlug(c.id)),
+    ...catalogue.map((c) => courseSlug(c.id)),
+    ...catalogue.filter((c) => c.training).map((c) => trainingSlug(c.id)),
     ...programsBySlug.keys(),
     ...trainingFormatsBySlug.keys(),
     ...after12CoursesBySlug.keys(),
   ];
 }
 
-/** Related courses from the same track, excluding the one being viewed. */
-export function relatedCourses(course: Course, limit = 3): Course[] {
-  const sameTrack = courses.filter((c) => c.category === course.category && c.id !== course.id);
+/**
+ * Related courses from the same track, excluding the one being viewed.
+ *
+ * Superseded by `relatedFrom` in `lib/catalogue.ts`, which takes the resolved
+ * catalogue. Kept as a thin wrapper over the static one for any caller that
+ * cannot await.
+ */
+export function relatedCourses(course: Course, limit = 3, catalogue: Course[] = staticCourses): Course[] {
+  const sameTrack = catalogue.filter((c) => c.category === course.category && c.id !== course.id);
   if (sameTrack.length >= limit) return sameTrack.slice(0, limit);
-  const others = courses.filter((c) => c.category !== course.category && c.featured);
+  const others = catalogue.filter((c) => c.category !== course.category && c.featured);
   return [...sameTrack, ...others].slice(0, limit);
 }
 

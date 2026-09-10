@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { Icon, Rail } from "@/components/ui";
 import { site } from "@/data/site";
@@ -13,10 +13,11 @@ export const metadata: Metadata = {
 };
 
 
-export default function ToolsPage() {
+export default async function ToolsPage() {
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="tools"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Free Tools" }]}
         eyebrow="Free tools"
         title="Three tools to help you decide"

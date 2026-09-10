@@ -15,7 +15,7 @@ export const site = {
   description:
     "Learn with techcadd Chandigarh, an industry-focused IT training centre. Explore 50+ AI and software courses with hands-on labs, live project execution, mentor code reviews, internship experience and placement assistance across top job roles.",
   founded: 2007,
-  /** Taken from the techcadd Jalandhar site — confirm for the Chandigarh entity. */
+  /** Carried over from the wider techcadd group — confirm for the Chandigarh entity. */
   founder: {
     name: "Mr. Gourav Gupta",
     title: "Founder & CEO, techcadd",

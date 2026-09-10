@@ -3,10 +3,9 @@ import { site } from "@/data/site";
 import {
   processCadence,
   processSteps,
-  testimonials,
-  faqs,
 } from "@/data/content";
-import { recentPosts, formatDate } from "@/data/blog";
+import { formatDate } from "@/data/blog";
+import { getFaqs, getRecentPosts, getReviews } from "@/lib/cms";
 import { CategoriesShowcase } from "@/components/sections/CategoriesShowcase";
 import { FeaturedShowcase } from "@/components/sections/FeaturedShowcase";
 import { TechBurst } from "@/components/sections/TechBurst";
@@ -181,7 +180,10 @@ export function FeaturedSection() {
 
 /* ------------------------------- Testimonials ------------------------------- */
 
-export function TestimonialsSection() {
+export async function TestimonialsSection() {
+  // Capped at nine: the grid is three columns, and the wall lives on /reviews.
+  const testimonials = await getReviews({ limit: 9 });
+
   return (
     <section className="py-20 lg:py-28">
       <Rail>
@@ -204,7 +206,7 @@ export function TestimonialsSection() {
         <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial) => (
             <figure
-              key={testimonial.name}
+              key={`${testimonial.name}-${testimonial.quote.slice(0, 24)}`}
               className="flex flex-col rounded-2xl border border-line bg-white p-6"
             >
               <Icon name="quote" className="size-7 text-brand-200" />
@@ -259,18 +261,22 @@ export function TechnologiesSection() {
 /* ----------------------------------- FAQ ----------------------------------- */
 
 /**
+ * `items` stays a prop so a course page can pass its own shortlist. Left
+ * unset, the questions come from the CMS — which is the homepage case.
+ *
  * Dark is opt-in rather than the default: the homepage runs a strict
  * light/dark alternation and needs this block dark, but every other page that
  * uses it drops it directly above the dark {@link CtaSection}, where two dark
  * bands in a row would flatten the seam.
  */
-export function FaqSection({
-  items = faqs,
+export async function FaqSection({
+  items,
   tone = "light",
 }: {
-  items?: typeof faqs;
+  items?: { question: string; answer: string }[];
   tone?: "light" | "dark";
 }) {
+  const questions = items ?? (await getFaqs({ limit: 8 }));
   const onDark = tone === "dark";
 
   return (
@@ -298,7 +304,7 @@ export function FaqSection({
               <Icon name="arrow-right" className="size-4" />
             </ButtonLink>
           </div>
-          <Accordion items={items} onDark={onDark} />
+          <Accordion items={questions} onDark={onDark} />
         </div>
       </Rail>
     </section>
@@ -307,7 +313,9 @@ export function FaqSection({
 
 /* ----------------------------------- Blog ----------------------------------- */
 
-export function BlogSection() {
+export async function BlogSection() {
+  const recentPosts = await getRecentPosts(3);
+
   return (
     <section className="py-20 lg:py-28">
       <Rail>

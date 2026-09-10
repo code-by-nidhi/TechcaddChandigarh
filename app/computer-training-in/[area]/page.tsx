@@ -7,7 +7,7 @@ import { CourseListRow } from "@/components/CourseCard";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { ButtonLink, Icon, Rail, SectionHeading } from "@/components/ui";
 import { branchFor, serviceAreas, serviceAreasBySlug } from "@/data/branches";
-import { courseCategories, coursesByCategory } from "@/data/courses";
+import { coursesInCategory, getCourseCategories, getCourses } from "@/lib/catalogue";
 import { faqs } from "@/data/content";
 import { site } from "@/data/site";
 import { faqPageSchema } from "@/lib/schema";
@@ -36,6 +36,9 @@ export async function generateMetadata({
 }
 
 export default async function AreaPage({ params }: { params: Promise<{ area: string }> }) {
+  const [courses, courseCategories] = await Promise.all([getCourses(), getCourseCategories()]);
+  const coursesByCategory = (id: (typeof courseCategories)[number]["id"]) =>
+    coursesInCategory(courses, id);
   const { area: slug } = await params;
   const area = serviceAreasBySlug.get(slug);
   if (!area) notFound();

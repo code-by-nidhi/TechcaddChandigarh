@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { Icon, Rail, SectionHeading } from "@/components/ui";
 import { site } from "@/data/site";
@@ -12,10 +12,11 @@ export const metadata: Metadata = {
   alternates: { canonical: `${site.url}/branches` },
 };
 
-export default function BranchesPage() {
+export default async function BranchesPage() {
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="branches"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Branches" }]}
         eyebrow="Our centres"
         title={`${branches.length} campuses across the tricity`}

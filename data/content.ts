@@ -163,6 +163,14 @@ export interface Testimonial {
   course: string;
   quote: string;
   initials: string;
+  /**
+   * Set on reviews that came from the CMS, where an editor records the stars a
+   * student actually gave. The static entries below have none, and the cards
+   * render five — which is what they did before the CMS existed.
+   */
+  rating?: number;
+  /** The review's own page on Google, when the editor linked one. */
+  googleUrl?: string;
 }
 
 export const testimonials: Testimonial[] = [

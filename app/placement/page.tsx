@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection, TestimonialsSection } from "@/components/sections/Home";
 import { Icon, Rail, SectionHeading, Stat } from "@/components/ui";
 import { site } from "@/data/site";
@@ -48,10 +48,11 @@ const honest = [
   },
 ];
 
-export default function PlacementPage() {
+export default async function PlacementPage() {
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="placement"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Placement Support" }]}
         eyebrow="Placement"
         title="How placement support actually works"

@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 import { site } from "@/data/site";
 import { allRootSlugs } from "@/lib/routes";
 import { branches, serviceAreas } from "@/data/branches";
-import { blogPosts } from "@/data/blog";
-import { events } from "@/data/events";
+import { getBlogPosts, getCustomPages, getEvents } from "@/lib/cms";
+import { getCourses } from "@/lib/catalogue";
 import { freeTools } from "@/data/tools";
 
 const staticRoutes = [
@@ -31,8 +31,16 @@ const staticRoutes = [
   { path: "/refund-policy", priority: 0.3, changeFrequency: "yearly" as const },
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  // From the CMS when one is configured, so a post published there is
+  // discoverable without waiting for a rebuild.
+  const [posts, events, pages, courses] = await Promise.all([
+    getBlogPosts(),
+    getEvents(),
+    getCustomPages(),
+    getCourses(),
+  ]);
 
   return [
     ...staticRoutes.map((route) => ({
@@ -41,7 +49,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })),
-    ...allRootSlugs().map((slug) => ({
+    ...allRootSlugs(courses).map((slug) => ({
       url: `${site.url}/${slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
@@ -59,9 +67,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
-    ...blogPosts.map((post) => ({
+    ...posts.map((post) => ({
       url: `${site.url}/blogs/${post.slug}`,
-      lastModified: new Date(post.date),
+      // A CMS post can be saved with no publish date; today is a better
+      // answer for a crawler than an invalid one.
+      lastModified: post.date ? new Date(post.date) : now,
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
@@ -69,6 +79,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${site.url}/events/${event.slug}`,
       lastModified: now,
       changeFrequency: "weekly" as const,
+      priority: 0.5,
+    })),
+    // Editor-authored pages. Overrides are deliberately absent — they change
+    // copy on a route that is already listed above, and are not URLs of their
+    // own to crawl.
+    ...pages.map((page) => ({
+      url: `${site.url}/pages/${page.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
       priority: 0.5,
     })),
     ...freeTools.map((tool) => ({

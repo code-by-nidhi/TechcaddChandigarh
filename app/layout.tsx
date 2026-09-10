@@ -3,6 +3,9 @@ import { Inter } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { site } from "@/data/site";
+import { getCustomPages, getEvents, getSite } from "@/lib/cms";
+import { getCourseCategories, getCourses } from "@/lib/catalogue";
+import { CatalogueProvider } from "@/components/CatalogueProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -58,29 +61,35 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "EducationalOrganization",
-  name: site.name,
-  url: site.url,
-  description: site.description,
-  telephone: site.contact.phone,
-  email: site.contact.email,
-  foundingDate: String(site.founded),
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: `${site.address.line1}, ${site.address.line2}`,
-    addressLocality: site.address.city,
-    postalCode: site.address.postalCode,
-    addressCountry: site.address.country,
-  },
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: site.stats.rating,
-    reviewCount: site.stats.reviews.replace("+", ""),
-  },
-  sameAs: Object.values(site.social),
-};
+/**
+ * Built from a resolved config rather than the static one, so a phone number
+ * or address changed in the CMS also changes what search engines are told.
+ */
+function organizationSchemaFor(site: Awaited<ReturnType<typeof getSite>>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "EducationalOrganization",
+    name: site.name,
+    url: site.url,
+    description: site.description,
+    telephone: site.contact.phone,
+    email: site.contact.email,
+    foundingDate: String(site.founded),
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: `${site.address.line1}, ${site.address.line2}`,
+      addressLocality: site.address.city,
+      postalCode: site.address.postalCode,
+      addressCountry: site.address.country,
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: site.stats.rating,
+      reviewCount: site.stats.reviews.replace("+", ""),
+    },
+    sameAs: Object.values(site.social),
+  };
+}
 
 /*
  * Browsers restore the previous scroll position on reload. On a page whose
@@ -101,7 +110,48 @@ addEventListener("load",function(){scrollTo(0,0);
 if("scrollRestoration" in history)history.scrollRestoration="auto";});
 }catch(e){}})();`;
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  /*
+   * One CMS read for the whole tree. Header and Footer are client components,
+   * so they cannot fetch this themselves — and doing it here means one request
+   * per render rather than one per component that prints a phone number.
+   */
+  const [resolvedSite, events, pages, courses, categories] = await Promise.all([
+    getSite(),
+    getEvents(),
+    getCustomPages({ inNav: true }),
+    getCourses(),
+    getCourseCategories(),
+  ]);
+
+  /*
+   * The Resources menu lists every published event and every page an editor
+   * ticked into the nav. Built here rather than in the header because the
+   * header is a client component — and once, for the whole tree, rather than
+   * per render of each menu panel.
+   */
+  const resources = {
+    events: [...events]
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .map((event) => ({ label: event.title, href: `/events/${event.slug}` })),
+    pages: pages.map((page) => ({ label: page.title, href: `/pages/${page.slug}` })),
+  };
+
+  /*
+   * Only what a browser needs. The enquiry dropdowns want an id and a name,
+   * not a syllabus of 764 topics — sending the whole catalogue would put all
+   * of it in the RSC payload of every page on the site.
+   */
+  const catalogue = {
+    courses: courses.map((course) => ({
+      id: course.id,
+      name: course.name,
+      category: course.category,
+      training: course.training,
+    })),
+    categories,
+  };
+
   return (
     <html lang="en" className={inter.variable}>
       <body className="min-h-dvh">
@@ -113,12 +163,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        <Header />
-        <main id="main">{children}</main>
-        <Footer />
+        <CatalogueProvider catalogue={catalogue}>
+          <Header site={resolvedSite} resources={resources} />
+          <main id="main">{children}</main>
+          <Footer site={resolvedSite} />
+        </CatalogueProvider>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchemaFor(resolvedSite)) }}
         />
       </body>
     </html>

@@ -5,9 +5,10 @@ import { CourseHeroIllustration } from "@/components/CourseHeroIllustration";
 import { Breadcrumbs, ButtonLink, Icon } from "@/components/ui";
 import { HeroReveal } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
-import { getCategory, type Course } from "@/data/courses";
+import { type Course } from "@/data/courses";
+import { getCategoryFor } from "@/lib/catalogue";
 import { programsForTrack, type Program } from "@/data/programs";
-import { faqs } from "@/data/content";
+import { getFaqs } from "@/lib/cms";
 import { courseSchema, faqPageSchema } from "@/lib/schema";
 
 const FEATURE_CHIPS = [
@@ -29,7 +30,7 @@ const FEATURE_CHIPS = [
  * hero title, breadcrumb, duration and badge; every section below the hero
  * is identical to the course page for that same track.
  */
-export function CourseTemplate({
+export async function CourseTemplate({
   course,
   slug,
   variant = "course",
@@ -44,7 +45,7 @@ export function CourseTemplate({
   const trackPrograms = programsForTrack(course.id).filter(
     (p) => !p.after12th && p.slug !== slug,
   );
-  const category = getCategory(course.category);
+  const category = await getCategoryFor(course.category);
 
   const heroTitle = program ? program.title : `Best ${course.name} ${noun} in ${site.city}`;
   const heroSummary = program ? program.summary : course.summary;
@@ -80,7 +81,8 @@ export function CourseTemplate({
     url: `${site.url}/${slug}`,
     priceInr: course.fee?.offer,
   });
-  const faqSchema = faqPageSchema(faqs.slice(0, 6));
+  const faqs = await getFaqs({ limit: 6 });
+  const faqSchema = faqPageSchema(faqs);
 
   return (
     <>
