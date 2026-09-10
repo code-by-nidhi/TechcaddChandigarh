@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -308,7 +309,7 @@ function AiMegaPanel({
   heading: string;
   subtitle: string;
   columns: AiPanelColumn[];
-  featured: { title: string; badge: string; href: string; icon: string };
+  featured: { title: string; badge: string; href: string; icon: string; image?: string };
   cta: { heading: string; buttonLabel: string; href: string };
 }) {
   return (
@@ -376,12 +377,22 @@ function AiMegaPanel({
           <span className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-hero-950 via-hero-900 to-hero-800">
             <span
               aria-hidden="true"
-              className="absolute inset-0 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.5)_1px,transparent_1.5px)] [background-size:18px_18px]"
+              className="absolute inset-0 z-10 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.5)_1px,transparent_1.5px)] [background-size:18px_18px]"
             />
-            <Icon
-              name={featured.icon}
-              className="relative size-10 text-white/80 transition-transform duration-500 group-hover:scale-110"
-            />
+            {featured.image ? (
+              <Image
+                src={featured.image}
+                alt=""
+                fill
+                sizes="320px"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            ) : (
+              <Icon
+                name={featured.icon}
+                className="relative size-10 text-white/80 transition-transform duration-500 group-hover:scale-110"
+              />
+            )}
           </span>
           <span className="block p-4">
             <span className="inline-flex items-center rounded-full bg-rose-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
@@ -538,8 +549,10 @@ export function Header({ site = staticSite as SiteConfig }: { site?: SiteConfig 
     closeTimer.current = setTimeout(() => setOpen(null), 160);
   };
 
-  /** Capsule mode: scrolled, a menu is open, or the mobile drawer is showing. */
-  const solid = scrolled || mobileOpen || open !== null;
+  /** Capsule mode: scrolled, or the mobile drawer is showing — opening a
+   * desktop dropdown must never touch the navbar's own background, only the
+   * dropdown panel itself changes. */
+  const solid = scrolled || mobileOpen;
 
   const isActive = (href: string) => {
     const base = href.split("#")[0];

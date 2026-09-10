@@ -188,7 +188,7 @@ export function After12thTemplate({
       {/* -------------------------------------- Body -------------------------------------- */}
       <section className="py-20 lg:py-28">
         <div className="rail">
-          <A12Overview course={course} />
+          <A12Overview course={course} program={program} />
         </div>
       </section>
 

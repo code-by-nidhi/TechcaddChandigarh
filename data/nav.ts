@@ -64,7 +64,7 @@ export type NavPanel =
       heading: string;
       subtitle: string;
       columns: AiPanelColumn[];
-      featured: { title: string; badge: string; href: string; icon: string };
+      featured: { title: string; badge: string; href: string; icon: string; image?: string };
       cta: { heading: string; buttonLabel: string; href: string };
     }
   | { kind: "simple"; links: NavLink[] };
@@ -188,8 +188,8 @@ export const navItems: NavItem[] = [
             link("agentic-ai"),
             link("ai-powered-marketing"),
             link("rag", "RAG (Retrieval-Augmented Generation)"),
-            { label: "AI-Powered Courses", href: "/courses#ai" },
-            { label: `All AI Courses in ${site.city}`, href: "/courses#ai" },
+            { label: "AI-Powered Courses", href: "/ai-powered-courses-in-chandigarh" },
+            { label: `All AI Courses in ${site.city}`, href: "/all-ai-courses-in-chandigarh" },
           ],
         },
       ],
@@ -198,6 +198,7 @@ export const navItems: NavItem[] = [
         badge: "Featured AI Course",
         href: `/${trainingSlug("artificial-intelligence")}`,
         icon: "sparkles",
+        image: "/images/ai-panel/featured.webp",
       },
       cta: {
         heading: "Start with AI fundamentals, then move into real projects and career-ready tools.",

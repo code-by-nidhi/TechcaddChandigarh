@@ -8,6 +8,7 @@ import { site } from "@/data/site";
 import { splitIntoThirds } from "./CourseDetailExtras";
 import { A12ToolEcosystem } from "./A12ToolEcosystem";
 import { A12Timeline } from "./A12Timeline";
+import { monthLabel, STAGE_THEMES } from "./after12thShared";
 import { Icon, ButtonLink, cx, joinNatural } from "./ui";
 
 const topicLine = (mods: Course["modules"]) =>
@@ -15,21 +16,38 @@ const topicLine = (mods: Course["modules"]) =>
 
 /* -------------------------------- Overview -------------------------------- */
 
-export function A12Overview({ course }: { course: Course }) {
-  const [group1] = splitIntoThirds(course.modules);
+/**
+ * One paragraph per stage, naming the real topics in that stage's modules —
+ * mirrors the month-by-month walkthrough pattern used on the reference site,
+ * but built entirely from this course's own real module/topic data rather
+ * than reusing any of the reference's specific (different course, different
+ * city) content.
+ */
+export function A12Overview({ course, program }: { course: Course; program: Program }) {
+  const groups = splitIntoThirds(course.modules);
   return (
-    <div className="mx-auto max-w-3xl">
-      <h2 className="font-display text-3xl font-bold tracking-tight text-hero-950">
+    <div>
+      <h2 className="font-display text-3xl font-bold tracking-tight text-hero-950 lg:text-4xl">
         Course Overview
       </h2>
-      <div className="mt-6 space-y-4 leading-relaxed text-muted">
-        <p>{course.summary}</p>
+      <div className="mt-6 space-y-4 text-base leading-relaxed text-muted lg:text-lg">
         <p>
-          This programme is designed for students who have just completed 12th, from any stream.
-          It starts from scratch — {topicLine(group1)} are taught from the basics, so no prior
-          coding or technical background is needed. Once the fundamentals are clear, you move to
-          hands-on work with {joinNatural(course.tools.slice(0, 3))}.
+          This is the {program.duration.months}-month {course.name} programme, built for someone
+          starting straight after 12th who wants real {course.name.toLowerCase()} skills without
+          assuming any coding or technical background. {course.summary}
         </p>
+        {groups.map((mods, i) => {
+          const topics = mods.flatMap((m) => m.topics);
+          if (!topics.length) return null;
+          const theme = STAGE_THEMES[i] ?? `Stage ${i + 1}`;
+          return (
+            <p key={theme}>
+              {monthLabel(program, i)} covers {theme.toLowerCase()} —{" "}
+              {joinNatural(mods.map((m) => m.title))}: {joinNatural(topics)}. Each topic is taught
+              hands-on, in the order a real {course.name.toLowerCase()} project actually needs it.
+            </p>
+          );
+        })}
         <p>
           Every module ends with something you actually build — a script, a working setup, a
           deployed piece of the final project. By the end of the programme, these add up to a

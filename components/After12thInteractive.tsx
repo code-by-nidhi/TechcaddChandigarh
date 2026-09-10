@@ -6,19 +6,10 @@ import type { Program } from "@/data/programs";
 import { site } from "@/data/site";
 import { rupees } from "@/lib/routes";
 import { splitIntoThirds } from "./CourseDetailExtras";
+import { monthLabel, STAGE_THEMES } from "./after12thShared";
 import { Icon, cx } from "./ui";
 
 /* ------------------------------ Curriculum tabs ------------------------------ */
-
-function monthLabel(program: Program, stageIndex: number): string {
-  const total = program.duration.months;
-  const perStage = total / 3;
-  const start = Math.round(stageIndex * perStage) + 1;
-  const end = Math.round((stageIndex + 1) * perStage);
-  return start === end ? `Month ${start}` : `Months ${start}–${end}`;
-}
-
-const STAGE_THEMES = ["Foundations", "Core Skills & Practice", "Scaling & Capstone Project"];
 
 export function A12CurriculumTabs({ course, program }: { course: Course; program: Program }) {
   const groups = splitIntoThirds(course.modules);
