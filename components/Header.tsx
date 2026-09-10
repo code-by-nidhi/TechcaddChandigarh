@@ -622,8 +622,10 @@ export function Header({
     closeTimer.current = setTimeout(() => setOpen(null), 160);
   };
 
-  /** Capsule mode: scrolled, a menu is open, or the mobile drawer is showing. */
-  const solid = scrolled || mobileOpen || open !== null;
+  /** Capsule mode: scrolled, or the mobile drawer is showing — opening a
+   * desktop dropdown must never touch the navbar's own background, only the
+   * dropdown panel itself changes. */
+  const solid = scrolled || mobileOpen;
 
   const isActive = (href: string) => {
     const base = href.split("#")[0];
