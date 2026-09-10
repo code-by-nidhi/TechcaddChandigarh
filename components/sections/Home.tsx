@@ -62,12 +62,12 @@ export function ProcessSection() {
                 ride along here, so the pair is spelled out.)
               */}
               <span aria-hidden="true" className="relative block overflow-hidden">
-                <span className="block translate-y-1/2 font-display text-[5.5rem] leading-[0.9] font-extrabold tracking-tighter text-white/10 transition-[translate,color] duration-[1400ms] ease-[cubic-bezier(0.37,0,0.63,1)] will-change-transform group-hover:translate-y-0 group-hover:text-accent-400 motion-reduce:transition-none lg:text-[6.5rem]">
+                <span className="block translate-y-1/2 font-display text-[5.5rem] leading-[0.9] font-extrabold tracking-tighter text-white/10 transition-[translate,color] duration-[1400ms] ease-[cubic-bezier(0.37,0,0.63,1)] will-change-transform group-hover:translate-y-0 group-hover:text-accent-400 motion-reduce:transition-none lg:text-[6.5rem] wrap-anywhere">
                   {step.step}
                 </span>
               </span>
 
-              <h3 className="relative mt-5 font-display text-lg font-bold tracking-tight text-balance">
+              <h3 className="relative mt-5 font-display text-lg font-bold tracking-tight text-balance wrap-anywhere">
                 {step.title}
               </h3>
               <p className="relative mt-3 text-sm leading-relaxed text-brand-100/85">{step.body}</p>
@@ -82,7 +82,7 @@ export function ProcessSection() {
         <div className="mt-16 flex flex-wrap items-center justify-center gap-x-4 gap-y-3 border-t border-white/12 pt-10">
           {processCadence.map((word, i) => (
             <span key={word} className="flex items-center gap-4">
-              <span className="font-display text-xl font-bold tracking-tight lg:text-2xl">
+              <span className="font-display text-xl font-bold tracking-tight lg:text-2xl wrap-anywhere">
                 {word}
               </span>
               {i < processCadence.length - 1 ? (
@@ -129,7 +129,7 @@ export function CategoriesSection() {
             <Icon name="rocket" className="size-5" />
           </span>
           <div className="flex-1">
-            <h3 className="font-display text-base font-bold tracking-tight">
+            <h3 className="font-display text-base font-bold tracking-tight wrap-anywhere">
               Not sure which track?
             </h3>
             <p className="mt-1 text-sm leading-relaxed text-muted">
@@ -210,7 +210,7 @@ export async function TestimonialsSection() {
               className="flex flex-col rounded-2xl border border-line bg-white p-6"
             >
               <Icon name="quote" className="size-7 text-brand-200" />
-              <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted">
+              <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
                 {testimonial.quote}
               </blockquote>
               <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-5">
@@ -343,12 +343,12 @@ export async function BlogSection() {
                 </span>
                 <span>{formatDate(post.date)}</span>
               </div>
-              <h3 className="mt-5 font-display text-lg leading-snug font-bold tracking-tight">
+              <h3 className="mt-5 font-display text-lg leading-snug font-bold tracking-tight wrap-anywhere">
                 <Link href={`/blogs/${post.slug}`} className="before:absolute before:inset-0">
                   {post.title}
                 </Link>
               </h3>
-              <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted">
+              <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
                 {post.excerpt}
               </p>
               <span className="mt-6 flex items-center justify-between border-t border-line pt-5 text-xs text-muted">
@@ -377,7 +377,7 @@ export function CtaSection() {
             <Eyebrow onDark className="mb-5">
               Ready to get started?
             </Eyebrow>
-            <h2 className="font-display text-3xl font-bold tracking-tight text-balance lg:text-[2.75rem] lg:leading-[1.1]">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-balance lg:text-[2.75rem] lg:leading-[1.1] wrap-anywhere">
               Start building your career today
             </h2>
             <p className="mt-5 max-w-lg leading-relaxed text-brand-100/80">
@@ -401,7 +401,7 @@ export function CtaSection() {
                 className="rounded-2xl border border-white/12 bg-white/[0.06] p-6 backdrop-blur-sm"
               >
                 <Icon name={item.icon} className="size-6 text-accent-400" />
-                <dt className="mt-4 font-display font-bold tracking-tight">{item.label}</dt>
+                <dt className="mt-4 font-display font-bold tracking-tight wrap-anywhere">{item.label}</dt>
                 <dd className="mt-1 text-sm text-brand-100/70">{item.value}</dd>
               </div>
             ))}

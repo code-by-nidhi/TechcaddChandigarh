@@ -24,6 +24,13 @@ export interface BlogPost {
   sections: BlogSection[];
   /** Rich text from the CMS editor. Never set on the static posts below. */
   html?: string;
+  /**
+   * The blocks a CMS post is built from, in render order.
+   *
+   * Typed loosely here to keep `data/` free of a dependency on `lib/cms`; the
+   * renderer narrows it. Empty for every static post below.
+   */
+  blocks?: import("@/lib/cms").CmsPageBlock[];
   /** Cover image, when the CMS has one. */
   coverImage?: string;
 }

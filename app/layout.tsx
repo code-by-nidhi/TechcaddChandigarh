@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { site } from "@/data/site";
-import { getCustomPages, getEvents, getSite } from "@/lib/cms";
+import { getSite } from "@/lib/cms";
 import { getCourseCategories, getCourses } from "@/lib/catalogue";
 import { CatalogueProvider } from "@/components/CatalogueProvider";
 import "./globals.css";
@@ -116,26 +116,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
    * so they cannot fetch this themselves — and doing it here means one request
    * per render rather than one per component that prints a phone number.
    */
-  const [resolvedSite, events, pages, courses, categories] = await Promise.all([
+  const [resolvedSite, courses, categories] = await Promise.all([
     getSite(),
-    getEvents(),
-    getCustomPages({ inNav: true }),
     getCourses(),
     getCourseCategories(),
   ]);
 
-  /*
-   * The Resources menu lists every published event and every page an editor
-   * ticked into the nav. Built here rather than in the header because the
-   * header is a client component — and once, for the whole tree, rather than
-   * per render of each menu panel.
-   */
-  const resources = {
-    events: [...events]
-      .sort((a, b) => a.date.localeCompare(b.date))
-      .map((event) => ({ label: event.title, href: `/events/${event.slug}` })),
-    pages: pages.map((page) => ({ label: page.title, href: `/pages/${page.slug}` })),
-  };
 
   /*
    * Only what a browser needs. The enquiry dropdowns want an id and a name,
@@ -164,7 +150,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Skip to content
         </a>
         <CatalogueProvider catalogue={catalogue}>
-          <Header site={resolvedSite} resources={resources} />
+          <Header site={resolvedSite} />
           <main id="main">{children}</main>
           <Footer site={resolvedSite} />
         </CatalogueProvider>

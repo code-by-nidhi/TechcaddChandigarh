@@ -15,11 +15,15 @@ import { Spinner } from '../../components/feedback/Spinner'
 import { FormField } from '../../components/form/FormField'
 import { ImageField } from '../../components/form/ImageField'
 import { Input } from '../../components/form/Input'
+import { Select } from '../../components/form/Select'
 import { Textarea } from '../../components/form/Textarea'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
-import type { SiteSettings, SiteStat, User } from '../../types'
+import { ROLE_DESCRIPTIONS, ROLE_LABELS } from '../../config/access'
+import { useCan } from '../../hooks/useAuth'
+import type { SiteSettings, SiteStat, User, UserRole } from '../../types'
 import { useSettings, useUpdateSettings } from './useSettings'
 import { createResourceHooks } from '../shared/createResourceHooks'
 import { SecurityTab } from './SecurityTab'
@@ -32,7 +36,6 @@ const TABS = [
   { value: 'general', label: 'General' },
   { value: 'profile', label: 'Profile' },
   { value: 'security', label: 'Security' },
-  { value: 'users', label: 'Users & Roles' },
   { value: 'integrations', label: 'Integrations' },
 ]
 
@@ -42,7 +45,11 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Settings" description="Site configuration, users and integrations" />
+      <PageHeader
+        title="Settings"
+        description="Site configuration and integrations"
+        actions={<ViewOnSiteButton module="settings" />}
+      />
 
       <Card flush>
         <Tabs value={tab} onValueChange={setTab} items={TABS}>
@@ -65,9 +72,6 @@ export default function SettingsPage() {
                 </TabPanel>
                 <TabPanel value="security">
                   <SecurityTab />
-                </TabPanel>
-                <TabPanel value="users">
-                  <UsersTab />
                 </TabPanel>
                 <TabPanel value="integrations">
                   <IntegrationsTab settings={settings.data} />
@@ -435,9 +439,28 @@ function IntegrationsTab({ settings }: { settings: SiteSettings }) {
   )
 }
 
-function UsersTab() {
+/**
+ * The team, exported for the page that now owns it.
+ *
+ * It lived as a Settings tab until Team got a sidebar entry of its own. Moved
+ * by export rather than rewritten: it is a working screen, and a second copy
+ * would be one to keep in step for no gain.
+ */
+export function UsersTab() {
   const toast = useToast()
   const confirm = useConfirm()
+
+  /*
+   * Only an administrator changes the team.
+   *
+   * Everyone can see the list — enquiries are assigned to people, and a name
+   * has to render against an assignee. What a content or counsellor account
+   * loses is every control that writes: no inviting, no editing, and above all
+   * no removing, which is what "a team member cannot remove another or an
+   * admin" comes down to. The API refuses these calls regardless; this is so
+   * nobody is offered a button that will fail.
+   */
+  const canManage = useCan('manage-users')
 
   const query = userHooks.useList({ page: 1, pageSize: 200 })
   const create = userHooks.useCreate()
@@ -454,6 +477,7 @@ function UsersTab() {
     name: '',
     username: '',
     email: '',
+    role: 'content' as UserRole,
     authorSlug: '',
     authorTitle: '',
     authorBio: '',
@@ -467,6 +491,9 @@ function UsersTab() {
     name: '',
     username: '',
     email: '',
+    // The narrower of the two working roles. Whoever is inviting has to choose
+    // deliberately to grant more, and a mis-click grants less rather than more.
+    role: 'content' as UserRole,
     authorSlug: '',
     authorTitle: '',
     authorBio: '',
@@ -484,6 +511,7 @@ function UsersTab() {
         : {
             name: user.name,
             email: user.email,
+            role: user.role,
             username: user.username ?? '',
             authorSlug: user.author?.slug ?? '',
             authorTitle: user.author?.title ?? '',
@@ -507,6 +535,7 @@ function UsersTab() {
       name: form.name,
       username: form.username.trim().toLowerCase(),
       email: form.email,
+      role: form.role,
       author: {
         slug: form.authorSlug.trim(),
         title: form.authorTitle.trim(),
@@ -593,6 +622,13 @@ function UsersTab() {
         ),
     },
     {
+      id: 'role',
+      header: 'Role',
+      cell: (user) => (
+        <Badge tone={user.role === 'admin' ? 'primary' : 'neutral'}>{ROLE_LABELS[user.role]}</Badge>
+      ),
+    },
+    {
       id: 'active',
       header: 'Status',
       cell: (user) => (
@@ -606,10 +642,16 @@ function UsersTab() {
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
-        <p className="text-sm text-slate-500">People who can sign in to this CMS</p>
-        <Button size="sm" icon={Plus} onClick={() => openEditor('new')}>
-          Invite user
-        </Button>
+        <p className="text-sm text-slate-500">
+          {canManage
+            ? 'People who can sign in to this CMS'
+            : 'People who can sign in to this CMS. Only an administrator can change the team.'}
+        </p>
+        {canManage && (
+          <Button size="sm" icon={Plus} onClick={() => openEditor('new')}>
+            Invite user
+          </Button>
+        )}
       </div>
 
       <DataTable
@@ -623,7 +665,9 @@ function UsersTab() {
         emptyIcon={UserCog}
         emptyTitle="No users yet"
         emptyDescription="Invite the people who will manage the website."
-        rowActions={(user) => (
+        rowActions={
+          canManage
+            ? (user) => (
           <DropdownMenu
             trigger={
               <Button variant="ghost" size="sm" aria-label={`Actions for ${user.name}`}>
@@ -664,7 +708,9 @@ function UsersTab() {
               Remove
             </DropdownItem>
           </DropdownMenu>
-        )}
+              )
+            : undefined
+        }
       />
 
       <Modal
@@ -717,9 +763,16 @@ function UsersTab() {
             />
           </FormField>
 
-          <p className="text-xs text-slate-500">
-            Everyone who signs in to this CMS is an administrator with full access.
-          </p>
+          <FormField label="Role" required description={ROLE_DESCRIPTIONS[form.role]}>
+            <Select
+              value={form.role}
+              onChange={(event) => setForm({ ...form, role: event.target.value as UserRole })}
+              options={(['admin', 'content', 'counsellor'] as UserRole[]).map((role) => ({
+                value: role,
+                label: ROLE_LABELS[role],
+              }))}
+            />
+          </FormField>
 
           <div className="space-y-4 border-t border-slate-100 pt-4">
             <div>

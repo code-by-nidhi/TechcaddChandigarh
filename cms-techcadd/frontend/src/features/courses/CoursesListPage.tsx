@@ -8,6 +8,7 @@ import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/common/DropdownMenu'
 import { DataTable, type Column } from '../../components/data/DataTable'
+import { ViewOnSiteButton, ViewOnSiteItem } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -128,9 +129,12 @@ export default function CoursesListPage() {
         title="Courses"
         description="The catalogue every course page on the site is built from"
         actions={
-          <Link to="/courses/new">
-            <Button icon={Plus}>Add course</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="courses" />
+            <Link to="/courses/new">
+              <Button icon={Plus}>Add course</Button>
+            </Link>
+          </>
         }
       />
 
@@ -166,6 +170,7 @@ export default function CoursesListPage() {
               >
                 {course.status === 'published' ? 'Unpublish' : 'Publish'}
               </DropdownItem>
+              <ViewOnSiteItem module="courses" record={course} />
               <DropdownSeparator />
               <DropdownItem icon={Trash2} tone="danger" onSelect={() => deleteCourse(course)}>
                 Delete

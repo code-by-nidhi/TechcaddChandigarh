@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto'
 import type { ExecuteValues, PoolConnection, ResultSetHeader } from 'mysql2/promise'
 
 import { query, queryOne, transaction, type Row } from '../../db/pool.js'
+import { pageBlocksSchema, type PageBlock } from '../shared/blocks.schema.js'
 import { notFound, unprocessable } from '../../http/errors.js'
 import {
   buildFilters,
@@ -33,6 +34,25 @@ const FILTERABLE: Record<string, string> = {
   updatedAt: 'b.updated_at',
 }
 
+/**
+ * The stored blocks, or an empty list.
+ *
+ * Validated on the way out as well as in: the column is JSON, so a hand-edited
+ * row could hold anything, and a post is better off rendering without a
+ * malformed block than failing to render at all.
+ */
+function readBlocks(value: unknown): PageBlock[] {
+  if (value === null || value === undefined) return []
+  try {
+    const parsed = pageBlocksSchema.safeParse(
+      typeof value === 'string' ? JSON.parse(value) : value,
+    )
+    return parsed.success ? parsed.data : []
+  } catch {
+    return []
+  }
+}
+
 function toBlog(row: Row, tags: string[]): unknown {
   return {
     id: row.id,
@@ -46,6 +66,7 @@ function toBlog(row: Row, tags: string[]): unknown {
       : undefined,
     excerpt: row.excerpt,
     body: row.body,
+    blocks: readBlocks(row.blocks),
     publishDate: row.publish_date ?? undefined,
     seo: {
       metaTitle: row.meta_title ?? undefined,
@@ -167,7 +188,7 @@ async function writeTags(
   }
 }
 
-const COLUMNS = `title, slug, author_id, category_id, cover_image_id, excerpt, body,
+const COLUMNS = `title, slug, author_id, category_id, cover_image_id, excerpt, body, blocks,
   publish_date, status, featured, trending, reading_time,
   meta_title, meta_description, meta_keywords, og_image_id, canonical_url`
 
@@ -180,6 +201,8 @@ function values(input: BlogInput, authorId: string | null): unknown[] {
     input.coverImage?.id ?? null,
     input.excerpt,
     input.body,
+    // NULL when empty, so "no blocks" is one value rather than two.
+    input.blocks && input.blocks.length > 0 ? JSON.stringify(input.blocks) : null,
     // '' means "no date"; DATE columns reject it outright.
     input.publishDate || null,
     input.status,
@@ -288,6 +311,11 @@ export async function update(id: string, patch: BlogPatch): Promise<unknown> {
     if (patch.body !== undefined) {
       assignments.push('reading_time = ?')
       params.push(readingTimeOf(patch.body))
+    }
+
+    if (patch.blocks !== undefined) {
+      assignments.push('blocks = ?')
+      params.push(patch.blocks.length > 0 ? JSON.stringify(patch.blocks) : null)
     }
 
     if (patch.coverImage !== undefined) {

@@ -24,10 +24,18 @@ import { mediaRef } from '../shared/mediaRef.js'
 const optionalUrl = (message: string) =>
   z.union([z.url(message), z.literal('')]).optional()
 
+/**
+ * The shape, with no defaults attached.
+ *
+ * Defaults live only on the create schema below. `.partial()` does NOT strip a
+ * `.default()` — so a patch of `{ fee }` would still parse as carrying
+ * `agenda: []`, and the repository, seeing a value rather than `undefined`,
+ * would wipe the schedule. That is not hypothetical: it happened.
+ */
 const base = z.object({
   authorName: z.string().min(1, 'A name is required.').max(120),
   /** The outcome the card leads with — "Placed as MERN Developer". */
-  role: z.string().max(160).default(''),
+  role: z.string().max(160),
   courseName: z.string().max(200).optional(),
   quote: z.string().min(1, 'The testimonial text is required.'),
   rating: z

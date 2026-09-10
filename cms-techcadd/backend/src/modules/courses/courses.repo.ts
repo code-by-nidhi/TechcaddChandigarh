@@ -89,6 +89,9 @@ function toCourse(row: Row, children: CourseChildren): unknown {
     seo: {
       metaTitle: row.meta_title ?? undefined,
       metaDescription: row.meta_description ?? undefined,
+      // Always an array, never absent: the CMS form requires the field, and a
+      // record that omits it cannot be loaded for editing at all.
+      keywords: (row.meta_keywords as string[] | null) ?? [],
     },
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -303,8 +306,8 @@ export async function create(input: CourseInput): Promise<unknown> {
       `INSERT INTO courses
          (id, course_key, name, category_id, duration, level, summary, badge,
           featured, has_training, hero_image_id, fee_original, fee_offer,
-          sort_order, status, meta_title, meta_description, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3), NOW(3))`,
+          sort_order, status, meta_title, meta_description, meta_keywords, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3), NOW(3))`,
       [
         id,
         input.courseKey,
@@ -323,6 +326,7 @@ export async function create(input: CourseInput): Promise<unknown> {
         input.status,
         nullable(input.seo?.metaTitle),
         nullable(input.seo?.metaDescription),
+        JSON.stringify(input.seo?.keywords ?? []),
       ] as ExecuteValues,
     )
 
@@ -396,8 +400,12 @@ export async function update(id: string, patch: CoursePatch): Promise<unknown> {
     }
 
     if (patch.seo !== undefined) {
-      assignments.push('meta_title = ?', 'meta_description = ?')
-      params.push(nullable(patch.seo?.metaTitle), nullable(patch.seo?.metaDescription))
+      assignments.push('meta_title = ?', 'meta_description = ?', 'meta_keywords = ?')
+      params.push(
+        nullable(patch.seo?.metaTitle),
+        nullable(patch.seo?.metaDescription),
+        JSON.stringify(patch.seo?.keywords ?? []),
+      )
     }
 
     if (assignments.length > 0) {

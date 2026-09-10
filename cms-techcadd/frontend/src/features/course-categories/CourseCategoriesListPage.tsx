@@ -8,6 +8,7 @@ import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/common/DropdownMenu'
 import { DataTable, type Column } from '../../components/data/DataTable'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -101,9 +102,12 @@ export default function CourseCategoriesListPage() {
         title="Course Categories"
         description="The groups the courses page files everything under"
         actions={
-          <Link to="/course-categories/new">
-            <Button icon={Plus}>Add category</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="course-categories" />
+            <Link to="/course-categories/new">
+              <Button icon={Plus}>Add category</Button>
+            </Link>
+          </>
         }
       />
 

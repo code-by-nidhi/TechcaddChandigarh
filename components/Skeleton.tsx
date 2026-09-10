@@ -122,6 +122,8 @@ export function ArticleSkeleton() {
   return (
     <section className="py-16 lg:py-20">
       <div className="rail">
+        {/* Centred to match the article it stands in for — a mismatch makes
+            the text visibly jump once loading finishes. */}
         <div className="mx-auto max-w-3xl space-y-10">
           {Array.from({ length: 4 }).map((_, block) => (
             <div key={block}>

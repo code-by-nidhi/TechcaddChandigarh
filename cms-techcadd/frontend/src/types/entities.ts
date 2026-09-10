@@ -37,7 +37,11 @@ export interface SeoFields {
 
 export type EnquirySource = 'website' | 'walk-in' | 'phone' | 'referral' | 'social'
 /** The CMS has a single role: an admin can do everything. */
-export type UserRole = 'admin'
+/**
+ * `content` and `counsellor` are siblings, not steps on a ladder — see
+ * `config/access.ts` for what each reaches.
+ */
+export type UserRole = 'admin' | 'content' | 'counsellor'
 
 /* ------------------------------------------------------------------ */
 /* Categories                                                           */
@@ -67,7 +71,15 @@ export interface Blog extends BaseEntity {
   tags: string[]
   coverImage?: MediaRef | null
   excerpt: string
+  /**
+   * The original single rich-text body.
+   *
+   * Rendered only when the post has no blocks — see `blocks`. Kept so posts
+   * written before the block builder still show their content.
+   */
   body: string
+  /** The blocks the post is built from, in render order. */
+  blocks?: PageBlock[]
   publishDate?: string
   seo: SeoFields
   status: ContentStatus
@@ -363,9 +375,8 @@ export interface CampusEvent extends BaseEntity {
   excerpt?: string
   body?: string
   cover?: MediaRef | null
-  registerUrl?: string
-  seats?: string
-  fee?: string
+  /** The event's photographs, in display order. */
+  photos: (MediaRef & { caption?: string })[]
   agenda: EventAgendaItem[]
   featured: boolean
   status: ContentStatus
@@ -382,6 +393,40 @@ export interface CampusEvent extends BaseEntity {
  */
 export type PageKind = 'custom' | 'override'
 
+/**
+ * One piece of a page.
+ *
+ * A union rather than one shape with everything optional, so an image block
+ * without an image cannot exist. Mirrors the zod schema the CMS and the API
+ * both validate against.
+ */
+export type PageBlock =
+  | { id: string; type: 'text'; heading?: string; body: string }
+  | {
+      id: string
+      type: 'image'
+      image: MediaRef
+      caption?: string
+      width: 'inline' | 'wide' | 'full'
+    }
+  | { id: string; type: 'video'; url: string; heading?: string; caption?: string }
+  | {
+      id: string
+      type: 'cta'
+      heading: string
+      body?: string
+      buttonLabel: string
+      buttonHref: string
+      tone: 'accent' | 'soft'
+    }
+  | {
+      id: string
+      type: 'recent'
+      source: 'blogs' | 'events' | 'courses' | 'reviews'
+      heading?: string
+      count: number
+    }
+
 export interface Page extends BaseEntity {
   title: string
   slug: string
@@ -389,7 +434,15 @@ export interface Page extends BaseEntity {
   /** The address this record governs, resolved by the API. */
   path?: string
   excerpt?: string
+  /**
+   * The original single rich-text body.
+   *
+   * Rendered only when the page has no blocks — see `PageBlock` below. Kept so
+   * pages written before the block editor still show their content.
+   */
   body?: string
+  /** The blocks the page is built from, in render order. */
+  blocks?: PageBlock[]
   heroEyebrow?: string
   heroTitle?: string
   heroBody?: string
@@ -479,4 +532,141 @@ export interface Course extends BaseEntity {
   order: number
   status: ContentStatus
   seo?: SeoFields
+}
+
+/* ------------------------------------------------------------------ */
+/* Comments                                                             */
+/* ------------------------------------------------------------------ */
+
+export type CommentStatus = 'pending' | 'approved' | 'spam'
+
+/**
+ * A comment on a blog post.
+ *
+ * There is no create or full update: a comment is written by a visitor, and the
+ * only thing staff change about it is whether it is published. Rewriting
+ * someone's words under their own name is not moderation.
+ */
+export interface Comment extends BaseEntity {
+  blogId: string
+  /** Joined for the moderation queue, which is read across every post at once. */
+  blogTitle: string
+  blogSlug: string
+  parentId?: string
+  authorName: string
+  /** For the moderator to reply to. Never sent to the public endpoint. */
+  email?: string
+  body: string
+  status: CommentStatus
+  ip?: string
+}
+
+/* ------------------------------------------------------------------ */
+/* AI knowledge base                                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * One thing the website chatbot knows.
+ *
+ * Distinct from an FAQ: an FAQ is written to be read on a page, this is written
+ * to be retrieved. `keywords` is what makes it findable when nobody asks the
+ * question the way it was written.
+ */
+export interface AiKnowledgeEntry extends BaseEntity {
+  question: string
+  answer: string
+  category: string
+  /** Alternate phrasings, comma-separated. */
+  keywords: string
+  /** Times this entry has been served as the best answer. */
+  hits: number
+  order: number
+  status: ContentStatus
+}
+
+/* ------------------------------------------------------------------ */
+/* Activity log                                                         */
+/* ------------------------------------------------------------------ */
+
+export type ActivityAction =
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'publish'
+  | 'unpublish'
+  | 'login'
+  | 'logout'
+
+/**
+ * One recorded action.
+ *
+ * `userName` and `entityLabel` are snapshots taken when it happened, not joins —
+ * an audit trail has to survive the thing it describes.
+ */
+export interface ActivityEntry {
+  id: string
+  userId?: string
+  userName: string
+  action: ActivityAction
+  /** The module, as the sidebar names it. */
+  entityType: string
+  entityId?: string
+  entityLabel?: string
+  ip?: string
+  createdAt: string
+}
+
+/** Per-person work over a window, for the contributions report. */
+export interface Contribution {
+  userId?: string
+  userName: string
+  created: number
+  updated: number
+  deleted: number
+  published: number
+  /** Everything except signing in and out. */
+  total: number
+  lastActive: string | null
+  byModule: { entityType: string; count: number }[]
+}
+
+/* ------------------------------------------------------------------ */
+/* SEO                                                                  */
+/* ------------------------------------------------------------------ */
+
+export interface Redirect extends BaseEntity {
+  from: string
+  to: string
+  /** 301 moves the ranking, 302 does not. */
+  statusCode: 301 | 302
+  active: boolean
+  hits: number
+  lastHitAt?: string
+  note?: string
+}
+
+/** Replaces what search engines read for one route. */
+export interface SeoMeta extends BaseEntity {
+  route: string
+  metaTitle: string
+  metaDescription: string
+  ogImage?: MediaRef | null
+  canonicalUrl: string
+  /** Keeps a page out of search results without unpublishing it. */
+  noindex: boolean
+}
+
+export interface SitemapSection {
+  key: string
+  include: boolean
+  priority: number
+  changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never'
+}
+
+export interface SeoAuditIssue {
+  severity: 'error' | 'warning'
+  module: string
+  id: string
+  label: string
+  problem: string
 }

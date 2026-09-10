@@ -137,6 +137,19 @@
   }
 }
 
+/* Wraps text that has nowhere to break.
+   Editor-written content is arbitrary: a pasted URL, an unspaced string, a
+   long hash. None of those contain a break opportunity, so a normal `max-w`
+   does nothing and the word pushes the whole page sideways — the layout
+   breaks on the one input nobody thought to test.
+
+   `anywhere` rather than `break-word` on purpose: only `anywhere` also shrinks
+   the element's min-content width, which is what stops a long word forcing a
+   flex or grid parent wider than its track. */
+@utility wrap-anywhere {
+  overflow-wrap: anywhere;
+}
+
 @utility card-hover {
   transition:
     transform 0.3s var(--ease-out, cubic-bezier(0, 0, 0.2, 1)),
@@ -647,10 +660,20 @@
 .cms-prose {
   color: var(--color-muted);
   line-height: 1.75;
+  /* See `wrap-anywhere` — a pasted URL in a paragraph must not widen the page. */
+  overflow-wrap: anywhere;
 }
 
 .cms-prose > * + * {
   margin-top: 1.25rem;
+}
+
+/* Jumping to a heading from the "on this page" index must not land it under
+   the fixed header. Applied to every heading that can be an anchor target,
+   inside rich text and out. */
+.cms-prose :is(h2, h3),
+[data-toc-target] {
+  scroll-margin-top: 6rem;
 }
 
 .cms-prose h2,

@@ -27,7 +27,16 @@ export const seoBlockSchema = z.object({
     .string()
     .max(160, 'Keep meta descriptions under 160 characters.')
     .optional(),
-  keywords: z.array(z.string()),
+  /*
+   * Absent counts as none.
+   *
+   * It was required, which meant any record whose API response omitted the
+   * field could not be saved at all — the form failed validation on a control
+   * the editor could not see was at fault, and reported only "check the
+   * highlighted fields below". "No keywords" is an ordinary state, not an
+   * error, so it parses to an empty array instead of blocking the save.
+   */
+  keywords: z.array(z.string()).optional().default([]),
   ogImage: mediaRefSchema.nullish(),
   canonicalUrl: z.string().optional(),
 })

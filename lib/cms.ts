@@ -134,8 +134,9 @@ interface CmsArticle {
 }
 
 interface CmsArticleDetail extends CmsArticle {
-  /** Rich text from the CMS editor. */
+  /** Rich text from the CMS editor. Rendered only when there are no blocks. */
   content: string;
+  blocks: CmsPageBlock[];
   seo?: { title?: string; description?: string };
 }
 
@@ -147,7 +148,7 @@ interface CmsArticleDetail extends CmsArticle {
  * document. The post page renders whichever of the two is present, so both
  * kinds of post coexist rather than one having to be converted to the other.
  */
-function toPost(article: CmsArticle, html?: string): BlogPost {
+function toPost(article: CmsArticle, html?: string, blocks?: CmsPageBlock[]): BlogPost {
   return {
     slug: article.slug,
     title: article.title,
@@ -163,6 +164,11 @@ function toPost(article: CmsArticle, html?: string): BlogPost {
     // Sanitised here rather than at the point of render, so no page can render
     // a CMS body without it having been through the allowlist.
     html: html === undefined ? undefined : sanitizeHtml(html),
+    // Text blocks carry editor HTML into the same `dangerouslySetInnerHTML`
+    // the body does, so they go through the same allowlist.
+    blocks: (blocks ?? []).map((block) =>
+      block.type === "text" ? { ...block, body: sanitizeHtml(block.body ?? "") } : block,
+    ),
     coverImage: article.featuredImage || undefined,
   };
 }
@@ -196,7 +202,7 @@ export async function getBlogPost(slug: string): Promise<BlogPost | null> {
   if (!cmsEnabled) return fallback();
   try {
     const article = await cmsFetch<CmsArticleDetail>(`/blog/posts/${encodeURIComponent(slug)}`);
-    return toPost(article, article.content);
+    return toPost(article, article.content, article.blocks);
   } catch {
     // Deliberately not warned: a 404 here is the ordinary case for a static
     // post the CMS has never heard of, not a fault worth a log line.
@@ -244,7 +250,13 @@ export async function getFaqs(
         featured: featured ? "true" : undefined,
       });
       if (items.length === 0) return staticFaqs.slice(0, limit);
-      return items.map((faq) => ({ question: faq.question, answer: faq.answer }));
+      // The category travels with the question now — the FAQ page groups by it,
+      // and dropping it here was why every question landed in one flat list.
+      return items.map((faq) => ({
+        question: faq.question,
+        answer: faq.answer,
+        category: faq.category,
+      }));
     },
     () => staticFaqs.slice(0, limit),
   );
@@ -312,6 +324,40 @@ export async function getReviews(
       return items.map(toTestimonial);
     },
     () => staticTestimonials.slice(0, limit),
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Comments                                                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * An approved comment on a blog post.
+ *
+ * Only approved ones ever reach here — the API filters on status, so the site
+ * has no way to render a pending or spam comment even by mistake. The author's
+ * email is never included in the public response.
+ */
+export interface CmsComment {
+  id: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
+  replies: CmsComment[];
+}
+
+export async function getComments(
+  slug: string,
+): Promise<{ items: CmsComment[]; total: number }> {
+  return orStatic(
+    "comments",
+    () =>
+      cmsFetch<{ items: CmsComment[]; total: number }>(
+        `/blog/posts/${encodeURIComponent(slug)}/comments`,
+      ),
+    // No static fallback: comments only exist in the CMS, and an empty thread
+    // is the honest answer when it cannot be reached.
+    () => ({ items: [], total: 0 }),
   );
 }
 
@@ -420,9 +466,7 @@ interface CmsEvent {
   excerpt: string;
   body: string;
   cover?: { id: string; url: string; alt: string };
-  registerUrl?: string;
-  seats?: string;
-  fee?: string;
+  photos: { id: string; url: string; alt: string; caption?: string }[];
   agenda: { id?: string; time: string; item: string }[];
   featured: boolean;
 }
@@ -447,9 +491,7 @@ function toEvent(event: CmsEvent): CampusEvent {
     html: sanitizeHtml(event.body ?? ""),
     endDate: event.endDate,
     startTime: event.startTime,
-    registerUrl: event.registerUrl,
-    seats: event.seats,
-    fee: event.fee,
+    photos: event.photos ?? [],
     coverImage: event.cover?.url,
   };
 }
@@ -483,6 +525,40 @@ export async function getEvent(slug: string): Promise<CampusEvent | null> {
 /* Pages                                                               */
 /* ------------------------------------------------------------------ */
 
+/**
+ * One block of a CMS page.
+ *
+ * Mirrors the API's discriminated union, so the renderer's switch is
+ * exhaustive and a new type cannot be forgotten — TypeScript reports the
+ * missing case rather than the page silently skipping it.
+ */
+export type CmsPageBlock =
+  | { id: string; type: "text"; heading?: string; body: string }
+  | {
+      id: string;
+      type: "image";
+      image: { id: string; url: string; alt: string };
+      caption?: string;
+      width: "inline" | "wide" | "full";
+    }
+  | { id: string; type: "video"; url: string; heading?: string; caption?: string }
+  | {
+      id: string;
+      type: "cta";
+      heading: string;
+      body?: string;
+      buttonLabel: string;
+      buttonHref: string;
+      tone: "accent" | "soft";
+    }
+  | {
+      id: string;
+      type: "recent";
+      source: "blogs" | "events" | "courses" | "reviews";
+      heading?: string;
+      count: number;
+    };
+
 export interface CmsPage {
   id: string;
   title: string;
@@ -490,7 +566,9 @@ export interface CmsPage {
   kind: "custom" | "override";
   path: string;
   excerpt: string;
+  /** The pre-blocks single body. Rendered only when `blocks` is empty. */
   body: string;
+  blocks: CmsPageBlock[];
   heroEyebrow?: string;
   heroTitle?: string;
   heroBody?: string;
@@ -500,9 +578,21 @@ export interface CmsPage {
   seo?: { metaTitle?: string; metaDescription?: string };
 }
 
-/** Sanitised on the way out, like every other rich-text field from the CMS. */
+/**
+ * Sanitised on the way out, like every other rich-text field from the CMS.
+ *
+ * Both the legacy body and every text block go through the allowlist — a block
+ * body is the same editor output reaching the same `dangerouslySetInnerHTML`,
+ * so missing one would leave exactly the hole the sanitiser exists to close.
+ */
 function toPage(page: CmsPage): CmsPage {
-  return { ...page, body: sanitizeHtml(page.body ?? "") };
+  return {
+    ...page,
+    body: sanitizeHtml(page.body ?? ""),
+    blocks: (page.blocks ?? []).map((block) =>
+      block.type === "text" ? { ...block, body: sanitizeHtml(block.body ?? "") } : block,
+    ),
+  };
 }
 
 /** The editor-authored pages with URLs of their own. */

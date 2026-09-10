@@ -9,8 +9,10 @@ const mediaRef = z.object({
   height: z.number().optional(),
 })
 
-/** One role. Kept as a list so adding another stays a one-line change. */
-export const ROLES = ['admin'] as const
+/**
+ * The three roles. See `middleware/moduleAccess.ts` for what each one reaches.
+ */
+export const ROLES = ['admin', 'content', 'counsellor'] as const
 
 /**
  * Long rather than complex.
@@ -73,7 +75,12 @@ const base = z.object({
 })
 
 export const userSchema = base.extend({
-  role: z.enum(ROLES).default('admin'),
+  /*
+   * The narrower grant is the safer thing to get by accident, so a role that
+   * was somehow omitted lands on `content` rather than on admin. The CMS form
+   * always sends one.
+   */
+  role: z.enum(ROLES).default('content'),
   active: z.boolean().default(true),
   /**
    * Optional: the CMS form does not collect one.

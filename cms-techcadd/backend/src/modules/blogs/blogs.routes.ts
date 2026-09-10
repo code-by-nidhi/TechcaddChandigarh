@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { asyncHandler, badRequest, unauthorised } from '../../http/errors.js'
 import { parseListParams } from '../../http/listParams.js'
 import { requireParam } from '../../http/params.js'
-import { requireAuth, requireRole } from '../../middleware/auth.js'
+import { requireAuth, requireWrite } from '../../middleware/auth.js'
 import * as repo from './blogs.repo.js'
 import { blogPatchSchema, blogSchema } from './blogs.schema.js'
 
@@ -28,7 +28,7 @@ blogsRouter.get(
 
 blogsRouter.post(
   '/',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     if (!req.user) throw unauthorised()
     // The form has no author field, so the signed-in user is the author.
@@ -38,7 +38,7 @@ blogsRouter.post(
 
 blogsRouter.patch(
   '/:id',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     res.json(await repo.update(requireParam(req, 'id'), blogPatchSchema.parse(req.body)))
   }),
@@ -48,7 +48,7 @@ const deleteSchema = z.object({ ids: z.array(z.string().min(1)).min(1) })
 
 blogsRouter.delete(
   '/',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     const parsed = deleteSchema.safeParse(req.body)
     if (!parsed.success) throw badRequest('Provide the ids to delete.')

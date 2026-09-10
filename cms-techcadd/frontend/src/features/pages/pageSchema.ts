@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 import { seoBlockSchema } from '../../components/form/seoSchema'
+import { pageBlockSchema } from '../../components/blocks/blockSchema'
 
 /**
  * A page is one of two things.
@@ -56,7 +57,14 @@ export const pageSchema = z.object({
     ),
   kind: z.enum(['custom', 'override']),
   excerpt: z.string().max(600).optional(),
+  /**
+   * The original single rich-text body.
+   *
+   * Still sent so a page written before blocks existed keeps its content; the
+   * website renders it only when a page has no blocks.
+   */
   body: z.string().optional(),
+  blocks: z.array(pageBlockSchema),
   heroEyebrow: z.string().max(120).optional(),
   heroTitle: z.string().max(300).optional(),
   heroBody: z.string().max(1000).optional(),
@@ -84,6 +92,7 @@ export function emptyPage(): PageFormValues {
     kind: 'custom',
     excerpt: '',
     body: '',
+    blocks: [],
     heroEyebrow: '',
     heroTitle: '',
     heroBody: '',

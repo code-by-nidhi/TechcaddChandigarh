@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 
+import { canRead, moduleForPath } from '../../config/access'
 import { documentTitle } from '../../config/brand'
 import { getPageTitle } from '../../data/navigation'
+import { useAuth } from '../../hooks/useAuth'
+import Forbidden from '../../pages/Forbidden'
 import { cn } from '../../lib/cn'
 import { SIDEBAR_STORAGE_KEY, SidebarContext } from '../../providers/sidebarContext'
 import { Header } from './Header'
@@ -23,6 +26,19 @@ export function AdminLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   const title = getPageTitle(pathname)
+
+  /*
+   * The sidebar hides what a role cannot open; this catches everything else —
+   * a bookmark, a pasted link, a browser autocompleting a URL from a previous
+   * account. One check here rather than a wrapper around forty route elements,
+   * because a guard that has to be remembered per route is a guard with holes
+   * in it.
+   *
+   * Rendered in place of the page, not redirected: landing on the dashboard
+   * with no explanation reads as the link being broken.
+   */
+  const role = useAuth().session?.role
+  const allowed = !role || canRead(role, moduleForPath(pathname))
 
   /*
    * The tab says which site this is, not just "CMS". Someone with the
@@ -105,7 +121,7 @@ export function AdminLayout() {
 
           <main id="main-content" className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
             <div className="mx-auto w-full max-w-[1600px]">
-              <Outlet />
+              {allowed ? <Outlet /> : <Forbidden />}
             </div>
           </main>
         </div>

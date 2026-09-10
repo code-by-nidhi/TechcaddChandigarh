@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { asyncHandler, badRequest } from '../../http/errors.js'
 import { parseListParams } from '../../http/listParams.js'
 import { requireParam } from '../../http/params.js'
-import { requireAuth, requireRole } from '../../middleware/auth.js'
+import { requireAuth, requireWrite } from '../../middleware/auth.js'
 import * as repo from './enquiries.repo.js'
 import {
   enquiryBulkSchema,
@@ -26,7 +26,7 @@ enquiriesRouter.get(
 // Declared before '/:id' so "bulk" is not read as an id.
 enquiriesRouter.patch(
   '/bulk',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     const updated = await repo.bulkUpdate(enquiryBulkSchema.parse(req.body))
     res.json({ updated })
@@ -42,7 +42,7 @@ enquiriesRouter.get(
 
 enquiriesRouter.post(
   '/',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     res.status(201).json(await repo.create(enquirySchema.parse(req.body)))
   }),
@@ -50,7 +50,7 @@ enquiriesRouter.post(
 
 enquiriesRouter.patch(
   '/:id',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     res.json(await repo.update(requireParam(req, 'id'), enquiryPatchSchema.parse(req.body)))
   }),
@@ -60,7 +60,7 @@ const deleteSchema = z.object({ ids: z.array(z.string().min(1)).min(1) })
 
 enquiriesRouter.delete(
   '/',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     const parsed = deleteSchema.safeParse(req.body)
     if (!parsed.success) throw badRequest('Provide the ids to delete.')

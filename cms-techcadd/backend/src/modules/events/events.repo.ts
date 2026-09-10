@@ -53,6 +53,23 @@ function toDateString(value: unknown): string | null {
   return null
 }
 
+/**
+ * The stored photographs, or an empty list.
+ *
+ * Validated on the way out as well as in: the column is JSON, so a hand-edited
+ * row could hold anything, and an event is better off rendering without its
+ * gallery than not rendering at all.
+ */
+function readPhotos(value: unknown): unknown[] {
+  if (value === null || value === undefined) return []
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value
+    return Array.isArray(parsed) ? parsed.filter((p) => p && typeof p.id === 'string') : []
+  } catch {
+    return []
+  }
+}
+
 function toEvent(row: Row, agenda: AgendaItem[] = []): unknown {
   return {
     id: row.id,
@@ -68,15 +85,16 @@ function toEvent(row: Row, agenda: AgendaItem[] = []): unknown {
     cover: row.cover_id
       ? { id: row.cover_id, url: row.cover_url, alt: row.cover_alt ?? '' }
       : undefined,
-    registerUrl: row.register_url ?? undefined,
-    seats: row.seats ?? undefined,
-    fee: row.fee ?? undefined,
+    photos: readPhotos(row.photos),
     agenda,
     featured: Boolean(row.featured),
     status: row.status,
     seo: {
       metaTitle: row.meta_title ?? undefined,
       metaDescription: row.meta_description ?? undefined,
+      // Always an array, never absent: the CMS form requires the field, and a
+      // record that omits it cannot be loaded for editing at all.
+      keywords: (row.meta_keywords as string[] | null) ?? [],
     },
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -189,9 +207,9 @@ export async function create(input: EventInput): Promise<unknown> {
     await connection.execute<ResultSetHeader>(
       `INSERT INTO events
          (id, title, slug, event_date, end_date, start_time, location, event_type,
-          excerpt, body, cover_id, register_url, seats, fee, featured, status,
-          meta_title, meta_description, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3), NOW(3))`,
+          excerpt, body, cover_id, photos, featured, status,
+          meta_title, meta_description, meta_keywords, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3), NOW(3))`,
       [
         id,
         input.title,
@@ -204,13 +222,13 @@ export async function create(input: EventInput): Promise<unknown> {
         nullable(input.excerpt),
         nullable(input.body),
         input.cover?.id ?? null,
-        nullable(input.registerUrl),
-        nullable(input.seats),
-        nullable(input.fee),
+        // NULL when empty, so "no photos" is one value rather than two.
+        input.photos.length > 0 ? JSON.stringify(input.photos) : null,
         input.featured ? 1 : 0,
         input.status,
         nullable(input.seo?.metaTitle),
         nullable(input.seo?.metaDescription),
+        JSON.stringify(input.seo?.keywords ?? []),
       ],
     )
     await writeAgenda(connection, id, input.agenda)
@@ -240,9 +258,6 @@ export async function update(id: string, patch: EventPatch): Promise<unknown> {
     startTime: 'start_time',
     excerpt: 'excerpt',
     body: 'body',
-    registerUrl: 'register_url',
-    seats: 'seats',
-    fee: 'fee',
   }
 
   await transaction(async (connection) => {
@@ -263,6 +278,11 @@ export async function update(id: string, patch: EventPatch): Promise<unknown> {
       params.push(nullable(value as string | null | undefined))
     }
 
+    if (patch.photos !== undefined) {
+      assignments.push('photos = ?')
+      params.push(patch.photos.length > 0 ? JSON.stringify(patch.photos) : null)
+    }
+
     if (patch.cover !== undefined) {
       assignments.push('cover_id = ?')
       params.push(patch.cover?.id ?? null)
@@ -274,8 +294,12 @@ export async function update(id: string, patch: EventPatch): Promise<unknown> {
     }
 
     if (patch.seo !== undefined) {
-      assignments.push('meta_title = ?', 'meta_description = ?')
-      params.push(nullable(patch.seo?.metaTitle), nullable(patch.seo?.metaDescription))
+      assignments.push('meta_title = ?', 'meta_description = ?', 'meta_keywords = ?')
+      params.push(
+        nullable(patch.seo?.metaTitle),
+        nullable(patch.seo?.metaDescription),
+        JSON.stringify(patch.seo?.keywords ?? []),
+      )
     }
 
     if (assignments.length > 0) {

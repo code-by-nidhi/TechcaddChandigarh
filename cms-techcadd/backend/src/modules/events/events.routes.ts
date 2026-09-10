@@ -5,7 +5,7 @@ import { asyncHandler, badRequest } from '../../http/errors.js'
 import { withAssetUrls } from '../../http/assetUrl.js'
 import { parseListParams } from '../../http/listParams.js'
 import { requireParam } from '../../http/params.js'
-import { requireAuth, requireRole } from '../../middleware/auth.js'
+import { requireAuth, requireWrite } from '../../middleware/auth.js'
 import * as repo from './events.repo.js'
 import { eventPatchSchema, eventSchema } from './events.schema.js'
 
@@ -29,7 +29,7 @@ eventsRouter.get(
 
 eventsRouter.post(
   '/',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     res.status(201).json(withAssetUrls(req, await repo.create(eventSchema.parse(req.body))))
   }),
@@ -37,7 +37,7 @@ eventsRouter.post(
 
 eventsRouter.patch(
   '/:id',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     res.json(
       withAssetUrls(
@@ -52,7 +52,7 @@ const deleteSchema = z.object({ ids: z.array(z.string().min(1)).min(1) })
 
 eventsRouter.delete(
   '/',
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     const parsed = deleteSchema.safeParse(req.body)
     if (!parsed.success) throw badRequest('Provide the ids to delete.')

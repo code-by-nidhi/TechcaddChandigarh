@@ -8,6 +8,7 @@ import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/common/DropdownMenu'
 import { DataTable, type Column } from '../../components/data/DataTable'
+import { ViewOnSiteButton, ViewOnSiteItem } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -123,9 +124,12 @@ export default function EventsListPage() {
         title="Events"
         description="Summits, workshops, seminars and placement drives"
         actions={
-          <Link to="/events/new">
-            <Button icon={Plus}>Add event</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="events" />
+            <Link to="/events/new">
+              <Button icon={Plus}>Add event</Button>
+            </Link>
+          </>
         }
       />
 
@@ -161,6 +165,7 @@ export default function EventsListPage() {
               >
                 {event.status === 'published' ? 'Unpublish' : 'Publish'}
               </DropdownItem>
+              <ViewOnSiteItem module="events" record={event} />
               <DropdownSeparator />
               <DropdownItem icon={Trash2} tone="danger" onSelect={() => deleteEvent(event)}>
                 Delete

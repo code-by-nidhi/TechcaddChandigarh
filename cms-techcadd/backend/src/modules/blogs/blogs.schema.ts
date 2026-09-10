@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { pageBlocksSchema } from '../shared/blocks.schema.js'
+
 /**
  * An empty string is kept rather than rejected.
  *
@@ -49,6 +51,7 @@ const base = z.object({
     .min(1, 'An excerpt is required.')
     .max(300, 'Keep excerpts under 300 characters.'),
   body: z.string(),
+  blocks: pageBlocksSchema.optional(),
   publishDate: z
     .union([z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Enter a valid date.'), z.literal('')])
     .optional(),
@@ -70,6 +73,7 @@ const base = z.object({
 export const blogSchema = base.extend({
   tags: z.array(z.string().min(1).max(60)).default([]),
   body: z.string().default(''),
+  blocks: pageBlocksSchema.default([]),
   seo: seo.default({ keywords: [] }),
   status: z.enum(['published', 'draft', 'review']).default('draft'),
   featured: z.boolean().default(false),

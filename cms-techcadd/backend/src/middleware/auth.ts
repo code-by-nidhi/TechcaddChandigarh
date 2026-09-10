@@ -1,7 +1,8 @@
 import type { NextFunction, Request, Response } from 'express'
 
 import { forbidden, unauthorised } from '../http/errors.js'
-import { resolveSession, type SessionUser, type UserRole } from '../modules/auth/auth.service.js'
+import { canAccess, moduleOf } from './moduleAccess.js'
+import { resolveSession, type SessionUser } from '../modules/auth/auth.service.js'
 
 export const SESSION_COOKIE = 'techcadd_session'
 
@@ -35,24 +36,38 @@ export function requireAuth(req: Request, _res: Response, next: NextFunction): v
   next()
 }
 
-const RANK: Record<UserRole, number> = { admin: 1 }
+/**
+ * Admin-only gate.
+ *
+ * The roles stopped being a ladder in migration 024 — `content` and
+ * `counsellor` are siblings, so there is no rank to compare and no "minimum"
+ * to take as an argument. What each role may reach is a table, applied to
+ * every request by `enforceModuleAccess`; this is the narrower thing on top of
+ * it, for the handful of routes only an administrator may call.
+ *
+ * This is a real check. `useCan()` in the CMS only hides buttons; anyone can
+ * call the API directly.
+ */
+export function requireAdmin(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.user) return next(unauthorised())
+  if (req.user.role !== 'admin') return next(forbidden('Only an administrator can do this.'))
+  next()
+}
 
 /**
- * Role gate for mutating routes.
+ * Write gate for a mutating route.
  *
- * There is only one role now, so every signed-in user clears every gate and
- * this is currently equivalent to `requireAuth`. It is kept at the call sites
- * rather than deleted because it marks which routes mutate data — if a second
- * role is ever introduced, the places that need a decision are already named,
- * instead of having to be rediscovered across thirteen modules.
- *
- * This is the real check either way. `useCan()` in the CMS only hides buttons;
- * anyone can call the API directly.
+ * `enforceModuleAccess` already refuses these requests before any router sees
+ * them, so this is not the boundary — it is the marker. It stays at each
+ * mutating call site because that is where someone reads it: the route file
+ * says "this changes data", instead of that fact living only in a table two
+ * directories away. It resolves against the same table, so the two cannot
+ * drift apart.
  */
-export function requireRole(minimum: UserRole) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
-    if (!req.user) return next(unauthorised())
-    if (RANK[req.user.role] < RANK[minimum]) return next(forbidden())
-    next()
+export function requireWrite(req: Request, _res: Response, next: NextFunction): void {
+  if (!req.user) return next(unauthorised())
+  if (!canAccess(req.user.role, moduleOf(req.originalUrl), req.method)) {
+    return next(forbidden('Your account cannot make changes in this section.'))
   }
+  next()
 }

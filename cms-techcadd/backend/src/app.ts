@@ -7,9 +7,14 @@ import { config } from './config.js'
 import { errorHandler } from './http/errors.js'
 import { revalidateSite } from './http/revalidate.js'
 import { attachUser } from './middleware/auth.js'
+import { enforceModuleAccess } from './middleware/moduleAccess.js'
+import { recordActivity } from './middleware/recordActivity.js'
+import { activityRouter } from './modules/activity/activity.routes.js'
+import { aiKnowledgeRouter } from './modules/ai-knowledge/aiKnowledge.routes.js'
 import { authRouter } from './modules/auth/auth.routes.js'
 import { blogsRouter } from './modules/blogs/blogs.routes.js'
 import { categoriesRouter } from './modules/categories/categories.routes.js'
+import { commentsRouter } from './modules/comments/comments.routes.js'
 import { courseCategoriesRouter } from './modules/course-categories/courseCategories.routes.js'
 import { coursesRouter } from './modules/courses/courses.routes.js'
 import { dashboardRouter, searchRouter } from './modules/dashboard/dashboard.routes.js'
@@ -23,6 +28,7 @@ import { newsletterRouter } from './modules/newsletter/newsletter.routes.js'
 import { pagesRouter } from './modules/pages/pages.routes.js'
 import { publicRouter } from './modules/public/public.routes.js'
 import { reviewsRouter } from './modules/reviews/reviews.routes.js'
+import { seoRouter } from './modules/seo/seo.routes.js'
 import { settingsRouter } from './modules/settings/settings.routes.js'
 import { testimonialsRouter } from './modules/testimonials/testimonials.routes.js'
 import { usersRouter } from './modules/users/users.routes.js'
@@ -72,17 +78,29 @@ export function createApp() {
   // Resolves req.user when a session cookie is present; never rejects.
   app.use(attachUser)
 
+  // Denies a request for a module this role has no business in. Before the
+  // routers, so no handler runs, and before revalidateSite/recordActivity, so
+  // a refused request logs nothing.
+  app.use(enforceModuleAccess)
+
   // Pings the website's cache after a successful content change. Runs after
   // the response, so it can neither slow a save nor fail one.
   app.use(revalidateSite)
+
+  // Writes an audit entry for every successful change. Also after the
+  // response — logging must not slow a save or fail one.
+  app.use(recordActivity)
 
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', env: config.NODE_ENV })
   })
 
+  app.use('/api/activity', activityRouter)
+  app.use('/api/ai-knowledge', aiKnowledgeRouter)
   app.use('/api/auth', authRouter)
   app.use('/api/blogs', blogsRouter)
   app.use('/api/categories', categoriesRouter)
+  app.use('/api/comments', commentsRouter)
   app.use('/api/course-categories', courseCategoriesRouter)
   app.use('/api/courses', coursesRouter)
   app.use('/api/dashboard', dashboardRouter)
@@ -97,6 +115,7 @@ export function createApp() {
   // No session required — see the note in public.routes.ts.
   app.use('/api/public', publicRouter)
   app.use('/api/reviews', reviewsRouter)
+  app.use('/api/seo', seoRouter)
   app.use('/api/search', searchRouter)
   app.use('/api/settings', settingsRouter)
   app.use('/api/testimonials', testimonialsRouter)

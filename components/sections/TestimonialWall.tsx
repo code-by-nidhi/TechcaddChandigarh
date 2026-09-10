@@ -189,7 +189,7 @@ function Card({
           ))}
         </div>
 
-        <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted">
+        <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
           {testimonial.quote}
         </blockquote>
 

@@ -45,11 +45,22 @@ export const eventSchema = z.object({
       height: z.number().optional(),
     })
     .nullish(),
-  registerUrl: z
-    .union([z.url('Enter a full link, starting with https://'), z.literal('')])
-    .optional(),
-  seats: z.string().max(60).optional(),
-  fee: z.string().max(60).optional(),
+  /**
+   * The event's photographs, in display order.
+   *
+   * What an event page is for once the event has happened — an institute
+   * showing what it ran, not a booking form.
+   */
+  photos: z.array(
+    z.object({
+      id: z.string().min(1),
+      url: z.string(),
+      alt: z.string(),
+      width: z.number().optional(),
+      height: z.number().optional(),
+      caption: z.string().max(255).optional(),
+    }),
+  ),
   agenda: z.array(agendaItemSchema),
   featured: z.boolean(),
   status: z.enum(['published', 'draft', 'review']),
@@ -70,9 +81,7 @@ export function emptyEvent(): EventFormValues {
     excerpt: '',
     body: '',
     cover: null,
-    registerUrl: '',
-    seats: '',
-    fee: '',
+    photos: [],
     agenda: [],
     featured: false,
     status: 'draft',

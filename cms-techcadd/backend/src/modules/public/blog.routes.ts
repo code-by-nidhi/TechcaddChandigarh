@@ -1,7 +1,7 @@
 import { Router, type Request } from 'express'
 
 import { execute, query, queryOne, type Row } from '../../db/pool.js'
-import { assetUrl } from '../../http/assetUrl.js'
+import { assetUrl, withAssetUrls } from '../../http/assetUrl.js'
 import { asyncHandler, notFound } from '../../http/errors.js'
 
 /**
@@ -42,7 +42,7 @@ const LIVE = `b.status = 'published' AND (b.publish_date IS NULL OR b.publish_da
 const AUTHOR_SLUG = `COALESCE(NULLIF(u.author_slug, ''), LOWER(REPLACE(u.name, ' ', '-')))`
 
 const SELECT_ARTICLE = `
-  SELECT b.id, b.title, b.slug, b.excerpt, b.body, b.publish_date, b.updated_at,
+  SELECT b.id, b.title, b.slug, b.excerpt, b.body, b.blocks, b.publish_date, b.updated_at,
          b.reading_time, b.views, b.featured, b.trending,
          b.meta_title, b.meta_description, b.meta_keywords,
          cov.url  AS cover_url,
@@ -149,10 +149,37 @@ function toArticle(req: Request, row: Row, tags: string[]) {
   }
 }
 
+/**
+ * The blocks a post is built from, if it has any.
+ *
+ * Parsed rather than passed through: the column is JSON and mysql2 may hand it
+ * back as a string or as an object depending on the driver's mode, and the
+ * website should not have to cope with both.
+ */
+function readBlocks(value: unknown): unknown[] {
+  if (value === null || value === undefined) return []
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
 function toArticleDetail(req: Request, row: Row, tags: string[]) {
   return {
     ...toArticle(req, row, tags),
     content: row.body,
+    /*
+     * The site renders these when present and falls back to `content` when not.
+     *
+     * Run through `withAssetUrls` because an image block stores the media path
+     * as `/uploads/<name>` — correct for the CMS, and a broken image on the
+     * website, which is a different origin. The rest of this router calls
+     * `assetUrl` field by field; blocks are a nested shape, so they need the
+     * recursive version.
+     */
+    blocks: withAssetUrls(req, readBlocks(row.blocks)),
     updatedAt: row.updated_at,
     seo: {
       // The article's own title is a perfectly good meta title; an editor only

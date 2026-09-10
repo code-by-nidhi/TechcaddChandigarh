@@ -43,6 +43,16 @@ export const PagesListPage = lazy(() => import('../features/pages/PagesListPage'
 export const PageFormPage = lazy(() => import('../features/pages/PageFormPage'))
 
 
+export const CommentsListPage = lazy(() => import('../features/comments/CommentsListPage'))
+
+export const KnowledgeListPage = lazy(() => import('../features/ai-knowledge/KnowledgeListPage'))
+export const KnowledgeFormPage = lazy(() => import('../features/ai-knowledge/KnowledgeFormPage'))
+
+export const TeamPage = lazy(() => import('../features/team/TeamPage'))
+export const ContributionsPage = lazy(() => import('../features/contributions/ContributionsPage'))
+export const ActivityLogPage = lazy(() => import('../features/activity/ActivityLogPage'))
+export const SeoPage = lazy(() => import('../features/seo/SeoPage'))
+
 export const EnquiriesListPage = lazy(() => import('../features/enquiries/EnquiriesListPage'))
 export const NewsletterListPage = lazy(() => import('../features/newsletter/NewsletterListPage'))
 

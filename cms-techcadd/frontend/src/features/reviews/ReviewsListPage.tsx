@@ -8,6 +8,7 @@ import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/common/DropdownMenu'
 import { DataTable, type Column } from '../../components/data/DataTable'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -101,9 +102,12 @@ export default function ReviewsListPage() {
         title="Reviews"
         description="What students said, and where they said it"
         actions={
-          <Link to="/reviews/new">
-            <Button icon={Plus}>Add review</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="reviews" />
+            <Link to="/reviews/new">
+              <Button icon={Plus}>Add review</Button>
+            </Link>
+          </>
         }
       />
 

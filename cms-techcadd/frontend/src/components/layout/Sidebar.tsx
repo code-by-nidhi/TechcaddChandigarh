@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom'
 import { X } from 'lucide-react'
 
+import { canRead, moduleForPath } from '../../config/access'
 import { BRAND, BRAND_FULL } from '../../config/brand'
 import { navSections } from '../../data/navigation'
+import { useAuth } from '../../hooks/useAuth'
 import { cn } from '../../lib/cn'
 import type { NavItem } from '../../types'
 import { Logo, LogoMark } from '../common/Logo'
@@ -16,6 +18,26 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, mobileOpen, onCloseMobile }: SidebarProps) {
+  const role = useAuth().session?.role
+
+  /*
+   * Sections this role cannot open are removed, not disabled.
+   *
+   * A greyed-out row is an invitation to ask why, and the honest answer — "that
+   * is somebody else's job" — is not something the sidebar can say gracefully.
+   * A counsellor's CMS should look like a tool for answering enquiries, not
+   * like a content system with most of it locked.
+   *
+   * A section left with no items disappears with its caption, so nobody gets a
+   * heading over an empty space.
+   */
+  const sections = navSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => !role || canRead(role, moduleForPath(item.path))),
+    }))
+    .filter((section) => section.items.length > 0)
+
   return (
     <aside
       id="cms-sidebar"
@@ -31,7 +53,7 @@ export function Sidebar({ collapsed, mobileOpen, onCloseMobile }: SidebarProps) 
       <BrandHeader collapsed={collapsed} onCloseMobile={onCloseMobile} />
 
       <nav className="scrollbar-slim flex-1 overflow-y-auto px-3 pb-4">
-        {navSections.map((section) => (
+        {sections.map((section) => (
           <div key={section.id} className="mt-5 first:mt-2">
             <p
               className={cn(

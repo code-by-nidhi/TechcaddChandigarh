@@ -10,6 +10,7 @@ import { DataTable, type Column } from '../../components/data/DataTable'
 import { FilterBar } from '../../components/data/FilterBar'
 import { Pagination } from '../../components/data/Pagination'
 import { Tabs } from '../../components/data/Tabs'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useListParams } from '../../hooks/useListParams'
@@ -160,9 +161,12 @@ export default function NewsletterListPage() {
           onSearchChange={list.setSearch}
           searchPlaceholder="Search by email address"
           actions={
-            <Button variant="secondary" size="sm" icon={Download} onClick={exportCsv}>
-              Export CSV
-            </Button>
+            <>
+              <ViewOnSiteButton module="newsletter" />
+                <Button variant="secondary" size="sm" icon={Download} onClick={exportCsv}>
+                Export CSV
+              </Button>
+            </>
           }
         />
 

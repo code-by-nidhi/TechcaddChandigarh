@@ -8,6 +8,7 @@ import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/common/DropdownMenu'
 import { DataTable, type Column } from '../../components/data/DataTable'
+import { ViewOnSiteButton, ViewOnSiteItem } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -107,9 +108,12 @@ export default function PagesListPage() {
         title="Pages"
         description="New pages of your own, and replacement copy for pages the site already has"
         actions={
-          <Link to="/pages/new">
-            <Button icon={Plus}>Add page</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="pages" />
+            <Link to="/pages/new">
+              <Button icon={Plus}>Add page</Button>
+            </Link>
+          </>
         }
       />
 
@@ -145,6 +149,7 @@ export default function PagesListPage() {
               >
                 {page.status === 'published' ? 'Unpublish' : 'Publish'}
               </DropdownItem>
+              <ViewOnSiteItem module="pages" record={page} />
               <DropdownSeparator />
               <DropdownItem icon={Trash2} tone="danger" onSelect={() => deletePage(page)}>
                 Delete

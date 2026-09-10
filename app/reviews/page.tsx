@@ -62,7 +62,7 @@ export default async function ReviewsPage() {
           <div className="grid gap-8 lg:grid-cols-[1fr_1.6fr] lg:gap-16">
             <div>
               <div className="rounded-3xl border border-line bg-subtle p-8 text-center">
-                <p className="font-display text-5xl font-extrabold tracking-tight">
+                <p className="font-display text-5xl font-extrabold tracking-tight wrap-anywhere">
                   {site.stats.rating}
                 </p>
                 <div className="mt-3 flex justify-center gap-1 text-accent-yellow">
@@ -115,7 +115,7 @@ export default async function ReviewsPage() {
                       <Icon key={i} name="star" className="size-4" />
                     ))}
                   </div>
-                  <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted">
+                  <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
                     {review.quote}
                   </blockquote>
                   <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-5">

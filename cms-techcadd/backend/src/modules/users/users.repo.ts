@@ -133,17 +133,19 @@ async function assertAuthorSlugFree(slug: string, exceptId?: string): Promise<vo
 }
 
 /**
- * How many active administrators would remain if this one were excluded.
+ * How many active administrators would remain if these were excluded.
  *
- * There is only one role, so every account is an administrator and this is the
- * whole safety net: locking out the last one leaves nobody able to sign in and
- * no way back without database access.
+ * The safety net, and it counts administrators rather than accounts: only an
+ * admin can add or restore people, so a CMS left with ten content editors and
+ * no admin is locked just as thoroughly as one with nobody at all — and much
+ * more confusingly, because everyone can still sign in and nobody can fix it.
+ * There is no way back from either without database access.
  */
 async function otherActiveAdmins(exceptIds: string[]): Promise<number> {
   const placeholders = exceptIds.map(() => '?').join(',')
   const row = await queryOne<{ n: number }>(
     `SELECT COUNT(*) AS n FROM users
-      WHERE active = 1 AND id NOT IN (${placeholders})`,
+      WHERE active = 1 AND role = 'admin' AND id NOT IN (${placeholders})`,
     exceptIds,
   )
   return Number(row?.n ?? 0)
@@ -205,10 +207,26 @@ export async function update(id: string, patch: UserPatch, actor: SessionUser): 
     throw badRequest('You cannot deactivate your own account.')
   }
 
-  // Deactivating the last active account would leave nobody able to sign in,
-  // and no way back without database access.
-  if (patch.active === false && existing.active && (await otherActiveAdmins([id])) === 0) {
-    throw badRequest('This is the only active account. Add another one first.')
+  /*
+   * The last administrator can be lost three ways, and all three land here.
+   *
+   * Deactivating one, demoting one, and — in `remove` — deleting one. Demotion
+   * is the easy one to miss: changing your own role to `content` looks like a
+   * preference rather than a lockout, right up until you need to change it
+   * back and no route will let you.
+   */
+  const wasLastAdmin =
+    existing.role === 'admin' && existing.active === 1 && (await otherActiveAdmins([id])) === 0
+
+  if (wasLastAdmin && patch.active === false) {
+    throw badRequest('This is the only administrator. Add another one first.')
+  }
+  if (wasLastAdmin && patch.role !== undefined && patch.role !== 'admin') {
+    throw badRequest(
+      id === actor.userId
+        ? 'You are the only administrator. Make someone else an admin first.'
+        : 'This is the only administrator. Make someone else an admin first.',
+    )
   }
 
   const assignments: string[] = []
@@ -277,7 +295,7 @@ export async function remove(ids: string[], actor: SessionUser): Promise<void> {
   // Counted as a set, not per row: two accounts deleted together would each
   // otherwise see the other as a survivor.
   if ((await otherActiveAdmins(ids)) === 0) {
-    throw badRequest('That would remove the last account. Add another one first.')
+    throw badRequest('That would remove the last administrator. Add another one first.')
   }
 
   // sessions cascade; content authored by the user keeps its rows, with the

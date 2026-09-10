@@ -6,7 +6,10 @@ import { assetUrl, withAssetUrls } from '../../http/assetUrl.js'
 import { asyncHandler, notFound } from '../../http/errors.js'
 import type { ListParams } from '../../http/listParams.js'
 import { queryOne, type Row } from '../../db/pool.js'
+import * as aiKnowledgeRepo from '../ai-knowledge/aiKnowledge.repo.js'
 import * as blogsRepo from '../blogs/blogs.repo.js'
+import * as commentsRepo from '../comments/comments.repo.js'
+import { publicCommentSchema } from '../comments/comments.schema.js'
 import * as categoriesRepo from '../categories/categories.repo.js'
 import * as courseCategoriesRepo from '../course-categories/courseCategories.repo.js'
 import * as coursesRepo from '../courses/courses.repo.js'
@@ -18,6 +21,7 @@ import * as newsletterRepo from '../newsletter/newsletter.repo.js'
 import * as pagesRepo from '../pages/pages.repo.js'
 import { subscribeSchema } from '../newsletter/newsletter.schema.js'
 import * as reviewsRepo from '../reviews/reviews.repo.js'
+import * as seoRepo from '../seo/seo.repo.js'
 import * as testimonialsRepo from '../testimonials/testimonials.repo.js'
 import { publicBlogRouter } from './blog.routes.js'
 import { assertHuman } from './recaptcha.js'
@@ -523,5 +527,166 @@ publicRouter.post(
       status: outcome,
       message: "You're on the list. Look out for the next issue.",
     })
+  }),
+)
+
+/* ------------------------------------------------------------------ */
+/* Comments                                                             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The approved comments on one post.
+ *
+ * Addressed by blog slug rather than id, because the slug is what the website
+ * has on the page it is rendering — asking it to resolve an id first would be
+ * an extra round trip for nothing.
+ */
+publicRouter.get(
+  '/blog/posts/:slug/comments',
+  asyncHandler(async (req, res) => {
+    const row = await queryOne<Row>(
+      "SELECT id FROM blogs WHERE slug = ? AND status = 'published' LIMIT 1",
+      [req.params.slug],
+    )
+    // An empty thread rather than a 404: the post may simply have no comments,
+    // and the site renders the form either way.
+    if (!row) {
+      res.json({ items: [], total: 0 })
+      return
+    }
+
+    const items = await commentsRepo.publicThread(row.id as string)
+    const total = items.reduce((sum, comment) => sum + 1 + comment.replies.length, 0)
+    res.json({ items, total })
+  }),
+)
+
+/** Reachable by anyone, so it carries its own limit — see the note above. */
+const commentLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { message: 'Too many comments from this address. Try again shortly.' },
+})
+
+publicRouter.post(
+  '/comments',
+  commentLimiter,
+  asyncHandler(async (req, res) => {
+    const input = publicCommentSchema.parse(req.body)
+
+    // Before anything is written: a rejected submission should cost one Google
+    // round trip, not a database query.
+    await assertHuman(input.captchaToken, req.ip)
+
+    const post = await queryOne<Row>(
+      "SELECT id FROM blogs WHERE slug = ? AND status = 'published' LIMIT 1",
+      [input.blogSlug],
+    )
+    if (!post) throw notFound('Post')
+
+    const blogId = post.id as string
+
+    if (await commentsRepo.isDuplicate(blogId, input.body, req.ip)) {
+      // 200, not an error: the comment did reach us, we are simply not
+      // recording it twice. A double-click should not read as a failure.
+      res.status(200).json({
+        ok: true,
+        duplicate: true,
+        message: 'You have already posted that. It is waiting to be approved.',
+      })
+      return
+    }
+
+    await commentsRepo.submit(input, {
+      blogId,
+      ip: req.ip,
+      userAgent: req.get('user-agent') ?? undefined,
+    })
+
+    // Deliberately not the created record: a pending comment is not the
+    // submitter's to read back, and the id is of no use to them.
+    res.status(201).json({
+      ok: true,
+      message: 'Thanks — your comment will appear once it has been approved.',
+    })
+  }),
+)
+
+/* ------------------------------------------------------------------ */
+/* Chatbot                                                              */
+/* ------------------------------------------------------------------ */
+
+/** Reachable by anyone, and each call costs a full-text search. */
+const askLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  limit: 60,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { message: 'Too many questions. Give it a moment.' },
+})
+
+/**
+ * What the website chatbot answers a visitor from.
+ *
+ * Returns the matches rather than a composed reply: this API has no model
+ * behind it, and pretending otherwise would put words in the institute's mouth
+ * that no editor wrote. The site decides whether to show the best answer
+ * verbatim or hand the set to a model.
+ */
+publicRouter.get(
+  '/ask',
+  askLimiter,
+  asyncHandler(async (req, res) => {
+    const question = typeof req.query.q === 'string' ? req.query.q : ''
+    const matches = await aiKnowledgeRepo.search(question, limitFrom(req.query.limit, 3))
+
+    res.json({
+      question,
+      items: matches.map(({ id, question: q, answer, category }) => ({
+        id,
+        question: q,
+        answer,
+        category,
+      })),
+    })
+
+    // Counted after the response, and not awaited: a visitor should never wait
+    // on a counter. Only the best match counts as served.
+    if (matches[0]) void aiKnowledgeRepo.countHit(matches[0].id)
+  }),
+)
+
+/* ------------------------------------------------------------------ */
+/* SEO                                                                  */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The redirect rules and per-route meta overrides, for the website.
+ *
+ * One endpoint rather than two because the site fetches both at the same
+ * moment — the middleware needs the rules and the page needs the meta — and
+ * both are small enough to send whole rather than queried per request.
+ */
+publicRouter.get(
+  '/seo',
+  asyncHandler(async (req, res) => {
+    const [redirects, meta, sitemap] = await Promise.all([
+      seoRepo.activeRedirects(),
+      seoRepo.metaByRoute(),
+      seoRepo.getSitemapSettings(),
+    ])
+    res.json(withAssetUrls(req, { redirects, meta, sitemap }))
+  }),
+)
+
+/** Counted when the site follows a rule, so dead ones can be found later. */
+publicRouter.post(
+  '/seo/redirect-hit',
+  asyncHandler(async (req, res) => {
+    const from = typeof req.body?.from === 'string' ? req.body.from : ''
+    if (from) void seoRepo.countRedirectHit(from)
+    res.status(202).json({ ok: true })
   }),
 )

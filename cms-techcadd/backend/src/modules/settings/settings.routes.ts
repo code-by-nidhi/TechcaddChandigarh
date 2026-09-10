@@ -1,7 +1,7 @@
 import { Router } from 'express'
 
 import { asyncHandler, unauthorised } from '../../http/errors.js'
-import { requireAuth, requireRole } from '../../middleware/auth.js'
+import { requireAuth, requireWrite } from '../../middleware/auth.js'
 import * as repo from './settings.repo.js'
 import { settingsPatchSchema } from './settings.schema.js'
 
@@ -22,7 +22,7 @@ settingsRouter.patch(
   '/',
   // Site-wide settings, including robots.txt — an editor should not be able to
   // deindex the site.
-  requireRole('admin'),
+  requireWrite,
   asyncHandler(async (req, res) => {
     if (!req.user) throw unauthorised()
     const patch = settingsPatchSchema.parse(req.body)

@@ -22,6 +22,7 @@ import { DataTable, type Column } from '../../components/data/DataTable'
 import { FilterBar } from '../../components/data/FilterBar'
 import { Pagination } from '../../components/data/Pagination'
 import { Tabs } from '../../components/data/Tabs'
+import { ViewOnSiteButton, ViewOnSiteItem } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useListParams } from '../../hooks/useListParams'
@@ -31,6 +32,18 @@ import type { Blog, ContentStatus } from '../../types'
 import { usePublishToggle } from '../shared/usePublishToggle'
 import { blogHooks } from './useBlogs'
 import { assetUrl } from '../../api/client'
+
+/**
+ * Published, but dated in the future — so not on the site yet.
+ *
+ * Compared as `YYYY-MM-DD` strings rather than Date objects: the API stores a
+ * DATE, and building a Date from it introduces a timezone that can shift the
+ * comparison across midnight in either direction.
+ */
+function isScheduled(blog: { status: string; publishDate?: string }): boolean {
+  if (blog.status !== 'published' || !blog.publishDate) return false
+  return blog.publishDate.slice(0, 10) > new Date().toISOString().slice(0, 10)
+}
 
 const TABS = [
   { value: '', label: 'All' },
@@ -147,7 +160,18 @@ export default function BlogsListPage() {
         id: 'status',
         header: 'Status',
         sortable: true,
-        cell: (blog) => <ContentStatusBadge status={blog.status} />,
+        /*
+          * "Published" on a post dated next week is a lie the website then
+          * appears to break — the public API hides anything not yet due, and
+          * the author gets a 404 with nothing explaining it. So a future date
+          * reads as Scheduled here.
+          */
+        cell: (blog) =>
+          isScheduled(blog) ? (
+            <Badge tone="warning">Scheduled</Badge>
+          ) : (
+            <ContentStatusBadge status={blog.status} />
+          ),
       },
       {
         id: 'publishDate',
@@ -193,9 +217,12 @@ export default function BlogsListPage() {
           query.isLoading ? 'Loading…' : `${total} ${total === 1 ? 'article' : 'articles'} in total`
         }
         actions={
-          <Link to="/blogs/new">
-            <Button icon={Plus}>Add Blog</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="blogs" />
+            <Link to="/blogs/new">
+              <Button icon={Plus}>Add Blog</Button>
+            </Link>
+          </>
         }
       />
 
@@ -275,6 +302,7 @@ export default function BlogsListPage() {
               >
                 {blog.status === 'published' ? 'Unpublish' : 'Publish'}
               </DropdownItem>
+              <ViewOnSiteItem module="blogs" record={blog} />
               <DropdownSeparator />
               <DropdownItem
                 icon={Trash2}

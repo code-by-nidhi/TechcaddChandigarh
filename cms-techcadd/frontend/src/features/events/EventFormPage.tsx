@@ -26,7 +26,15 @@ import { useToast } from '../../hooks/useToast'
 import { useUnsavedChanges } from '../../hooks/useUnsavedChanges'
 import { STATUS_OPTIONS } from '../shared/statusOptions'
 import { emptyEvent, eventSchema, EVENT_TYPE_OPTIONS, type EventFormValues } from './eventSchema'
+import { EventPhotos } from './EventPhotos'
 import { eventHooks } from './useEvents'
+
+/** `startTime` → "Start time", `seo` → "SEO". */
+function fieldLabel(field: string): string {
+  if (field === 'seo') return 'SEO'
+  const spaced = field.replace(/([A-Z])/g, ' $1').toLowerCase()
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
+}
 
 export default function EventFormPage() {
   const { id } = useParams<{ id: string }>()
@@ -129,7 +137,21 @@ export default function EventFormPage() {
 
       {Object.keys(errors).length > 0 && (
         <Alert tone="error" title="This event could not be saved">
-          Check the highlighted fields below and try again.
+          {/*
+            * The fields are named, not just "highlighted".
+            *
+            * Not every field that can fail has a control to highlight — an SEO
+            * value the API never returned, a photo entry, an agenda row that
+            * scrolled out of view. Saying only "check the highlighted fields"
+            * leaves an editor hunting a red border that is not on the screen,
+            * which is exactly how an unsaveable event looked before.
+            */}
+          {Object.entries(errors)
+            .map(([field, error]) => {
+              const message = (error as { message?: string })?.message
+              return message ? `${fieldLabel(field)}: ${message}` : fieldLabel(field)
+            })
+            .join(' · ')}
         </Alert>
       )}
 
@@ -245,6 +267,22 @@ export default function EventFormPage() {
             </CardBody>
           </Card>
 
+          <Card flush>
+            <CardHeader
+              title="Photographs"
+              subtitle="What the event page leads with. An event that already happened is best shown, not described."
+            />
+            <CardBody>
+              <Controller
+                control={control}
+                name="photos"
+                render={({ field }) => (
+                  <EventPhotos photos={field.value ?? []} onChange={field.onChange} />
+                )}
+              />
+            </CardBody>
+          </Card>
+
           <Controller
             control={control}
             name="seo"
@@ -322,25 +360,15 @@ export default function EventFormPage() {
           </Card>
 
           <Card flush>
-            <CardHeader title="Attending" />
+            <CardHeader
+              title="Pictures"
+              subtitle="The cover leads the listing card; the gallery is what the event page shows."
+            />
             <CardBody className="space-y-5">
               <FormField
-                label="Registration link"
-                description="Optional. Leave it blank and the page shows the phone number instead."
-                error={errors.registerUrl?.message}
+                label="Cover image"
+                description="Shown on the events calendar and as the social preview."
               >
-                <Input {...register('registerUrl')} type="url" placeholder="https://…" />
-              </FormField>
-
-              <FormField label="Seats" description="As displayed, e.g. “60 seats”.">
-                <Input {...register('seats')} placeholder="60 seats" />
-              </FormField>
-
-              <FormField label="Fee" description="As displayed, e.g. “Free” or “₹499”.">
-                <Input {...register('fee')} placeholder="Free" />
-              </FormField>
-
-              <FormField label="Cover image">
                 <Controller
                   control={control}
                   name="cover"

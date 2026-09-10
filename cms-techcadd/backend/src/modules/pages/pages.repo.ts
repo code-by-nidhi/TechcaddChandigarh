@@ -8,6 +8,7 @@ import {
   type ListParams,
   type ListResult,
 } from '../../http/listParams.js'
+import { pageBlocksSchema, type PageBlock } from '../shared/blocks.schema.js'
 import type { PageInput, PagePatch } from './pages.schema.js'
 
 const SORTABLE: Record<string, string> = {
@@ -34,6 +35,26 @@ const SELECT_PAGE = `
     LEFT JOIN media m ON m.id = p.cover_id
 `
 
+/**
+ * The stored blocks, or an empty list.
+ *
+ * Validated on the way out as well as in. The column is JSON, so a hand-edited
+ * row or one written by an older version of this code could hold anything —
+ * and a page is better off rendering without a malformed block than failing to
+ * render at all.
+ */
+function readBlocks(value: unknown): PageBlock[] {
+  if (value === null || value === undefined) return []
+  try {
+    const parsed = pageBlocksSchema.safeParse(
+      typeof value === 'string' ? JSON.parse(value) : value,
+    )
+    return parsed.success ? parsed.data : []
+  } catch {
+    return []
+  }
+}
+
 function toPage(row: Row): unknown {
   const kind = row.kind as string
   return {
@@ -46,6 +67,7 @@ function toPage(row: Row): unknown {
     path: kind === 'override' ? `/${row.slug}` : `/pages/${row.slug}`,
     excerpt: row.excerpt ?? '',
     body: row.body ?? '',
+    blocks: readBlocks(row.blocks),
     heroEyebrow: row.hero_eyebrow ?? undefined,
     heroTitle: row.hero_title ?? undefined,
     heroBody: row.hero_body ?? undefined,
@@ -58,6 +80,9 @@ function toPage(row: Row): unknown {
     seo: {
       metaTitle: row.meta_title ?? undefined,
       metaDescription: row.meta_description ?? undefined,
+      // Always an array, never absent: the CMS form requires the field, and a
+      // record that omits it cannot be loaded for editing at all.
+      keywords: (row.meta_keywords as string[] | null) ?? [],
     },
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -129,10 +154,10 @@ export async function create(input: PageInput): Promise<unknown> {
   const id = randomUUID()
   await execute(
     `INSERT INTO pages
-       (id, title, slug, kind, excerpt, body, hero_eyebrow, hero_title, hero_body,
-        cover_id, show_in_nav, sort_order, status, meta_title, meta_description,
+       (id, title, slug, kind, excerpt, body, blocks, hero_eyebrow, hero_title, hero_body,
+        cover_id, show_in_nav, sort_order, status, meta_title, meta_description, meta_keywords,
         created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3), NOW(3))`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(3), NOW(3))`,
     [
       id,
       input.title,
@@ -140,6 +165,8 @@ export async function create(input: PageInput): Promise<unknown> {
       input.kind,
       nullable(input.excerpt),
       nullable(input.body),
+      // Stored as NULL when empty so "no blocks" is one value, not two.
+      input.blocks && input.blocks.length > 0 ? JSON.stringify(input.blocks) : null,
       nullable(input.heroEyebrow),
       nullable(input.heroTitle),
       nullable(input.heroBody),
@@ -149,6 +176,7 @@ export async function create(input: PageInput): Promise<unknown> {
       input.status,
       nullable(input.seo?.metaTitle),
       nullable(input.seo?.metaDescription),
+      JSON.stringify(input.seo?.keywords ?? []),
     ],
   )
 
@@ -200,6 +228,11 @@ export async function update(id: string, patch: PagePatch): Promise<unknown> {
     params.push(nullable(value as string | null | undefined))
   }
 
+  if (patch.blocks !== undefined) {
+    assignments.push('blocks = ?')
+    params.push(patch.blocks.length > 0 ? JSON.stringify(patch.blocks) : null)
+  }
+
   if (patch.cover !== undefined) {
     assignments.push('cover_id = ?')
     params.push(patch.cover?.id ?? null)
@@ -211,8 +244,12 @@ export async function update(id: string, patch: PagePatch): Promise<unknown> {
   }
 
   if (patch.seo !== undefined) {
-    assignments.push('meta_title = ?', 'meta_description = ?')
-    params.push(nullable(patch.seo?.metaTitle), nullable(patch.seo?.metaDescription))
+    assignments.push('meta_title = ?', 'meta_description = ?', 'meta_keywords = ?')
+    params.push(
+        nullable(patch.seo?.metaTitle),
+        nullable(patch.seo?.metaDescription),
+        JSON.stringify(patch.seo?.keywords ?? []),
+      )
   }
 
   if (assignments.length > 0) {

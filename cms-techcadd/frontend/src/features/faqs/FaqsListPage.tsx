@@ -8,6 +8,7 @@ import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/common/DropdownMenu'
 import { DataTable, type Column } from '../../components/data/DataTable'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -103,9 +104,12 @@ export default function FaqsListPage() {
         title="FAQ"
         description="Questions the centre answers on the phone, grouped by section"
         actions={
-          <Link to="/faqs/new">
-            <Button icon={Plus}>Add question</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="faqs" />
+            <Link to="/faqs/new">
+              <Button icon={Plus}>Add question</Button>
+            </Link>
+          </>
         }
       />
 

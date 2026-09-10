@@ -6,8 +6,16 @@
  * this directory knows where the data comes from — the contract in `./types` is
  * what the features are written against.
  */
+export { listActivity, listContributions } from './resources/activity'
+export {
+  aiKnowledgeApi,
+  aiKnowledgeCategories,
+  tryKnowledge,
+  type KnowledgeMatch,
+} from './resources/aiKnowledge'
 export { blogsApi } from './resources/blogs'
 export { categoriesApi } from './resources/categories'
+export { bulkCommentStatus, commentsApi, pendingComments } from './resources/comments'
 export { courseCategoriesApi } from './resources/courseCategories'
 export { coursesApi } from './resources/courses'
 export { enquiriesApi } from './resources/enquiries'
@@ -18,6 +26,13 @@ export { newsletterApi } from './resources/newsletter'
 export { pagesApi } from './resources/pages'
 export { faqsApi } from './resources/faqs'
 export { reviewsApi } from './resources/reviews'
+export {
+  getSeoAudit,
+  getSitemap,
+  redirectsApi,
+  saveSitemap,
+  seoMetaApi,
+} from './resources/seo'
 export { testimonialsApi } from './resources/testimonials'
 export { usersApi } from './resources/users'
 export { settingsApi } from './resources/settings'

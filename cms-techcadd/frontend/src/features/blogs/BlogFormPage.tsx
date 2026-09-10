@@ -13,7 +13,6 @@ import { DatePicker } from '../../components/form/DatePicker'
 import { FormField } from '../../components/form/FormField'
 import { ImageField } from '../../components/form/ImageField'
 import { Input } from '../../components/form/Input'
-import { RichTextEditor } from '../../components/form/RichTextEditor'
 import { Select } from '../../components/form/Select'
 import { SelectOrCreate } from '../../components/form/SelectOrCreate'
 import { SeoFields } from '../../components/form/SeoFields'
@@ -29,6 +28,9 @@ import { categoryHooks } from '../categories/useCategories'
 import { slugify } from '../../lib/slugify'
 import { STATUS_OPTIONS } from '../shared/statusOptions'
 import { blogSchema, emptyBlog, readingTimeMinutes, type BlogFormValues } from './blogSchema'
+import { BlockEditor } from '../../components/blocks/BlockEditor'
+import { HeadingIndexHint } from '../../components/blocks/HeadingIndexHint'
+import type { PageBlock } from '../../components/blocks/blockSchema'
 import { blogHooks } from './useBlogs'
 
 export default function BlogFormPage() {
@@ -83,6 +85,22 @@ export default function BlogFormPage() {
   const slug = useWatch({ control, name: 'slug' })
   const excerpt = useWatch({ control, name: 'excerpt' })
   const body = useWatch({ control, name: 'body' })
+  const blocks = useWatch({ control, name: 'blocks' })
+  const publishDate = useWatch({ control, name: 'publishDate' })
+  const status = useWatch({ control, name: 'status' })
+
+  /** Published, but dated ahead — the site hides it until that date. */
+  const isScheduledPublish =
+    status === 'published' &&
+    Boolean(publishDate) &&
+    String(publishDate).slice(0, 10) > new Date().toISOString().slice(0, 10)
+
+  /*
+   * A post from before the block builder: it has body text and no blocks. Once
+   * a block is added the website stops rendering the body, so the notice has to
+   * disappear at the same moment.
+   */
+  const hasLegacyBody = Boolean(body?.trim()) && (blocks?.length ?? 0) === 0
   const saving = create.isPending || update.isPending
 
   // Feeds the "where this appears" note — it shows the live URL, which moves
@@ -184,6 +202,20 @@ export default function BlogFormPage() {
 
       <AppearsOn module="blogs" record={watched} saved={isEdit} />
 
+      {/*
+        * The single most confusing state this form can be in: marked Published,
+        * but dated ahead, so the website returns "page not found" and nothing
+        * says why. Scheduling is deliberate and worth keeping — it just has to
+        * announce itself.
+        */}
+      {isScheduledPublish && (
+        <Alert tone="warning" title="Scheduled — not on the website yet">
+          This post is set to publish on {new Date(publishDate as string).toLocaleDateString()}.
+          Until then its address returns “page not found”. Clear the publish date, or set it to
+          today, to put it live now.
+        </Alert>
+      )}
+
       {Object.keys(errors).length > 0 && (
         <Alert tone="error" title="This article could not be saved">
           Check the highlighted fields below and try again.
@@ -226,15 +258,37 @@ export default function BlogFormPage() {
                 <Textarea {...register('excerpt')} rows={3} maxLength={300} showCount />
               </FormField>
 
-              <FormField label="Body" error={errors.body?.message}>
-                <Controller
-                  control={control}
-                  name="body"
-                  render={({ field }) => (
-                    <RichTextEditor value={field.value} onChange={field.onChange} />
-                  )}
-                />
-              </FormField>
+            </CardBody>
+          </Card>
+
+          <Card flush>
+            <CardHeader
+              title="Body"
+              subtitle="Build the post from blocks — text, images, video, a call to action, or a rail of recent posts."
+            />
+            <CardBody className="space-y-4">
+              <Controller
+                control={control}
+                name="blocks"
+                render={({ field }) => (
+                  <BlockEditor blocks={field.value ?? []} onChange={field.onChange} />
+                )}
+              />
+
+              <HeadingIndexHint blocks={(blocks as PageBlock[]) ?? []} />
+
+              {/*
+                * Shown only for a post written before the block builder. Its
+                * text still renders until blocks are added, and saying so beats
+                * an author seeing an empty builder on a post they know has
+                * content.
+                */}
+              {hasLegacyBody && (
+                <Alert tone="info" title="This post still uses the old single-text body">
+                  It renders as before. Add a block above and the blocks take over — the old text
+                  stops being shown.
+                </Alert>
+              )}
             </CardBody>
           </Card>
         </div>

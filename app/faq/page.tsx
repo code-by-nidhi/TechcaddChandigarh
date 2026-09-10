@@ -56,6 +56,26 @@ const extraFaqs = [
 ];
 
 /**
+ * Questions grouped under the heading each is filed under.
+ *
+ * Insertion order, not alphabetical: the CMS returns them ordered by category
+ * and then by the position an editor set, and re-sorting here would throw that
+ * away. Anything with no category — every hard-coded question below, and any
+ * CMS entry an editor left blank — collects under one general heading rather
+ * than vanishing.
+ */
+function groupByCategory(items: { question: string; answer: string; category?: string }[]) {
+  const groups = new Map<string, { question: string; answer: string }[]>();
+
+  for (const faq of items) {
+    const key = faq.category?.trim() || "More questions";
+    groups.set(key, [...(groups.get(key) ?? []), faq]);
+  }
+
+  return [...groups.entries()].map(([category, questions]) => ({ category, questions }));
+}
+
+/**
  * The page-specific questions above are appended to whatever the CMS holds,
  * and de-duplicated by question text — once an editor adds one of these to the
  * CMS, the copy here stops being rendered twice.
@@ -70,6 +90,7 @@ function mergeFaqs(managed: { question: string; answer: string }[]) {
 
 export default async function FaqPage() {
   const allFaqs = mergeFaqs(await getFaqs());
+  const groups = groupByCategory(allFaqs);
 
   const schema = {
     "@context": "https://schema.org",
@@ -121,7 +142,26 @@ export default async function FaqPage() {
               </div>
             </div>
 
-            <Accordion items={allFaqs} />
+            <div className="space-y-12">
+              {groups.map((group) => (
+                <div key={group.category}>
+                  {/*
+                    * The heading is dropped when everything is in one group —
+                    * a single "More questions" heading over the whole page is
+                    * a label, not a grouping.
+                    */}
+                  {groups.length > 1 ? (
+                    <h2 className="mb-5 font-display text-lg font-bold tracking-tight">
+                      {group.category}
+                      <span className="ml-2 text-sm font-normal text-muted">
+                        {group.questions.length}
+                      </span>
+                    </h2>
+                  ) : null}
+                  <Accordion items={group.questions} />
+                </div>
+              ))}
+            </div>
           </div>
         </Rail>
       </section>

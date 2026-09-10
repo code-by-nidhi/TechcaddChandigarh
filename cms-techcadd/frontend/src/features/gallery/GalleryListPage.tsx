@@ -9,6 +9,7 @@ import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/common/DropdownMenu'
 import { DataTable, type Column } from '../../components/data/DataTable'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -111,9 +112,12 @@ export default function GalleryListPage() {
         title="Gallery"
         description="Photo albums for the campus, classrooms and events"
         actions={
-          <Link to="/gallery/new">
-            <Button icon={Plus}>Add album</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="gallery" />
+            <Link to="/gallery/new">
+              <Button icon={Plus}>Add album</Button>
+            </Link>
+          </>
         }
       />
 

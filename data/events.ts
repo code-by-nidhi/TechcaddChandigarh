@@ -24,9 +24,13 @@ export interface CampusEvent {
   /** Present on a multi-day event; the listing prints a range. */
   endDate?: string;
   startTime?: string;
-  registerUrl?: string;
-  seats?: string;
-  fee?: string;
+  /**
+   * The event's photographs, in display order.
+   *
+   * The substance of an event page once the event has happened. Empty for the
+   * static events below, which predate the gallery.
+   */
+  photos?: { id: string; url: string; alt: string; caption?: string }[];
   coverImage?: string;
 }
 

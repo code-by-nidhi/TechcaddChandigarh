@@ -5,8 +5,14 @@ import { config, isProduction } from '../../config.js'
 import { execute, query, queryOne } from '../../db/pool.js'
 import { forbidden, unauthorised, unprocessable } from '../../http/errors.js'
 
-/** The CMS has a single role: an admin can do everything. */
-export type UserRole = 'admin'
+/**
+ * Who someone is, in terms of what they do here.
+ *
+ * `content` and `counsellor` are siblings, not steps on a ladder — a
+ * counsellor is not a restricted editor, they do a different job. What each
+ * may touch is a table in `middleware/moduleAccess.ts`, not a rank.
+ */
+export type UserRole = 'admin' | 'content' | 'counsellor'
 
 export interface SessionUser {
   userId: string

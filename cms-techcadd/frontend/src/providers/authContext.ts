@@ -7,14 +7,21 @@ import type { UserRole } from '../types'
 export type Permission = 'manage-users' | 'manage-settings' | 'delete-content' | 'publish-content'
 
 /**
- * One role, and it can do everything.
+ * What each role may do, beyond which sections it can open.
  *
- * The permission names are kept rather than deleted: the call sites already
- * say what each control needs, so reintroducing a narrower role later is a
- * change to this table alone instead of an audit of every button.
+ * Section-level access is `config/access.ts`; this is the finer grain inside a
+ * section a role already has — who may publish, who may delete, who may change
+ * the team. A counsellor holds none of these because they reach no content
+ * module in the first place.
+ *
+ * Adding and removing people is admin-only, which is what stops a team member
+ * removing another one or an admin. The API enforces it; this only hides the
+ * buttons.
  */
 const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   admin: ['manage-users', 'manage-settings', 'delete-content', 'publish-content'],
+  content: ['delete-content', 'publish-content'],
+  counsellor: [],
 }
 
 export function roleAllows(role: UserRole, permission: Permission): boolean {

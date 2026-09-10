@@ -19,6 +19,28 @@ export default async function BlogsPage() {
   const posts = await getBlogPosts();
   const [lead, ...rest] = posts;
 
+  /*
+   * An index of the topics on the page, so a reader looking for one subject
+   * does not scroll the whole archive. Built from the posts themselves rather
+   * than a fixed list — a category with nothing in it would be a link to an
+   * empty anchor.
+   *
+   * A `Map` keeps first-seen order, which is newest-first, so the topic with
+   * the most recent writing leads.
+   */
+  const byCategory = new Map<string, typeof posts>();
+  // `rest`, not `posts` — the newest article already has the lead panel above,
+  // and listing it again in its topic would print it twice on one page.
+  for (const post of rest) {
+    byCategory.set(post.category, [...(byCategory.get(post.category) ?? []), post]);
+  }
+  const categories = [...byCategory.entries()].map(([name, items]) => ({
+    name,
+    count: items.length,
+    id: `topic-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "")}`,
+    items,
+  }));
+
   return (
     <>
       <CmsPageHeader
@@ -46,7 +68,7 @@ export default async function BlogsPage() {
                 <span>·</span>
                 <span>{lead.readTime}</span>
               </div>
-              <h2 className="mt-5 font-display text-2xl leading-snug font-bold tracking-tight text-balance lg:text-3xl">
+              <h2 className="mt-5 font-display text-2xl leading-snug font-bold tracking-tight text-balance lg:text-3xl wrap-anywhere">
                 <Link href={`/blogs/${lead.slug}`} className="before:absolute before:inset-0">
                   {lead.title}
                 </Link>
@@ -59,7 +81,7 @@ export default async function BlogsPage() {
             </div>
             <div className="hero-surface hidden rounded-2xl p-8 lg:block">
               <Icon name="sparkles" className="size-8 text-accent-400" />
-              <p className="mt-5 font-display text-lg font-bold leading-snug text-white">
+              <p className="mt-5 font-display text-lg font-bold leading-snug text-white wrap-anywhere">
                 Latest article
               </p>
               <p className="mt-2 text-sm leading-relaxed text-brand-100/70">
@@ -68,8 +90,35 @@ export default async function BlogsPage() {
             </div>
           </article>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {rest.map((post) => (
+          {/*
+            * The topic index. Anchors rather than a filter: no JavaScript, every
+            * post stays on one page and reachable by search, and a shared link
+            * still lands on the right section.
+            */}
+          {categories.length > 1 ? (
+            <nav aria-label="Topics" className="mt-10 flex flex-wrap gap-2">
+              {categories.map((category) => (
+                <a
+                  key={category.id}
+                  href={`#${category.id}`}
+                  className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium transition-colors hover:border-brand-600/30 hover:text-brand-600"
+                >
+                  {category.name}
+                  <span className="text-xs text-muted">{category.count}</span>
+                </a>
+              ))}
+            </nav>
+          ) : null}
+
+          {categories.map((category) => (
+            <section key={category.id} id={category.id} data-toc-target className="mt-14">
+              <h2 className="font-display text-xl font-bold tracking-tight wrap-anywhere">
+                {category.name}
+                <span className="ml-2 text-sm font-normal text-muted">{category.count}</span>
+              </h2>
+
+              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {category.items.map((post) => (
               <article
                 key={post.slug}
                 className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6"
@@ -80,12 +129,12 @@ export default async function BlogsPage() {
                   </span>
                   <span>{formatDate(post.date)}</span>
                 </div>
-                <h2 className="mt-5 font-display text-lg leading-snug font-bold tracking-tight">
+                <h2 className="mt-5 font-display text-lg leading-snug font-bold tracking-tight wrap-anywhere">
                   <Link href={`/blogs/${post.slug}`} className="before:absolute before:inset-0">
                     {post.title}
                   </Link>
                 </h2>
-                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted">
+                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
                   {post.excerpt}
                 </p>
                 <span className="mt-6 flex items-center justify-between border-t border-line pt-5 text-xs text-muted">
@@ -96,8 +145,10 @@ export default async function BlogsPage() {
                   />
                 </span>
               </article>
-            ))}
-          </div>
+                ))}
+              </div>
+            </section>
+          ))}
         </Rail>
       </section>
 

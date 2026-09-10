@@ -2,10 +2,11 @@ import type { BaseEntity, User } from '../../types'
 import { createHttpResource } from '../http/resource'
 
 /**
- * Role is assigned by the server, not chosen here.
+ * Role is optional on the wire, not absent.
  *
- * There is one role — admin — so the CMS has nothing to pick and the API
- * defaults it.
+ * The team form always sends one. It stays optional here because the API
+ * defaults an omitted role to `content` — the narrower grant — so a caller
+ * that forgets creates someone with less access rather than more.
  */
 export type UserCreate = Omit<User, keyof BaseEntity | 'role'> & { role?: User['role'] }
 export type UserUpdate = Partial<UserCreate>

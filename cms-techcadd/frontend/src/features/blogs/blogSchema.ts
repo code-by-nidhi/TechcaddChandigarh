@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import { pageBlockSchema } from '../../components/blocks/blockSchema'
+
 import { seoBlockSchema } from '../../components/form/seoSchema'
 
 const mediaRefSchema = z.object({
@@ -21,7 +23,14 @@ export const blogSchema = z.object({
   tags: z.array(z.string()),
   coverImage: mediaRefSchema.nullish(),
   excerpt: z.string().min(1, 'An excerpt is required.').max(300, 'Keep excerpts under 300 characters.'),
+  /**
+   * The original single rich-text body.
+   *
+   * Still sent so posts written before the block builder keep their content;
+   * the website renders it only when a post has no blocks.
+   */
   body: z.string(),
+  blocks: z.array(pageBlockSchema),
   publishDate: z.string().optional(),
   seo: seoBlockSchema,
   status: z.enum(['published', 'draft', 'review']),
@@ -49,6 +58,7 @@ export function emptyBlog(): BlogFormValues {
     coverImage: undefined,
     excerpt: '',
     body: '',
+    blocks: [],
     publishDate: undefined,
     seo: { keywords: [] },
     status: 'draft',

@@ -277,6 +277,14 @@ export const testimonials: Testimonial[] = [
 export interface Faq {
   question: string;
   answer: string;
+  /**
+   * The heading this question is grouped under on the FAQ page.
+   *
+   * Set on questions that came from the CMS. The static ones below carry none
+   * and fall into a general group, which is how the page read before grouping
+   * existed.
+   */
+  category?: string;
 }
 
 export const faqs: Faq[] = [

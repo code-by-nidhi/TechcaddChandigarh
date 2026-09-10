@@ -86,6 +86,9 @@ const base = z.object({
     .object({
       metaTitle: z.string().max(200).optional(),
       metaDescription: z.string().max(300, 'Keep meta descriptions under 300 characters.').optional(),
+      /* Optional on the wire so an older client that sends no keywords still
+         saves; stored as an empty array either way. */
+      keywords: z.array(z.string().max(80)).max(50).optional(),
     })
     .optional(),
 })

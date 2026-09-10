@@ -11,6 +11,7 @@ import { FilterBar, type ActiveFilter } from '../../components/data/FilterBar'
 import { Pagination } from '../../components/data/Pagination'
 import { DateRangePicker } from '../../components/form/DatePicker'
 import { Select } from '../../components/form/Select'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useListParams } from '../../hooks/useListParams'
@@ -220,9 +221,12 @@ export default function EnquiriesListPage() {
             : `${total} ${total === 1 ? 'enquiry' : 'enquiries'} match the current filters`
         }
         actions={
-          <Button variant="secondary" icon={Download} disabled={exporting} onClick={exportCsv}>
-            Export CSV
-          </Button>
+          <>
+            <ViewOnSiteButton module="enquiries" />
+              <Button variant="secondary" icon={Download} disabled={exporting} onClick={exportCsv}>
+              Export CSV
+            </Button>
+          </>
         }
       />
 

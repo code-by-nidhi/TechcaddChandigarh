@@ -7,24 +7,22 @@ import { getCustomPages } from "@/lib/cms";
 import { site } from "@/data/site";
 
 /**
- * The index behind Resources → Pages.
+ * The index of editor-authored pages.
  *
- * The menu shows the first six and links here for the rest, so this route has
- * to exist for that link to go anywhere — it was the one gap left when the
- * Pages module was wired up.
- *
- * Lists every published page, including the ones an editor kept out of the
- * menu: "not in the navigation" is a decision about menu clutter, not about
- * whether the page is findable.
+ * Exists so the Resources menu can carry one "Pages" link instead of listing
+ * every page inside the dropdown — a menu that grows a row per page stops being
+ * a menu once there are a dozen of them.
  */
 
 export const metadata: Metadata = {
-  title: "Pages",
-  description: `Guides, policies and reference pages from techcadd ${site.city}.`,
+  title: `Pages — Guides & Information`,
+  description: `Guides, policies and information pages from techcadd ${site.city}.`,
   alternates: { canonical: `${site.url}/pages` },
 };
 
 export default async function PagesIndex() {
+  // Every published page, not only the ones ticked into the nav: this is the
+  // index, and a page deliberately kept out of the menu is still findable here.
   const pages = await getCustomPages();
 
   return (
@@ -32,24 +30,20 @@ export default async function PagesIndex() {
       <PageHeader
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Pages" }]}
         eyebrow="Pages"
-        title="Guides, policies and reference"
-        body="Everything that does not belong on a course page or in the blog — written and kept current by the team here."
+        title="Guides and information"
+        body="Everything that does not fit on a course page — policies, guides and the answers we find ourselves repeating."
         meta={[{ label: "Pages", value: String(pages.length) }]}
       />
 
       <section className="py-16 lg:py-20">
         <Rail>
           {pages.length === 0 ? (
-            <p className="text-muted">
-              There is nothing here yet. Try the{" "}
-              <Link href="/blogs" className="font-medium text-brand-600 hover:underline">
+            <p className="text-center text-muted">
+              Nothing published here yet. Try the{" "}
+              <Link href="/blogs" className="font-medium text-brand-600">
                 blog
               </Link>{" "}
-              or{" "}
-              <Link href="/faq" className="font-medium text-brand-600 hover:underline">
-                the FAQs
-              </Link>
-              .
+              in the meantime.
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -58,7 +52,7 @@ export default async function PagesIndex() {
                   key={page.id}
                   className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6"
                 >
-                  <h2 className="font-display text-lg leading-snug font-bold tracking-tight">
+                  <h2 className="font-display text-lg leading-snug font-bold tracking-tight wrap-anywhere">
                     <Link
                       href={`/pages/${page.slug}`}
                       className="before:absolute before:inset-0"
@@ -67,7 +61,7 @@ export default async function PagesIndex() {
                     </Link>
                   </h2>
                   {page.excerpt ? (
-                    <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted">
+                    <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
                       {page.excerpt}
                     </p>
                   ) : null}

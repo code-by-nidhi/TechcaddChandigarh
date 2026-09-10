@@ -18,6 +18,14 @@ const galleryImageSchema = z.object({
   caption: z.string().max(255).default(''),
 })
 
+/**
+ * The shape, with no defaults attached.
+ *
+ * Defaults live only on the create schema below. `.partial()` does NOT strip a
+ * `.default()` — so a patch of `{ fee }` would still parse as carrying
+ * `agenda: []`, and the repository, seeing a value rather than `undefined`,
+ * would wipe the schedule. That is not hypothetical: it happened.
+ */
 const base = z.object({
   title: z.string().min(1, 'A title is required.').max(160),
   slug: z
@@ -29,7 +37,7 @@ const base = z.object({
   /** The filter pills the gallery page renders: Campus, Classroom, Events… */
   category: z.string().min(1, 'Choose a category.').max(80),
   cover: mediaRef.nullish(),
-  images: z.array(galleryImageSchema).default([]),
+  images: z.array(galleryImageSchema),
   order: z.number(),
   status: z.enum(['published', 'draft', 'review']),
 })

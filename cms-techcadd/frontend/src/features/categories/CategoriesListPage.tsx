@@ -11,6 +11,7 @@ import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/
 import { SortableList } from '../../components/data/SortableList'
 import { Alert } from '../../components/feedback/Alert'
 import { SkeletonTable } from '../../components/feedback/Skeleton'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -97,9 +98,12 @@ export default function CategoriesListPage() {
             : `${categories.length} ${categories.length === 1 ? 'category' : 'categories'}, drag to reorder`
         }
         actions={
-          <Link to="/categories/new">
-            <Button icon={Plus}>Add Category</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="categories" />
+            <Link to="/categories/new">
+              <Button icon={Plus}>Add Category</Button>
+            </Link>
+          </>
         }
       />
 

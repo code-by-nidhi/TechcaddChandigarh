@@ -8,6 +8,7 @@ import { Button } from '../../components/common/Button'
 import { Card } from '../../components/common/Card'
 import { DropdownItem, DropdownMenu, DropdownSeparator } from '../../components/common/DropdownMenu'
 import { DataTable, type Column } from '../../components/data/DataTable'
+import { ViewOnSiteButton } from '../../components/common/ViewOnSite'
 import { PageHeader } from '../../components/layout/PageHeader'
 import { useConfirm } from '../../hooks/useConfirm'
 import { useToast } from '../../hooks/useToast'
@@ -125,9 +126,12 @@ export default function TestimonialsListPage() {
         title="Testimonials"
         description="Students on camera, with the Google review behind them"
         actions={
-          <Link to="/testimonials/new">
-            <Button icon={Plus}>Add testimonial</Button>
-          </Link>
+          <>
+            <ViewOnSiteButton module="testimonials" />
+            <Link to="/testimonials/new">
+              <Button icon={Plus}>Add testimonial</Button>
+            </Link>
+          </>
         }
       />
 

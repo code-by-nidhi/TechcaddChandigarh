@@ -13,7 +13,6 @@ import { FormField } from '../../components/form/FormField'
 import { ImageField } from '../../components/form/ImageField'
 import { Input } from '../../components/form/Input'
 import { NumberInput } from '../../components/form/NumberInput'
-import { RichTextEditor } from '../../components/form/RichTextEditor'
 import { Select } from '../../components/form/Select'
 import { SeoFields } from '../../components/form/SeoFields'
 import { SlugInput } from '../../components/form/SlugInput'
@@ -31,6 +30,9 @@ import {
   ROUTE_OPTIONS,
   type PageFormValues,
 } from './pageSchema'
+import { BlockEditor } from '../../components/blocks/BlockEditor'
+import { HeadingIndexHint } from '../../components/blocks/HeadingIndexHint'
+import type { PageBlock } from '../../components/blocks/blockSchema'
 import { pageHooks } from './usePages'
 
 export default function PageFormPage() {
@@ -68,6 +70,14 @@ export default function PageFormPage() {
   const title = (watched.title as string) ?? ''
   const slug = (watched.slug as string) ?? ''
   const isOverride = watched.kind === 'override'
+
+  /*
+   * A page from before the block editor: it has body text and no blocks. Once
+   * a block is added the website stops rendering the body, so the notice has to
+   * disappear at the same moment.
+   */
+  const hasLegacyBody =
+    Boolean((watched.body as string)?.trim()) && ((watched.blocks as unknown[])?.length ?? 0) === 0
 
   const publish =
     watched.status === 'published'
@@ -228,15 +238,33 @@ export default function PageFormPage() {
             */}
           {!isOverride && (
             <Card flush>
-              <CardHeader title="Content" />
+              <CardHeader
+                title="Content"
+                subtitle="Build the page from blocks. They render in the order shown."
+              />
               <CardBody>
                 <Controller
                   control={control}
-                  name="body"
+                  name="blocks"
                   render={({ field }) => (
-                    <RichTextEditor value={field.value ?? ''} onChange={field.onChange} />
+                    <BlockEditor blocks={field.value ?? []} onChange={field.onChange} />
                   )}
                 />
+
+                <HeadingIndexHint blocks={(watched.blocks as PageBlock[]) ?? []} />
+
+                {/*
+                  * Shown only for a page written before blocks existed. Its
+                  * text still renders on the site until blocks are added, and
+                  * saying so beats an editor seeing an empty builder on a page
+                  * they know has content.
+                  */}
+                {hasLegacyBody && (
+                  <Alert tone="info" title="This page still uses the old single-text content">
+                    It renders as before. Add a block above and the blocks take over — the old text
+                    stops being shown.
+                  </Alert>
+                )}
               </CardBody>
             </Card>
           )}

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { pageBlocksSchema } from '../shared/blocks.schema.js'
 import { mediaRef } from '../shared/mediaRef.js'
 
 /**
@@ -60,7 +61,14 @@ const base = z.object({
     ),
   kind: z.enum(PAGE_KINDS),
   excerpt: z.string().max(600).optional(),
+  /**
+   * The original single rich-text body.
+   *
+   * Kept for pages written before blocks existed; the website renders it when
+   * a page has no blocks. New pages use `blocks`.
+   */
   body: z.string().optional(),
+  blocks: pageBlocksSchema.optional(),
   /** Page-header copy. Left empty on an override, the route keeps its own. */
   heroEyebrow: z.string().max(120).optional(),
   heroTitle: z.string().max(300).optional(),
@@ -74,6 +82,9 @@ const base = z.object({
     .object({
       metaTitle: z.string().max(200).optional(),
       metaDescription: z.string().max(300, 'Keep meta descriptions under 300 characters.').optional(),
+      /* Optional on the wire so an older client that sends no keywords still
+         saves; stored as an empty array either way. */
+      keywords: z.array(z.string().max(80)).max(50).optional(),
     })
     .optional(),
 })

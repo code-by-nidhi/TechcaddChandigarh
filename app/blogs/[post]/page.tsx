@@ -3,9 +3,13 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import { CtaSection } from "@/components/sections/Home";
-import { Icon, Rail } from "@/components/ui";
+import { Icon, Rail, cx } from "@/components/ui";
 import { formatDate } from "@/data/blog";
-import { getBlogPost, getBlogPosts, getRelatedPosts } from "@/lib/cms";
+import { PageBlocks } from "@/components/PageBlocks";
+import { TableOfContents, hasIndex } from "@/components/TableOfContents";
+import { headingId, headingsFromBlocks, withHeadingIds } from "@/lib/headings";
+import { BlogComments } from "@/components/BlogComments";
+import { getBlogPost, getBlogPosts, getComments, getRelatedPosts } from "@/lib/cms";
 import { site } from "@/data/site";
 
 /**
@@ -49,7 +53,35 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
   const post = await getBlogPost(slug);
   if (!post) notFound();
 
-  const related = await getRelatedPosts(post.slug, 3);
+  const [related, comments] = await Promise.all([
+    getRelatedPosts(post.slug, 3),
+    getComments(post.slug),
+  ]);
+
+  /*
+   * The article's own headings, with ids injected so the index can link to
+   * them. Done here rather than in the renderer because the index and the
+   * markup have to agree on every id, including the suffixes that make
+   * repeated headings unique.
+   *
+   * Static posts carry their headings as structured sections, so those are
+   * read straight off the data rather than out of HTML.
+   */
+  const fromBlocks = post.blocks?.length ? headingsFromBlocks(post.blocks) : null;
+  const fromHtml = !fromBlocks && post.html ? withHeadingIds(post.html) : null;
+  const headings =
+    fromBlocks?.headings ??
+    fromHtml?.headings ??
+    post.sections
+      .filter((section) => section.heading)
+      .map((section) => ({
+        id: headingId(section.heading as string),
+        text: section.heading as string,
+        level: 2 as const,
+      }));
+
+  /** Drives both the sidebar and whether the grid reserves a column for it. */
+  const showIndex = hasIndex(headings);
 
   const schema = {
     "@context": "https://schema.org",
@@ -65,6 +97,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
   return (
     <>
       <PageHeader
+        // Centred to match the article column below it.
+        align="center"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Blogs", href: "/blogs" },
@@ -82,23 +116,54 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
 
       <article className="py-16 lg:py-20">
         <Rail>
-          <div className="mx-auto max-w-3xl">
-            {/*
-              * A CMS post arrives as one rich-text document; the static posts
-              * are authored as structured sections. Whichever the post has is
-              * what gets rendered, so the two kinds coexist.
-              */}
-            {post.html ? (
+          {/*
+            * Index on the left, article on the right, the pair centred.
+            *
+            * The index is `sticky` so it stays in view while the article
+            * scrolls past it — a contents list that scrolls away with the text
+            * stops being navigation after the first screen.
+            *
+            * One column below `lg`: there is no room for a sidebar on a phone,
+            * so the index stacks above the article instead of being hidden —
+            * it is most useful on the narrow screen that shows least at once.
+            */}
+          <div className={cx(
+                "mx-auto grid gap-10 lg:gap-14",
+                // Without an index there is no left column to make room for,
+                // so the content keeps the plain centred measure.
+                showIndex
+                  ? "max-w-5xl lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]"
+                  : "max-w-3xl",
+              )}>
+            <TableOfContents
+              headings={headings}
+              className="lg:sticky lg:top-24 lg:self-start"
+            />
+
+            <div className="min-w-0 max-w-3xl">
+              {/*
+                * Blocks first, then the single rich-text body, then the
+                * structured sections the static posts use. A post written
+                * before the block builder renders exactly as it did.
+                */}
+
+            {fromBlocks ? (
+              <PageBlocks blocks={fromBlocks.blocks} bare />
+            ) : fromHtml ? (
               <div
                 className="cms-prose"
-                dangerouslySetInnerHTML={{ __html: post.html }}
+                dangerouslySetInnerHTML={{ __html: fromHtml.html }}
               />
             ) : null}
 
             {post.sections.map((section, i) => (
               <section key={i} className={i > 0 ? "mt-12" : ""}>
                 {section.heading ? (
-                  <h2 className="font-display text-2xl font-bold tracking-tight text-balance">
+                  <h2
+                    id={headingId(section.heading)}
+                    data-toc-target
+                    className="font-display text-2xl font-bold tracking-tight text-balance wrap-anywhere"
+                  >
                     {section.heading}
                   </h2>
                 ) : null}
@@ -122,8 +187,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
               </section>
             ))}
 
+            <BlogComments
+              blogSlug={post.slug}
+              comments={comments.items}
+              total={comments.total}
+            />
+
             <div className="mt-14 rounded-2xl border border-line bg-subtle p-7">
-              <h2 className="font-display text-lg font-bold tracking-tight">
+              <h2 className="font-display text-lg font-bold tracking-tight wrap-anywhere">
                 Want to talk this through?
               </h2>
               <p className="mt-2 leading-relaxed text-muted">
@@ -147,13 +218,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
                 </a>
               </div>
             </div>
+            </div>
           </div>
         </Rail>
       </article>
 
       <section className="bg-subtle py-16 lg:py-20">
         <Rail>
-          <h2 className="font-display text-2xl font-bold tracking-tight">Read next</h2>
+          <h2 className="font-display text-2xl font-bold tracking-tight wrap-anywhere">Read next</h2>
           <div className="mt-10 grid gap-4 lg:grid-cols-3">
             {related.map((item) => (
               <article
@@ -166,12 +238,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
                   </span>
                   <span>{formatDate(item.date)}</span>
                 </div>
-                <h3 className="mt-5 font-display leading-snug font-bold tracking-tight">
+                <h3 className="mt-5 font-display leading-snug font-bold tracking-tight wrap-anywhere">
                   <Link href={`/blogs/${item.slug}`} className="before:absolute before:inset-0">
                     {item.title}
                   </Link>
                 </h3>
-                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted">
+                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
                   {item.excerpt}
                 </p>
               </article>
