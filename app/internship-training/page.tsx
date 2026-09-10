@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection, FaqSection } from "@/components/sections/Home";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { ButtonLink, Icon, Rail, SectionHeading } from "@/components/ui";
 import { site } from "@/data/site";
 import { trainingFormats } from "@/data/programs";
-import { featuredCourses, courseSlug } from "@/data/courses";
+import { courseSlug } from "@/data/courses";
+import { featuredFrom, getCourses } from "@/lib/catalogue";
 import { faqs } from "@/data/content";
 import { faqPageSchema } from "@/lib/schema";
 
@@ -23,10 +24,12 @@ const weeks = [
   { label: "Final weeks", title: "Handover", body: "Documentation, a demo to the client, and a written experience letter describing what you actually contributed." },
 ];
 
-export default function InternshipPage() {
+export default async function InternshipPage() {
+  const featuredCourses = featuredFrom(await getCourses());
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="internship-training"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Internship Program" }]}
         eyebrow="Internship"
         title="An internship on real client work"
@@ -41,7 +44,7 @@ export default function InternshipPage() {
           Apply for an internship
           <Icon name="arrow-right" className="size-4" />
         </ButtonLink>
-      </PageHeader>
+      </CmsPageHeader>
 
       <section className="py-16 lg:py-20">
         <Rail>

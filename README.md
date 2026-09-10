@@ -1,7 +1,7 @@
 # techcadd Chandigarh
 
-Next.js 15 (App Router) site for the techcadd Chandigarh centre, structured after
-[techcaddjalandhar.com](https://techcaddjalandhar.com) and localised to the tricity.
+Next.js 15 (App Router) site for the techcadd Chandigarh centre, localised to the tricity and
+backed by the CMS in `cms-techcadd/`.
 
 ```bash
 npm install
@@ -162,5 +162,89 @@ Every route is statically prerendered (`dynamicParams = false` on each dynamic s
    into `public/assets/gallery/` and swap them for `next/image`.
 4. **Policy pages** are drafts. Have them reviewed — particularly the refund windows.
 5. **Fees** in `data/courses.ts` are illustrative and should be confirmed per batch.
-6. **Founder name** in `data/site.ts` (`site.founder`) is taken from the techcadd Jalandhar site —
-   confirm it is correct for the Chandigarh entity before publishing.
+6. **Founder name** in `data/site.ts` (`site.founder`) is carried over from the wider techcadd
+   group — confirm it is correct for the Chandigarh entity before publishing.
+7. **Branch contact details** in `data/branches.ts` are placeholders for every centre except the
+   Chandigarh head campus, which takes its number from `data/site.ts`.
+8. **`site.founded` is 2007** while the founder page dates the institute to 2016. Confirm which is
+   right for this entity — the two are printed on different pages and currently disagree.
+
+
+## CMS integration
+
+The site reads its blog, FAQs, reviews and site settings from the CMS in `cms-techcadd/`, and
+posts enquiries to it. Everything goes through `lib/cms.ts`, which is the only module that knows
+the API exists.
+
+### It is optional
+
+`CMS_API_URL` unset means no CMS. Every getter returns the static content in `data/` instead, so a
+fresh clone runs with nothing else started:
+
+```bash
+npm install && npm run dev     # works with no CMS, no MySQL
+```
+
+Set `CMS_API_URL` and the same getters read the API, **still falling back to `data/` on any
+failure** — a 500, a timeout, a restart, an empty table. A CMS outage costs freshness, never a
+page. Watch for `[cms] … falling back to static content` in the log; it is printed once per
+failing endpoint per process, not once per render.
+
+### What comes from where
+
+| Content | Source | Fallback |
+| --- | --- | --- |
+| Blog posts, related posts | `/api/public/blog/*` | `data/blog.ts` |
+| FAQs (home, `/faq`, course pages) | `/api/public/faqs` | `data/content.ts` |
+| Reviews (home, `/reviews`) | `/api/public/reviews` | `data/content.ts` |
+| Phone, email, address, social, stats, logo | `/api/public/site` | `data/site.ts` |
+| Enquiry submissions | `POST /api/public/enquiries` | direct MySQL insert |
+
+Everything else — courses, programs, branches, events, navigation, tools — is still static in
+`data/`. The CMS has no module for any of it.
+
+Site settings are resolved once in `app/layout.tsx` and passed to `Header` and `Footer` as props,
+because both are client components and cannot fetch. Pages that only print copy still import
+`data/site.ts` directly.
+
+### Cache and revalidation
+
+CMS reads are tagged `cms` and revalidate every `CMS_REVALIDATE_SECONDS` (default 300). The CMS
+also calls `POST /api/revalidate` after every successful save, which drops that tag immediately —
+without it, a published post takes up to the full window to appear.
+
+Set the same secret on both sides:
+
+```
+# .env.local (this site)
+CMS_API_URL=http://localhost:4000
+REVALIDATE_SECRET=<same value>
+
+# cms-techcadd/backend/.env
+SITE_REVALIDATE_URL=http://localhost:3000/api/revalidate
+REVALIDATE_SECRET=<same value>
+```
+
+With `REVALIDATE_SECRET` unset the endpoint returns 503 and refuses every request, rather than
+letting anyone on the internet clear the cache.
+
+### Enquiries
+
+Forms post to `/api/enquiry` as before. That route now forwards to the CMS rather than writing the
+row itself, so the CMS's duplicate guard, reCAPTCHA check and counsellor notification mail all
+run — inserting directly bypasses all three. With no `CMS_API_URL` it falls back to the direct
+insert, which needs the `MYSQL_*` variables above.
+
+A duplicate comes back as `200 {ok, duplicate, message}` rather than an error, so the form shows
+the CMS's reassuring wording instead of a failure.
+
+### Blog bodies are sanitised
+
+CMS posts are stored as rich text and rendered with `dangerouslySetInnerHTML`. The API does not
+strip anything on the way in, so `lib/sanitize.ts` runs an allowlist over every body in
+`lib/cms.ts` before it reaches a page — script, event handlers, inline styles and
+`javascript:` URLs are dropped. **The CMS should still sanitise on write**; this is the second
+line, not the only one.
+
+Rich text is styled by `.cms-prose` in `app/globals.css`, matched to the typography the
+hand-authored posts get from their own markup.

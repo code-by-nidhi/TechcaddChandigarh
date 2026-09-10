@@ -4,13 +4,21 @@ import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { Icon, Rail } from "@/components/ui";
-import { blogBySlug, blogPosts, formatDate } from "@/data/blog";
+import { formatDate } from "@/data/blog";
+import { getBlogPost, getBlogPosts, getRelatedPosts } from "@/lib/cms";
 import { site } from "@/data/site";
 
-export const dynamicParams = false;
+/**
+ * A post published in the CMS after the last build must still resolve, so
+ * unknown slugs are rendered on demand rather than 404ed. `getBlogPost`
+ * returns null for a slug neither the CMS nor the static set knows, and that
+ * is what still produces a 404.
+ */
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({ post: post.slug }));
+export async function generateStaticParams() {
+  const posts = await getBlogPosts();
+  return posts.map((post) => ({ post: post.slug }));
 }
 
 export async function generateMetadata({
@@ -19,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ post: string }>;
 }): Promise<Metadata> {
   const { post: slug } = await params;
-  const post = blogBySlug.get(slug);
+  const post = await getBlogPost(slug);
   if (!post) return {};
 
   return {
@@ -38,10 +46,10 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: { params: Promise<{ post: string }> }) {
   const { post: slug } = await params;
-  const post = blogBySlug.get(slug);
+  const post = await getBlogPost(slug);
   if (!post) notFound();
 
-  const related = blogPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
+  const related = await getRelatedPosts(post.slug, 3);
 
   const schema = {
     "@context": "https://schema.org",
@@ -75,6 +83,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
       <article className="py-16 lg:py-20">
         <Rail>
           <div className="mx-auto max-w-3xl">
+            {/*
+              * A CMS post arrives as one rich-text document; the static posts
+              * are authored as structured sections. Whichever the post has is
+              * what gets rendered, so the two kinds coexist.
+              */}
+            {post.html ? (
+              <div
+                className="cms-prose"
+                dangerouslySetInnerHTML={{ __html: post.html }}
+              />
+            ) : null}
+
             {post.sections.map((section, i) => (
               <section key={i} className={i > 0 ? "mt-12" : ""}>
                 {section.heading ? (

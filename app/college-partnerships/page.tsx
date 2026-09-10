@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { Icon, Rail, SectionHeading } from "@/components/ui";
@@ -42,10 +42,11 @@ const process = [
   { step: "04", title: "Reporting", body: "Attendance, assessment results and a completion report for your records, plus certificates for every student who qualifies." },
 ];
 
-export default function CollegePartnershipsPage() {
+export default async function CollegePartnershipsPage() {
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="college-partnerships"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "About", href: "/about" },

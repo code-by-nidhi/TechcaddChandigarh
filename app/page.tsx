@@ -11,13 +11,17 @@ import {
   TechnologiesSection,
   TestimonialsSection,
 } from "@/components/sections/Home";
-import { faqs } from "@/data/content";
+import { getFaqs } from "@/lib/cms";
 import { site } from "@/data/site";
 import { faqPageSchema } from "@/lib/schema";
 
-const faqSchema = faqPageSchema(faqs.slice(0, 6));
+export default async function HomePage() {
+  // Fetched once and passed to both the section and the schema, so the
+  // structured data cannot describe a different set of questions from the one
+  // on the page.
+  const faqs = await getFaqs({ limit: 6 });
+  const faqSchema = faqPageSchema(faqs);
 
-export default function HomePage() {
   return (
     <>
       <Hero />
@@ -29,7 +33,7 @@ export default function HomePage() {
       <TestimonialsSection />
       <IncludedSection />
       <TechnologiesSection />
-      <FaqSection items={faqs.slice(0, 6)} />
+      <FaqSection items={faqs} />
       <BlogSection />
       <CtaSection />
       <script

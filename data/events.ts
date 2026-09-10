@@ -5,10 +5,29 @@ export interface CampusEvent {
   title: string;
   date: string;
   location: string;
-  type: "Summit" | "Workshop" | "Seminar" | "Drive";
+  type: "Summit" | "Workshop" | "Seminar" | "Drive" | "Webinar" | "Other";
   excerpt: string;
+  /**
+   * Structured body, as the events below are authored.
+   *
+   * Empty for an event that came from the CMS, which stores one rich-text
+   * document instead — that arrives as `html`. The event page renders
+   * whichever is present, so both kinds coexist.
+   */
   body: string[];
   agenda: { time: string; item: string }[];
+
+  /* Set only on a CMS event. The static ones below carry none of these. */
+
+  /** Rich text from the CMS editor, already sanitised. */
+  html?: string;
+  /** Present on a multi-day event; the listing prints a range. */
+  endDate?: string;
+  startTime?: string;
+  registerUrl?: string;
+  seats?: string;
+  fee?: string;
+  coverImage?: string;
 }
 
 export const events: CampusEvent[] = [

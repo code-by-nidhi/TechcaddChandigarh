@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { Icon, Rail } from "@/components/ui";
-import { blogPosts, formatDate } from "@/data/blog";
+import { formatDate } from "@/data/blog";
+import { getBlogPosts } from "@/lib/cms";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -12,18 +13,22 @@ export const metadata: Metadata = {
   alternates: { canonical: `${site.url}/blogs` },
 };
 
-export default function BlogsPage() {
-  const [lead, ...rest] = [...blogPosts].sort((a, b) => b.date.localeCompare(a.date));
+export default async function BlogsPage() {
+  // Already newest-first, from the CMS when one is configured and from the
+  // static posts otherwise.
+  const posts = await getBlogPosts();
+  const [lead, ...rest] = posts;
 
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="blogs"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Blogs" }]}
         eyebrow="Blog"
         title="Notes from the classroom and the codebase"
         body="Course guides, career scope and honest assessments of what is actually changing — written by the people teaching it, not a content agency."
         meta={[
-          { label: "Articles", value: String(blogPosts.length) },
+          { label: "Articles", value: String(posts.length) },
           { label: "Written by", value: "techcadd trainers" },
         ]}
       />

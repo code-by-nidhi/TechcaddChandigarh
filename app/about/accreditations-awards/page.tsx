@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { QuickDemoFormLight } from "@/components/EnquiryForm";
 import { Badge, ButtonLink, Eyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
 import {
@@ -40,10 +40,11 @@ function GoogleMark({ className }: { className?: string }) {
   );
 }
 
-export default function AccreditationsAwardsPage() {
+export default async function AccreditationsAwardsPage() {
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="about/accreditations-awards"
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "About", href: "/about" },

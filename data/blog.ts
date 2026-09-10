@@ -14,7 +14,18 @@ export interface BlogPost {
   date: string;
   readTime: string;
   author: string;
+  /**
+   * Structured body, as the posts below are authored.
+   *
+   * Empty for a post that came from the CMS, which stores one rich-text
+   * document instead — that arrives as `html`. The post page renders whichever
+   * is present, so both kinds coexist without either being converted.
+   */
   sections: BlogSection[];
+  /** Rich text from the CMS editor. Never set on the static posts below. */
+  html?: string;
+  /** Cover image, when the CMS has one. */
+  coverImage?: string;
 }
 
 const city = site.city;
@@ -330,9 +341,18 @@ export const recentPosts = [...blogPosts]
   .sort((a, b) => b.date.localeCompare(a.date))
   .slice(0, 3);
 
-export const formatDate = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-IN", {
+/**
+ * Guards against an unparseable date rather than printing "Invalid Date".
+ *
+ * The static posts below all carry one, but a CMS post can be saved with no
+ * publish date set, and a date line is not worth breaking a page over.
+ */
+export const formatDate = (iso: string) => {
+  const date = new Date(iso);
+  if (!iso || Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-IN", {
     day: "numeric",
     month: "short",
     year: "numeric",
   });
+};

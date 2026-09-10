@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { getCategory, courseSlug, type Course, type CourseModule } from "@/data/courses";
+import { courseSlug, type Course, type CourseModule } from "@/data/courses";
+import { getCategoryFor, getCourses, relatedFrom } from "@/lib/catalogue";
 import { site } from "@/data/site";
 import { includedItems } from "@/data/content";
 import { relatedCourses, rupees } from "@/lib/routes";
@@ -223,7 +224,7 @@ function defaultCourseOverview(course: Course, duration?: string): ReactNode {
 
 /* ------------------------------- Full page body ------------------------------- */
 
-export function CourseBody({
+export async function CourseBody({
   course,
   duration,
   intro,
@@ -242,8 +243,10 @@ export function CourseBody({
    * same body. */
   showExtras?: boolean;
 }) {
-  const category = getCategory(course.category);
-  const related = relatedCourses(course);
+  const category = await getCategoryFor(course.category);
+  // Related courses come from the resolved catalogue, so a course added in the
+  // CMS can appear in another course's rail.
+  const related = relatedFrom(await getCourses(), course);
 
   const outcomesBlock = (
     <div>
@@ -551,7 +554,9 @@ export function courseHeaderMeta(course: Course, duration?: string) {
   ];
 }
 
-export function CourseBadgeRow({ course }: { course: Course }) {
+export async function CourseBadgeRow({ course }: { course: Course }) {
+  const category = await getCategoryFor(course.category);
+
   return (
     <div className="flex flex-wrap items-center gap-2.5">
       {course.badge ? <Badge tone={badgeTone(course.badge)}>{course.badge}</Badge> : null}
@@ -559,7 +564,7 @@ export function CourseBadgeRow({ course }: { course: Course }) {
         href={`/${courseSlug(course.id)}`}
         className="text-xs font-medium text-brand-200 hover:text-white"
       >
-        {getCategory(course.category).short}
+        {category.short}
       </Link>
     </div>
   );

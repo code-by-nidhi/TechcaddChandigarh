@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { PageHeader } from "@/components/PageHeader";
+import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { Accordion } from "@/components/Accordion";
 import { Rail, SectionHeading } from "@/components/ui";
-import { faqs } from "@/data/content";
+import { getFaqs } from "@/lib/cms";
 import { site } from "@/data/site";
 
 export const metadata: Metadata = {
@@ -55,22 +55,36 @@ const extraFaqs = [
   },
 ];
 
-const allFaqs = [...faqs, ...extraFaqs];
+/**
+ * The page-specific questions above are appended to whatever the CMS holds,
+ * and de-duplicated by question text — once an editor adds one of these to the
+ * CMS, the copy here stops being rendered twice.
+ */
+function mergeFaqs(managed: { question: string; answer: string }[]) {
+  const seen = new Set(managed.map((faq) => faq.question.trim().toLowerCase()));
+  return [
+    ...managed,
+    ...extraFaqs.filter((faq) => !seen.has(faq.question.trim().toLowerCase())),
+  ];
+}
 
-const schema = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: allFaqs.map((faq) => ({
-    "@type": "Question",
-    name: faq.question,
-    acceptedAnswer: { "@type": "Answer", text: faq.answer },
-  })),
-};
+export default async function FaqPage() {
+  const allFaqs = mergeFaqs(await getFaqs());
 
-export default function FaqPage() {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: allFaqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  };
+
   return (
     <>
-      <PageHeader
+      <CmsPageHeader
+        route="faq"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "FAQs" }]}
         eyebrow="FAQs"
         title="Questions we get every week"

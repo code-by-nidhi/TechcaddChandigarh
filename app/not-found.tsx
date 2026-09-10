@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/PageHeader";
 import { ButtonLink, Icon, Rail } from "@/components/ui";
-import { courseCategories } from "@/data/courses";
+import { getCourseCategories } from "@/lib/catalogue";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const courseCategories = await getCourseCategories();
   return (
     <>
       <PageHeader

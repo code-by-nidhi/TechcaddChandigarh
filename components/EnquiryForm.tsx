@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { courses } from "@/data/courses";
+import { useCourseOptions } from "@/components/CatalogueProvider";
 import { branches } from "@/data/branches";
 import { isValidPhone, submitEnquiry, type EnquiryFormType } from "@/lib/enquiry";
 import { Button, Icon, cx } from "./ui";
 
 /** Posts to `/api/enquiry`, which writes the lead to MySQL. */
 export function EnquiryForm({ compact = false }: { compact?: boolean }) {
+  const courses = useCourseOptions();
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
   const [error, setError] = useState<string | null>(null);
 

@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { courseSlug, getCategory, type Course } from "@/data/courses";
+import { courseSlug, type Course } from "@/data/courses";
+import { getCategoryFor } from "@/lib/catalogue";
 import { Badge, Icon, badgeTone } from "./ui";
 
-export function CourseCard({ course, compact = false }: { course: Course; compact?: boolean }) {
-  const category = getCategory(course.category);
+export async function CourseCard({ course, compact = false }: { course: Course; compact?: boolean }) {
+  const category = await getCategoryFor(course.category);
 
   return (
     <article className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6">

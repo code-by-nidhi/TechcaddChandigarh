@@ -5,13 +5,19 @@ import { PageHeader } from "@/components/PageHeader";
 import { CtaSection } from "@/components/sections/Home";
 import { EnquiryForm } from "@/components/EnquiryForm";
 import { Icon, Rail } from "@/components/ui";
-import { events, eventsBySlug } from "@/data/events";
+import { getEvent, getEvents } from "@/lib/cms";
 import { formatDate } from "@/data/blog";
 import { site } from "@/data/site";
 
-export const dynamicParams = false;
+/**
+ * An event published in the CMS after the last build must still resolve, so
+ * unknown slugs render on demand. `getEvent` returns null for one neither the
+ * CMS nor the static set knows, and that is what still produces a 404.
+ */
+export const dynamicParams = true;
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const events = await getEvents();
   return events.map((event) => ({ event: event.slug }));
 }
 
@@ -21,7 +27,7 @@ export async function generateMetadata({
   params: Promise<{ event: string }>;
 }): Promise<Metadata> {
   const { event: slug } = await params;
-  const event = eventsBySlug.get(slug);
+  const event = await getEvent(slug);
   if (!event) return {};
 
   return {
@@ -33,10 +39,10 @@ export async function generateMetadata({
 
 export default async function EventPage({ params }: { params: Promise<{ event: string }> }) {
   const { event: slug } = await params;
-  const event = eventsBySlug.get(slug);
+  const event = await getEvent(slug);
   if (!event) notFound();
 
-  const others = events.filter((e) => e.slug !== event.slug);
+  const others = (await getEvents()).filter((e) => e.slug !== event.slug);
 
   const schema = {
     "@context": "https://schema.org",
@@ -73,19 +79,35 @@ export default async function EventPage({ params }: { params: Promise<{ event: s
             <div className="space-y-14">
               <div>
                 <h2 className="font-display text-2xl font-bold tracking-tight">About this event</h2>
-                <div className="mt-5 space-y-5 leading-relaxed text-muted">
-                  {event.body.map((paragraph, i) => (
-                    <p key={i}>{paragraph}</p>
-                  ))}
-                </div>
+
+                {/*
+                  * A CMS event arrives as one rich-text document; the static
+                  * ones are authored as paragraph arrays. Whichever the event
+                  * has is what renders, so both kinds coexist.
+                  */}
+                {event.html ? (
+                  <div
+                    className="cms-prose mt-5"
+                    dangerouslySetInnerHTML={{ __html: event.html }}
+                  />
+                ) : (
+                  <div className="mt-5 space-y-5 leading-relaxed text-muted">
+                    {event.body.map((paragraph, i) => (
+                      <p key={i}>{paragraph}</p>
+                    ))}
+                  </div>
+                )}
               </div>
 
+              {event.agenda.length > 0 && (
               <div>
                 <h2 className="font-display text-2xl font-bold tracking-tight">Agenda</h2>
                 <ol className="mt-8 space-y-2">
-                  {event.agenda.map((row) => (
+                  {event.agenda.map((row, i) => (
                     <li
-                      key={row.time}
+                      // A day-based agenda can repeat a label ("Day 1" twice),
+                      // so the index is part of the key.
+                      key={`${row.time}-${i}`}
                       className="flex gap-6 rounded-xl border border-line bg-white px-5 py-4"
                     >
                       <span className="w-16 shrink-0 font-display text-sm font-bold text-brand-600">
@@ -96,6 +118,7 @@ export default async function EventPage({ params }: { params: Promise<{ event: s
                   ))}
                 </ol>
               </div>
+              )}
 
               <div>
                 <h2 className="font-display text-2xl font-bold tracking-tight">Other events</h2>

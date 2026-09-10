@@ -5,10 +5,9 @@ import {
   formatCards,
   includedItems,
   processSteps,
-  testimonials,
-  faqs,
 } from "@/data/content";
-import { recentPosts, formatDate } from "@/data/blog";
+import { formatDate } from "@/data/blog";
+import { getFaqs, getRecentPosts, getReviews } from "@/lib/cms";
 import { CategoriesShowcase } from "@/components/sections/CategoriesShowcase";
 import { FeaturedShowcase } from "@/components/sections/FeaturedShowcase";
 import { TechnologyStage } from "@/components/sections/TechnologyStage";
@@ -229,7 +228,10 @@ export function DifferenceSection() {
 
 /* ------------------------------- Testimonials ------------------------------- */
 
-export function TestimonialsSection() {
+export async function TestimonialsSection() {
+  // Capped at nine: the grid is three columns, and the wall lives on /reviews.
+  const testimonials = await getReviews({ limit: 9 });
+
   return (
     <section className="py-20 lg:py-28">
       <Rail>
@@ -252,7 +254,7 @@ export function TestimonialsSection() {
         <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial) => (
             <figure
-              key={testimonial.name}
+              key={`${testimonial.name}-${testimonial.quote.slice(0, 24)}`}
               className="flex flex-col rounded-2xl border border-line bg-white p-6"
             >
               <Icon name="quote" className="size-7 text-brand-200" />
@@ -343,7 +345,13 @@ export function TechnologiesSection() {
 
 /* ----------------------------------- FAQ ----------------------------------- */
 
-export function FaqSection({ items = faqs }: { items?: typeof faqs }) {
+/**
+ * `items` stays a prop so a course page can pass its own shortlist. Left
+ * unset, the questions come from the CMS — which is the homepage case.
+ */
+export async function FaqSection({ items }: { items?: { question: string; answer: string }[] }) {
+  const questions = items ?? (await getFaqs({ limit: 8 }));
+
   return (
     <section className="bg-subtle py-20 lg:py-28">
       <Rail>
@@ -359,7 +367,7 @@ export function FaqSection({ items = faqs }: { items?: typeof faqs }) {
               <Icon name="arrow-right" className="size-4" />
             </ButtonLink>
           </div>
-          <Accordion items={items} />
+          <Accordion items={questions} />
         </div>
       </Rail>
     </section>
@@ -368,7 +376,9 @@ export function FaqSection({ items = faqs }: { items?: typeof faqs }) {
 
 /* ----------------------------------- Blog ----------------------------------- */
 
-export function BlogSection() {
+export async function BlogSection() {
+  const recentPosts = await getRecentPosts(3);
+
   return (
     <section className="py-20 lg:py-28">
       <Rail>
