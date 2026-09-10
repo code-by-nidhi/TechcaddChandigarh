@@ -5,7 +5,7 @@ import { CourseHeroIllustration } from "@/components/CourseHeroIllustration";
 import { CourseCard } from "@/components/CourseCard";
 import { CourseEnquirySection } from "@/components/CourseEnquirySection";
 import {
-  OverviewNetworkGraphic,
+  CourseOverview,
   IndustryTrainingSection,
   EligibilitySection,
   CaseForCourse,
@@ -224,30 +224,21 @@ export function AiHubTemplate({
       {/* ------------------------------------- Overview ------------------------------------- */}
       <section className="py-16 lg:py-20">
         <Rail>
-          <div className="mx-auto max-w-3xl">
-            <span className="inline-flex items-center rounded-full border border-line px-4 py-1.5 text-xs font-bold tracking-wide text-muted uppercase">
-              Overview
-            </span>
-            <h2 className="mt-6 flex items-center gap-3 font-display text-2xl font-bold tracking-tight">
-              Course overview
-              <span
-                aria-hidden="true"
-                className="inline-block size-6 shrink-0 rounded-full border-2 border-brand-500"
-              />
-            </h2>
-            <div className="mt-5 max-w-3xl space-y-4 text-justify leading-relaxed text-muted">
-              <p>{summary}</p>
-              <p>
-                Every one of these {listedCourses.length} programmes runs with supervised lab
-                hours, a live client project and placement support — what differs between them is
-                the technology and the depth. Pick the one closest to where you already are, or
-                talk to a counsellor if you are not sure which to start with.
-              </p>
-            </div>
-            <div className="mt-10">
-              <OverviewNetworkGraphic />
-            </div>
-          </div>
+          <CourseOverview
+            course={hub}
+            showExtras
+            intro={
+              <>
+                <p>{summary}</p>
+                <p>
+                  Every one of these {listedCourses.length} programmes runs with supervised lab
+                  hours, a live client project and placement support — what differs between them
+                  is the technology and the depth. Pick the one closest to where you already are,
+                  or talk to a counsellor if you are not sure which to start with.
+                </p>
+              </>
+            }
+          />
         </Rail>
       </section>
 

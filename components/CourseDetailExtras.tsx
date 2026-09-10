@@ -86,6 +86,62 @@ export function OverviewNetworkGraphic() {
   );
 }
 
+/**
+ * The "Course overview" block every course page opens with — badge, heading
+ * with its decorative ring, intro copy, then either a tool-tag cloud (plain
+ * course pages) or the network graphic (the fuller `showExtras` layout, also
+ * used by pages that aren't a single real course, like the AI hub pages).
+ * `CourseBody` and every non-course template call this exact function rather
+ * than each keeping their own copy, so the wrapper/max-width/spacing can
+ * never drift between them.
+ */
+export function CourseOverview({
+  course,
+  intro,
+  showExtras,
+}: {
+  course: Course;
+  intro: ReactNode;
+  showExtras?: boolean;
+}) {
+  return (
+    <div>
+      <span className="inline-flex items-center rounded-full border border-line px-4 py-1.5 text-xs font-bold tracking-wide text-muted uppercase">
+        Overview
+      </span>
+      <h2 className="mt-6 flex items-center gap-3 font-display text-3xl font-bold tracking-tight lg:text-4xl">
+        Course overview
+        <span
+          aria-hidden="true"
+          className="inline-block size-7 shrink-0 rounded-full border-2 border-brand-500"
+        />
+      </h2>
+      <div className="mt-5 space-y-4 text-justify text-base leading-relaxed text-muted lg:text-lg">
+        {intro}
+      </div>
+
+      {showExtras ? null : (
+        <div className="mt-8 flex flex-wrap gap-2">
+          {course.tools.map((tool) => (
+            <span
+              key={tool}
+              className="rounded-lg border border-line bg-subtle px-3 py-1.5 text-sm font-medium text-muted"
+            >
+              {tool}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {showExtras ? (
+        <div className="mt-10">
+          <OverviewNetworkGraphic />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 /* ------------------------------ Industry training ------------------------------ */
 
 const WHAT_YOU_GET = [

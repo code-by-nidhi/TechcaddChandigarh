@@ -21,7 +21,7 @@ import {
   variantIndex,
 } from "./ui";
 import {
-  OverviewNetworkGraphic,
+  CourseOverview,
   IndustryTrainingSection,
   ToolchainPanel,
   CertificationSection,
@@ -318,40 +318,11 @@ export async function CourseBody({
             )}
           >
             <div className="min-w-0 space-y-16">
-              <div className={cx(showExtras ? "mx-auto max-w-3xl" : "")}>
-                <span className="inline-flex items-center rounded-full border border-line px-4 py-1.5 text-xs font-bold tracking-wide text-muted uppercase">
-                  Overview
-                </span>
-                <h2 className="mt-6 flex items-center gap-3 font-display text-2xl font-bold tracking-tight">
-                  Course overview
-                  <span
-                    aria-hidden="true"
-                    className="inline-block size-6 shrink-0 rounded-full border-2 border-brand-500"
-                  />
-                </h2>
-                <div className="mt-5 max-w-3xl space-y-4 text-justify leading-relaxed text-muted">
-                  {intro ?? defaultCourseOverview(course, duration)}
-                </div>
-
-                {showExtras ? null : (
-                  <div className="mt-8 flex flex-wrap gap-2">
-                    {course.tools.map((tool) => (
-                      <span
-                        key={tool}
-                        className="rounded-lg border border-line bg-subtle px-3 py-1.5 text-sm font-medium text-muted"
-                      >
-                        {tool}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {showExtras ? (
-                  <div className="mt-10">
-                    <OverviewNetworkGraphic />
-                  </div>
-                ) : null}
-              </div>
+              <CourseOverview
+                course={course}
+                intro={intro ?? defaultCourseOverview(course, duration)}
+                showExtras={showExtras}
+              />
 
               {extra}
 

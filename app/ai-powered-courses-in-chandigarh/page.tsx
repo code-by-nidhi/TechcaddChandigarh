@@ -32,6 +32,7 @@ export default function AiPoweredCoursesPage() {
       summary={`Six hands-on programmes built around using AI as a working tool — for marketing, writing, automation and building on top of language models — rather than the research theory behind it. ${DESCRIPTION}`}
       breadcrumbLabel="AI-Powered Courses"
       courseIds={COURSE_IDS}
+      heroImage="/images/courses/ai-powered-courses.webp"
     />
   );
 }
