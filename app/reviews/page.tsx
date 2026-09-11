@@ -116,55 +116,55 @@ export default async function ReviewsPage() {
                 }
               />
             ) : (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {allReviews.map((review) => (
-                <figure
-                  key={`${review.name}-${review.quote.slice(0, 24)}`}
-                  className="flex flex-col rounded-2xl border border-line bg-white p-6"
-                >
-                  {/* The stars the student actually gave. A review saved before
-                      the rating field existed carries none and shows five. */}
-                  <div className="flex items-center gap-1 text-accent-yellow">
-                    {Array.from({ length: review.rating ?? 5 }).map((_, i) => (
-                      <Icon key={i} name="star" className="size-4" />
-                    ))}
-                  </div>
-                  <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
-                    {review.quote}
-                  </blockquote>
-                  <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-5">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-hero-950 text-xs font-bold text-white">
-                      {review.initials}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">{review.name}</span>
-                      <span className="block truncate text-xs text-muted">{review.role}</span>
-                      <span className="mt-0.5 block truncate text-[11px] font-medium text-brand-600">
-                        {review.course}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {allReviews.map((review) => (
+                  <figure
+                    key={`${review.name}-${review.quote.slice(0, 24)}`}
+                    className="flex flex-col rounded-2xl border border-line bg-white p-6"
+                  >
+                    {/* The stars the student actually gave. A review saved before
+                        the rating field existed carries none and shows five. */}
+                    <div className="flex items-center gap-1 text-accent-yellow">
+                      {Array.from({ length: review.rating ?? 5 }).map((_, i) => (
+                        <Icon key={i} name="star" className="size-4" />
+                      ))}
+                    </div>
+                    <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
+                      {review.quote}
+                    </blockquote>
+                    <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-5">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-hero-950 text-xs font-bold text-white">
+                        {review.initials}
                       </span>
-                    </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold">{review.name}</span>
+                        <span className="block truncate text-xs text-muted">{review.role}</span>
+                        <span className="mt-0.5 block truncate text-[11px] font-medium text-brand-600">
+                          {review.course}
+                        </span>
+                      </span>
 
-                    {/*
-                      * Only when the editor has linked one. A card with no link
-                      * is still a real review — it just cannot be checked at
-                      * the source, so it does not pretend it can.
-                      */}
-                    {review.googleUrl ? (
-                      <a
-                        href={review.googleUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Read this review on Google"
-                        aria-label={`Read the Google review from ${review.name}`}
-                        className="grid size-9 shrink-0 place-items-center rounded-full border border-line transition-colors hover:border-brand-600/30"
-                      >
-                        <GoogleMark className="size-4" />
-                      </a>
-                    ) : null}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
+                      {/*
+                        * Only when the editor has linked one. A card with no link
+                        * is still a real review — it just cannot be checked at
+                        * the source, so it does not pretend it can.
+                        */}
+                      {review.googleUrl ? (
+                        <a
+                          href={review.googleUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Read this review on Google"
+                          aria-label={`Read the Google review from ${review.name}`}
+                          className="grid size-9 shrink-0 place-items-center rounded-full border border-line transition-colors hover:border-brand-600/30"
+                        >
+                          <GoogleMark className="size-4" />
+                        </a>
+                      ) : null}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
             )}
           </div>
         </Rail>

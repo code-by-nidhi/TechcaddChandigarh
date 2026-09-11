@@ -79,100 +79,100 @@ export default async function BlogsPage() {
               }
             />
           ) : (
-          <>
-          {/* Lead article */}
-          <article className="card-hover relative grid gap-8 rounded-3xl border border-line bg-white p-8 lg:grid-cols-[1.4fr_1fr] lg:p-10">
-            <div>
-              <div className="flex items-center gap-3 text-xs text-muted">
-                <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">
-                  {lead.category}
-                </span>
-                <span>{formatDate(lead.date)}</span>
-                <span>·</span>
-                <span>{lead.readTime}</span>
-              </div>
-              <h2 className="mt-5 font-display text-2xl leading-snug font-bold tracking-tight text-balance lg:text-3xl wrap-anywhere">
-                <Link href={`/blogs/${lead.slug}`} className="before:absolute before:inset-0">
-                  {lead.title}
-                </Link>
-              </h2>
-              <p className="mt-4 leading-relaxed text-muted">{lead.excerpt}</p>
-              <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600">
-                Read article
-                <Icon name="arrow-right" className="size-4" />
-              </span>
-            </div>
-            <div className="hero-surface hidden rounded-2xl p-8 lg:block">
-              <Icon name="sparkles" className="size-8 text-accent-400" />
-              <p className="mt-5 font-display text-lg font-bold leading-snug text-white wrap-anywhere">
-                Latest article
-              </p>
-              <p className="mt-2 text-sm leading-relaxed text-brand-100/70">
-                Written by the trainers who teach the course it covers.
-              </p>
-            </div>
-          </article>
-
-          {/*
-            * The topic index. Anchors rather than a filter: no JavaScript, every
-            * post stays on one page and reachable by search, and a shared link
-            * still lands on the right section.
-            */}
-          {categories.length > 1 ? (
-            <nav aria-label="Topics" className="mt-10 flex flex-wrap gap-2">
-              {categories.map((category) => (
-                <a
-                  key={category.id}
-                  href={`#${category.id}`}
-                  className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium transition-colors hover:border-brand-600/30 hover:text-brand-600"
-                >
-                  {category.name}
-                  <span className="text-xs text-muted">{category.count}</span>
-                </a>
-              ))}
-            </nav>
-          ) : null}
-
-          {categories.map((category) => (
-            <section key={category.id} id={category.id} data-toc-target className="mt-14">
-              <h2 className="font-display text-xl font-bold tracking-tight wrap-anywhere">
-                {category.name}
-                <span className="ml-2 text-sm font-normal text-muted">{category.count}</span>
-              </h2>
-
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {category.items.map((post) => (
-              <article
-                key={post.slug}
-                className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6"
-              >
-                <div className="flex items-center gap-3 text-xs text-muted">
-                  <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">
-                    {post.category}
+            <>
+              {/* Lead article */}
+              <article className="card-hover relative grid gap-8 rounded-3xl border border-line bg-white p-8 lg:grid-cols-[1.4fr_1fr] lg:p-10">
+                <div>
+                  <div className="flex items-center gap-3 text-xs text-muted">
+                    <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">
+                      {lead.category}
+                    </span>
+                    <span>{formatDate(lead.date)}</span>
+                    <span>·</span>
+                    <span>{lead.readTime}</span>
+                  </div>
+                  <h2 className="mt-5 font-display text-2xl leading-snug font-bold tracking-tight text-balance lg:text-3xl wrap-anywhere">
+                    <Link href={`/blogs/${lead.slug}`} className="before:absolute before:inset-0">
+                      {lead.title}
+                    </Link>
+                  </h2>
+                  <p className="mt-4 leading-relaxed text-muted">{lead.excerpt}</p>
+                  <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600">
+                    Read article
+                    <Icon name="arrow-right" className="size-4" />
                   </span>
-                  <span>{formatDate(post.date)}</span>
                 </div>
-                <h2 className="mt-5 font-display text-lg leading-snug font-bold tracking-tight wrap-anywhere">
-                  <Link href={`/blogs/${post.slug}`} className="before:absolute before:inset-0">
-                    {post.title}
-                  </Link>
-                </h2>
-                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
-                  {post.excerpt}
-                </p>
-                <span className="mt-6 flex items-center justify-between border-t border-line pt-5 text-xs text-muted">
-                  {post.readTime}
-                  <Icon
-                    name="arrow-right"
-                    className="size-4 text-brand-600 transition-transform duration-300 group-hover:translate-x-1"
-                  />
-                </span>
+                <div className="hero-surface hidden rounded-2xl p-8 lg:block">
+                  <Icon name="sparkles" className="size-8 text-accent-400" />
+                  <p className="mt-5 font-display text-lg font-bold leading-snug text-white wrap-anywhere">
+                    Latest article
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-brand-100/70">
+                    Written by the trainers who teach the course it covers.
+                  </p>
+                </div>
               </article>
-                ))}
-              </div>
-            </section>
-          ))}
-          </>
+
+              {/*
+                * The topic index. Anchors rather than a filter: no JavaScript, every
+                * post stays on one page and reachable by search, and a shared link
+                * still lands on the right section.
+                */}
+              {categories.length > 1 ? (
+                <nav aria-label="Topics" className="mt-10 flex flex-wrap gap-2">
+                  {categories.map((category) => (
+                    <a
+                      key={category.id}
+                      href={`#${category.id}`}
+                      className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-2 text-sm font-medium transition-colors hover:border-brand-600/30 hover:text-brand-600"
+                    >
+                      {category.name}
+                      <span className="text-xs text-muted">{category.count}</span>
+                    </a>
+                  ))}
+                </nav>
+              ) : null}
+
+              {categories.map((category) => (
+                <section key={category.id} id={category.id} data-toc-target className="mt-14">
+                  <h2 className="font-display text-xl font-bold tracking-tight wrap-anywhere">
+                    {category.name}
+                    <span className="ml-2 text-sm font-normal text-muted">{category.count}</span>
+                  </h2>
+
+                  <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {category.items.map((post) => (
+                      <article
+                        key={post.slug}
+                        className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6"
+                      >
+                        <div className="flex items-center gap-3 text-xs text-muted">
+                          <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">
+                            {post.category}
+                          </span>
+                          <span>{formatDate(post.date)}</span>
+                        </div>
+                        <h2 className="mt-5 font-display text-lg leading-snug font-bold tracking-tight wrap-anywhere">
+                          <Link href={`/blogs/${post.slug}`} className="before:absolute before:inset-0">
+                            {post.title}
+                          </Link>
+                        </h2>
+                        <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
+                          {post.excerpt}
+                        </p>
+                        <span className="mt-6 flex items-center justify-between border-t border-line pt-5 text-xs text-muted">
+                          {post.readTime}
+                          <Icon
+                            name="arrow-right"
+                            className="size-4 text-brand-600 transition-transform duration-300 group-hover:translate-x-1"
+                          />
+                        </span>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </>
           )}
         </Rail>
       </section>

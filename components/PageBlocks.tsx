@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ButtonLink, Icon, Rail, SectionHeading, cx } from "@/components/ui";
 import { CourseCard } from "@/components/CourseCard";
+import { EmptyState } from "@/components/EmptyState";
 import { formatDate } from "@/data/blog";
 import { getBlogPosts, getEvents, getReviews, type CmsPageBlock } from "@/lib/cms";
 import { headingId } from "@/lib/headings";
@@ -371,7 +372,22 @@ async function RecentBlock({
 
   if (source === "reviews") {
     const reviews = (await getReviews({ limit: count })).slice(0, count);
-    if (reviews.length === 0) return null;
+    // Said out loud rather than rendered as nothing: the editor put this block
+    // on the page deliberately, and a block that silently disappears looks
+    // like the page dropped it rather than like the reviews list being empty.
+    if (reviews.length === 0) {
+      return (
+        <section>
+          {heading ? <SectionHeading title={heading} /> : null}
+          <EmptyState
+            className={cx(heading && "mt-10")}
+            icon="quote"
+            title="No reviews published yet"
+            body="Nothing has been added to the reviews in the CMS, so there is nothing to show here yet."
+          />
+        </section>
+      );
+    }
 
     return (
       <section>
@@ -402,7 +418,19 @@ async function RecentBlock({
   }
 
   const posts = (await getBlogPosts()).slice(0, count);
-  if (posts.length === 0) return null;
+  if (posts.length === 0) {
+    return (
+      <section>
+        {heading ? <SectionHeading title={heading} /> : null}
+        <EmptyState
+          className={cx(heading && "mt-10")}
+          icon="list"
+          title="No articles published yet"
+          body="Nothing has been published to the blog in the CMS, so there is nothing to show here yet."
+        />
+      </section>
+    );
+  }
 
   return (
     <section>

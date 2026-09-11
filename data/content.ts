@@ -164,15 +164,21 @@ export interface Testimonial {
   quote: string;
   initials: string;
   /**
-   * Set on reviews that came from the CMS, where an editor records the stars a
-   * student actually gave. The static entries below have none, and the cards
-   * render five — which is what they did before the CMS existed.
+   * The stars an editor recorded for this review. A review saved before the
+   * field existed carries none, and the cards render five.
    */
   rating?: number;
   /** The review's own page on Google, when the editor linked one. */
   googleUrl?: string;
 }
 
+/**
+ * The reviews the site shipped with, before they moved into the CMS.
+ *
+ * No longer rendered anywhere — every review on the site now comes from
+ * `getReviews` in `lib/cms`. Kept as the copy to seed the CMS from; nothing
+ * should import it again, since doing so is what would hide an empty wall.
+ */
 export const testimonials: Testimonial[] = [
   {
     name: "Harleen Kaur",
@@ -280,13 +286,19 @@ export interface Faq {
   /**
    * The heading this question is grouped under on the FAQ page.
    *
-   * Set on questions that came from the CMS. The static ones below carry none
-   * and fall into a general group, which is how the page read before grouping
-   * existed.
+   * A question an editor left uncategorised carries none and falls into one
+   * general group rather than vanishing.
    */
   category?: string;
 }
 
+/**
+ * The questions the site shipped with, before the FAQs moved into the CMS.
+ *
+ * No longer rendered anywhere — every FAQ on the site now comes from `getFaqs`
+ * in `lib/cms`. Kept as the copy to seed the CMS from; nothing should import
+ * it again, since doing so is what would hide an empty FAQ list.
+ */
 export const faqs: Faq[] = [
   {
     question: "Do I need a coding background to join?",
@@ -405,7 +417,13 @@ export const techGroups: TechGroup[] = [
 /* ------------------------------- Hero metrics ------------------------------- */
 
 export const heroStats = [
-  { value: `${new Date().getFullYear() - site.founded}+ yrs`, label: "Training since 2007" },
+  {
+    value: `${new Date().getFullYear() - site.founded}+ yrs`,
+    // Derived, not typed: the value beside it already counts from `founded`,
+    // and a hard-coded year here is how the label came to say 2007 while the
+    // number counted from somewhere else.
+    label: `Training since ${site.founded}`,
+  },
   { value: site.stats.alumni, label: "Alumni network" },
   { value: site.stats.partners, label: "Hiring partners" },
 ];

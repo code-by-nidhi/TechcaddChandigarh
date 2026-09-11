@@ -3,8 +3,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { getCategory, type Course, type CourseModule } from "@/data/courses";
 import { site } from "@/data/site";
-import { testimonials, includedItems, PLACEMENT_ITEMS } from "@/data/content";
+import { includedItems, PLACEMENT_ITEMS, type Testimonial } from "@/data/content";
+import { getReviews } from "@/lib/cms";
 import { BuildStagesPanel } from "./BuildStagesPanel";
+import { EmptyState } from "./EmptyState";
 import { Icon, SectionHeading, ButtonLink, cx, joinNatural, variantIndex } from "./ui";
 
 /* ------------------------------ Overview network ------------------------------ */
@@ -1088,9 +1090,15 @@ export function ComparisonTable({ course }: { course: Course }) {
 
 /* ------------------------------- Testimonials ------------------------------- */
 
-export function matchingTestimonials(course: Course) {
+/**
+ * The reviews whose course looks like this one.
+ *
+ * Takes the pool as an argument rather than reading a module-level array,
+ * because the reviews now arrive from the CMS at request time.
+ */
+export function matchingTestimonials(course: Course, pool: Testimonial[]) {
   const nameLower = course.name.toLowerCase();
-  return testimonials.filter(
+  return pool.filter(
     (t) =>
       t.course.toLowerCase().includes(nameLower.split(" ")[0]) ||
       nameLower.includes(t.course.toLowerCase()) ||
@@ -1121,7 +1129,7 @@ function GoogleBadge() {
   );
 }
 
-function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
+function TestimonialCard({ t }: { t: Testimonial }) {
   return (
     <figure
       className={cx(
@@ -1154,12 +1162,26 @@ function TestimonialCard({ t }: { t: (typeof testimonials)[number] }) {
   );
 }
 
-export function CourseTestimonials({ course }: { course: Course }) {
-  // Falls back to real testimonials from other tracks when this exact course
-  // has no match yet, so the section never fabricates a review — it just
-  // widens the honest pool it draws from.
-  const matches = matchingTestimonials(course);
-  const pool = matches.length ? matches : testimonials;
+export async function CourseTestimonials({ course }: { course: Course }) {
+  // Falls back to real reviews from other tracks when this exact course has no
+  // match yet, so the section never fabricates a review — it just widens the
+  // honest pool it draws from.
+  const all = await getReviews();
+  const matches = matchingTestimonials(course, all);
+  const pool = matches.length ? matches : all;
+
+  // Nothing published in the CMS at all. Returned before the heading rather
+  // than after it, because "What our students say" above two empty marquee
+  // rows reads as a section that failed to load.
+  if (pool.length === 0) {
+    return (
+      <EmptyState
+        icon="quote"
+        title="No reviews published yet"
+        body={`Nothing has been added to the review wall for ${course.name} so far. Book a demo class and you can ask the batch about it directly — we will not be in the room.`}
+      />
+    );
+  }
 
   const mid = Math.ceil(pool.length / 2);
   const row1 = pool.slice(0, mid).length ? pool.slice(0, mid) : pool;

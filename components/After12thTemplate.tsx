@@ -4,7 +4,7 @@ import { HeroReveal } from "@/components/motion/Reveal";
 import { site } from "@/data/site";
 import type { Course } from "@/data/courses";
 import type { Program } from "@/data/programs";
-import { faqs } from "@/data/content";
+import { getFaqs } from "@/lib/cms";
 import { courseSchema, faqPageSchema } from "@/lib/schema";
 import {
   CertificationSection,
@@ -54,7 +54,7 @@ function a12HeroSummary(course: Course, program: Program): string {
  * nearly every section. Curriculum, tools, careers and certification content
  * all come from the same real `Course` the track maps to.
  */
-export function After12thTemplate({
+export async function After12thTemplate({
   course,
   program,
   slug,
@@ -69,7 +69,10 @@ export function After12thTemplate({
     url: `${site.url}/${slug}`,
     priceInr: course.fee?.offer,
   });
-  const faqSchema = faqPageSchema(faqs.slice(0, 6));
+  // Managed in the CMS, and only described in structured data when the CMS
+  // actually holds questions — an FAQPage with an empty mainEntity is invalid.
+  const faqs = await getFaqs({ limit: 6 });
+  const faqSchema = faqs.length > 0 ? faqPageSchema(faqs) : null;
 
   return (
     <>
@@ -282,10 +285,12 @@ export function After12thTemplate({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      {faqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      ) : null}
     </>
   );
 }

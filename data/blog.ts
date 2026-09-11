@@ -37,6 +37,16 @@ export interface BlogPost {
 
 const city = site.city;
 
+/**
+ * The posts the site shipped with, before the blog moved into the CMS.
+ *
+ * No longer rendered anywhere: `lib/cms` serves the blog from the CMS alone,
+ * so an article an editor deletes stays deleted. Kept here — rather than
+ * deleted outright — because this is still the only copy of the original copy,
+ * and it is what somebody would paste into the CMS to republish one of them.
+ * Nothing should import it again; wiring it back in is what would make the
+ * "no articles published yet" state unreachable.
+ */
 export const blogPosts: BlogPost[] = [
   {
     slug: `best-digital-marketing-course-in-${site.citySlug}-2026-2027`,
@@ -342,8 +352,10 @@ export const blogPosts: BlogPost[] = [
   },
 ];
 
+/** Unused, like `blogPosts` itself — see the note above it. */
 export const blogBySlug = new Map(blogPosts.map((p) => [p.slug, p]));
 
+/** Unused. The homepage rail comes from `getRecentPosts` in `lib/cms`. */
 export const recentPosts = [...blogPosts]
   .sort((a, b) => b.date.localeCompare(a.date))
   .slice(0, 3);
@@ -351,8 +363,8 @@ export const recentPosts = [...blogPosts]
 /**
  * Guards against an unparseable date rather than printing "Invalid Date".
  *
- * The static posts below all carry one, but a CMS post can be saved with no
- * publish date set, and a date line is not worth breaking a page over.
+ * A CMS post can be saved with no publish date set, and a date line is not
+ * worth breaking a page over.
  */
 export const formatDate = (iso: string) => {
   const date = new Date(iso);

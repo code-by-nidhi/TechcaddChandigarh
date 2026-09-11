@@ -431,7 +431,7 @@ export default function AboutPage() {
               <div className="mt-9 grid grid-cols-3 gap-4 border-t border-line pt-7">
                 <div>
                   <p className="font-display text-2xl font-bold tracking-tight text-brand-600">
-                    <CountUp value={`${new Date().getFullYear() - 2016}+`} />
+                    <CountUp value={`${new Date().getFullYear() - site.founded}+`} />
                   </p>
                   <p className="mt-1 text-xs text-muted">Years building careers</p>
                 </div>

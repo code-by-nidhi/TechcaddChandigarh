@@ -21,7 +21,10 @@ export default async function HomePage() {
   // structured data cannot describe a different set of questions from the one
   // on the page.
   const faqs = await getFaqs({ limit: 6 });
-  const faqSchema = faqPageSchema(faqs);
+  // Skipped entirely when the CMS holds no questions: an FAQPage with an empty
+  // mainEntity is invalid structured data, and the section below says so in
+  // words instead.
+  const faqSchema = faqs.length > 0 ? faqPageSchema(faqs) : null;
 
   return (
     <>
@@ -37,10 +40,12 @@ export default async function HomePage() {
       <FaqSection items={faqs} tone="dark" />
       <BlogSection />
       <CtaSection />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      {faqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      ) : null}
     </>
   );
 }

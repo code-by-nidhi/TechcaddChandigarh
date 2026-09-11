@@ -223,34 +223,43 @@ export default async function BlogPostPage({ params }: { params: Promise<{ post:
         </Rail>
       </article>
 
-      <section className="bg-subtle py-16 lg:py-20">
-        <Rail>
-          <h2 className="font-display text-2xl font-bold tracking-tight wrap-anywhere">Read next</h2>
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            {related.map((item) => (
-              <article
-                key={item.slug}
-                className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6"
-              >
-                <div className="flex items-center gap-3 text-xs text-muted">
-                  <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">
-                    {item.category}
-                  </span>
-                  <span>{formatDate(item.date)}</span>
-                </div>
-                <h3 className="mt-5 font-display leading-snug font-bold tracking-tight wrap-anywhere">
-                  <Link href={`/blogs/${item.slug}`} className="before:absolute before:inset-0">
-                    {item.title}
-                  </Link>
-                </h3>
-                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
-                  {item.excerpt}
-                </p>
-              </article>
-            ))}
-          </div>
-        </Rail>
-      </section>
+      {/*
+        * Dropped entirely when the CMS has nothing else to point at — the
+        * first article published has no siblings, and "Read next" over an
+        * empty row is worse than no band at all. Not given an empty-state
+        * panel either: the reader already has an article in front of them, so
+        * there is nothing here they are missing.
+        */}
+      {related.length > 0 ? (
+        <section className="bg-subtle py-16 lg:py-20">
+          <Rail>
+            <h2 className="font-display text-2xl font-bold tracking-tight wrap-anywhere">Read next</h2>
+            <div className="mt-10 grid gap-4 lg:grid-cols-3">
+              {related.map((item) => (
+                <article
+                  key={item.slug}
+                  className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6"
+                >
+                  <div className="flex items-center gap-3 text-xs text-muted">
+                    <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">
+                      {item.category}
+                    </span>
+                    <span>{formatDate(item.date)}</span>
+                  </div>
+                  <h3 className="mt-5 font-display leading-snug font-bold tracking-tight wrap-anywhere">
+                    <Link href={`/blogs/${item.slug}`} className="before:absolute before:inset-0">
+                      {item.title}
+                    </Link>
+                  </h3>
+                  <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
+                    {item.excerpt}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </Rail>
+        </section>
+      ) : null}
 
       <CtaSection />
       <script

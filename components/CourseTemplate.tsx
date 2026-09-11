@@ -81,8 +81,10 @@ export async function CourseTemplate({
     url: `${site.url}/${slug}`,
     priceInr: course.fee?.offer,
   });
+  // Only described in structured data when the CMS actually holds questions —
+  // an FAQPage with an empty mainEntity is invalid.
   const faqs = await getFaqs({ limit: 6 });
-  const faqSchema = faqPageSchema(faqs);
+  const faqSchema = faqs.length > 0 ? faqPageSchema(faqs) : null;
 
   return (
     <>
@@ -262,10 +264,12 @@ export async function CourseTemplate({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
+      {faqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      ) : null}
     </>
   );
 }

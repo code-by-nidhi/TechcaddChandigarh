@@ -218,28 +218,28 @@ export async function TestimonialsSection() {
             }
           />
         ) : (
-        <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((testimonial) => (
-            <figure
-              key={`${testimonial.name}-${testimonial.quote.slice(0, 24)}`}
-              className="flex flex-col rounded-2xl border border-line bg-white p-6"
-            >
-              <Icon name="quote" className="size-7 text-brand-200" />
-              <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
-                {testimonial.quote}
-              </blockquote>
-              <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-5">
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-hero-950 text-xs font-bold text-white">
-                  {testimonial.initials}
-                </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold">{testimonial.name}</span>
-                  <span className="block truncate text-xs text-muted">{testimonial.role}</span>
-                </span>
-              </figcaption>
-            </figure>
-          ))}
-        </Reveal>
+          <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <figure
+                key={`${testimonial.name}-${testimonial.quote.slice(0, 24)}`}
+                className="flex flex-col rounded-2xl border border-line bg-white p-6"
+              >
+                <Icon name="quote" className="size-7 text-brand-200" />
+                <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
+                  {testimonial.quote}
+                </blockquote>
+                <figcaption className="mt-6 flex items-center gap-3 border-t border-line pt-5">
+                  <span className="grid size-10 shrink-0 place-items-center rounded-full bg-hero-950 text-xs font-bold text-white">
+                    {testimonial.initials}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{testimonial.name}</span>
+                    <span className="block truncate text-xs text-muted">{testimonial.role}</span>
+                  </span>
+                </figcaption>
+              </figure>
+            ))}
+          </Reveal>
         )}
 
         {/*
@@ -390,36 +390,36 @@ export async function BlogSection() {
             }
           />
         ) : (
-        <Reveal stagger className="mt-14 grid gap-4 lg:grid-cols-3">
-          {recentPosts.map((post) => (
-            <article
-              key={post.slug}
-              className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6"
-            >
-              <div className="flex items-center gap-3 text-xs text-muted">
-                <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">
-                  {post.category}
+          <Reveal stagger className="mt-14 grid gap-4 lg:grid-cols-3">
+            {recentPosts.map((post) => (
+              <article
+                key={post.slug}
+                className="card-hover group relative flex flex-col rounded-2xl border border-line bg-white p-6"
+              >
+                <div className="flex items-center gap-3 text-xs text-muted">
+                  <span className="rounded-full bg-brand-50 px-2.5 py-1 font-semibold text-brand-700">
+                    {post.category}
+                  </span>
+                  <span>{formatDate(post.date)}</span>
+                </div>
+                <h3 className="mt-5 font-display text-lg leading-snug font-bold tracking-tight wrap-anywhere">
+                  <Link href={`/blogs/${post.slug}`} className="before:absolute before:inset-0">
+                    {post.title}
+                  </Link>
+                </h3>
+                <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
+                  {post.excerpt}
+                </p>
+                <span className="mt-6 flex items-center justify-between border-t border-line pt-5 text-xs text-muted">
+                  {post.readTime}
+                  <Icon
+                    name="arrow-right"
+                    className="size-4 text-brand-600 transition-transform duration-300 group-hover:translate-x-1"
+                  />
                 </span>
-                <span>{formatDate(post.date)}</span>
-              </div>
-              <h3 className="mt-5 font-display text-lg leading-snug font-bold tracking-tight wrap-anywhere">
-                <Link href={`/blogs/${post.slug}`} className="before:absolute before:inset-0">
-                  {post.title}
-                </Link>
-              </h3>
-              <p className="mt-3 line-clamp-3 flex-1 text-sm leading-relaxed text-muted wrap-anywhere">
-                {post.excerpt}
-              </p>
-              <span className="mt-6 flex items-center justify-between border-t border-line pt-5 text-xs text-muted">
-                {post.readTime}
-                <Icon
-                  name="arrow-right"
-                  className="size-4 text-brand-600 transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </span>
-            </article>
-          ))}
-        </Reveal>
+              </article>
+            ))}
+          </Reveal>
         )}
       </Rail>
     </section>

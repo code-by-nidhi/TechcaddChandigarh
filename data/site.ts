@@ -14,7 +14,16 @@ export const site = {
   url: "https://techcaddchandigarh.com",
   description:
     "Learn with techcadd Chandigarh, an industry-focused IT training centre. Explore 50+ AI and software courses with hands-on labs, live project execution, mentor code reviews, internship experience and placement assistance across top job roles.",
-  founded: 2007,
+  /**
+   * The year the Chandigarh centre opened, and the one every "N+ years of
+   * training" figure on the site counts from.
+   *
+   * This read 2007 — the wider techcadd group's year — which put "19+ years"
+   * on the homepage while the founder and about pages said 2016 a few clicks
+   * away. Derive from this field rather than hard-coding a year or a count, so
+   * the number cannot go stale or disagree with itself again.
+   */
+  founded: 2016,
   /** Carried over from the wider techcadd group — confirm for the Chandigarh entity. */
   founder: {
     name: "Mr. Gourav Gupta",
