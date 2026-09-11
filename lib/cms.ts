@@ -2,32 +2,35 @@
  * The website's read side of the CMS.
  *
  * Every marketing page below used to import a static array out of `data/`.
- * Those arrays are still here and still the default — this module puts the CMS
- * in front of them, so an editor can change a post, an FAQ, a review or the
- * phone number without a redeploy, while the site keeps rendering if the CMS
- * is down, not yet configured, or mid-restart.
+ * This module puts the CMS in front of them, so an editor can change a post,
+ * an FAQ, a review or the phone number without a redeploy.
  *
- * Two rules hold for everything in this file:
+ * Three rules hold for everything in this file:
  *
- *   - **A CMS failure is never a page failure.** Every getter catches, logs
- *     once, and returns the static data. A marketing site that 500s because a
- *     content API is restarting is worse than one showing slightly stale copy.
+ *   - **A CMS failure is never a page failure.** Every getter catches and logs
+ *     once rather than throwing. A marketing site that 500s because a content
+ *     API is restarting is worse than one rendering a section short.
+ *   - **Blogs, FAQs and reviews are the CMS's alone.** These three are what an
+ *     editor actually manages day to day, so they have no static fallback: an
+ *     empty CMS, an unset `CMS_API_URL` and an API that will not answer all
+ *     produce an empty list, and the page says it has nothing to show. The
+ *     alternative — quietly serving copy out of `data/` — puts an article an
+ *     editor deleted back on the site and gives them no way to tell whether
+ *     what they are looking at came from their save or from the repo.
  *   - **Nothing reaches a page in CMS shape.** Each getter maps the API
  *     response onto the type the components already render, so adopting the
  *     CMS did not mean rewriting the presentation layer.
+ *
+ * Events and the site settings keep their static defaults: they are structural
+ * copy the site cannot render a sensible page without, not an editorial feed.
  *
  * Server-only: these calls carry no session, but they are cached per-tag by
  * Next's data cache, which does not exist in the browser.
  */
 
-import { blogPosts as staticPosts, type BlogPost } from "@/data/blog";
+import { type BlogPost } from "@/data/blog";
 import { events as staticEvents, type CampusEvent } from "@/data/events";
-import {
-  faqs as staticFaqs,
-  testimonials as staticTestimonials,
-  type Faq,
-  type Testimonial,
-} from "@/data/content";
+import { type Faq, type Testimonial } from "@/data/content";
 import { site as staticSite } from "@/data/site";
 import { sanitizeHtml } from "@/lib/sanitize";
 
@@ -116,6 +119,25 @@ async function orStatic<T>(key: string, read: () => Promise<T>, fallback: () => 
   }
 }
 
+/**
+ * Runs a read for one of the CMS-only modules, or returns nothing.
+ *
+ * The blog, the FAQs and the reviews have no copy in `data/` standing behind
+ * them any more, so every way of failing to get content collapses to the same
+ * answer: an empty list. The page renders its "nothing published yet" state,
+ * which is true whether the CMS is empty, unset or unreachable — and is a far
+ * better thing to show an editor than content they cannot find in their CMS.
+ */
+async function orNothing<T>(key: string, read: () => Promise<T[]>): Promise<T[]> {
+  if (!cmsEnabled) return [];
+  try {
+    return await read();
+  } catch (error) {
+    warnOnce(key, error);
+    return [];
+  }
+}
+
 /* ------------------------------------------------------------------ */
 /* Blog                                                                */
 /* ------------------------------------------------------------------ */
@@ -176,20 +198,15 @@ function toPost(article: CmsArticle, html?: string, blocks?: CmsPageBlock[]): Bl
 const byNewest = (a: BlogPost, b: BlogPost) => b.date.localeCompare(a.date);
 
 export async function getBlogPosts(limit = 50): Promise<BlogPost[]> {
-  return orStatic(
-    "blog listing",
-    async () => {
-      const { data } = await cmsFetch<{ data: CmsArticle[] }>("/blog/posts", {
-        limit,
-        sort: "latest",
-      });
-      // An empty CMS is a fresh install, not an editorial decision to have no
-      // blog — the static posts are better than an empty page.
-      if (data.length === 0) return [...staticPosts].sort(byNewest);
-      return data.map((article) => toPost(article));
-    },
-    () => [...staticPosts].sort(byNewest),
-  );
+  return orNothing("blog listing", async () => {
+    const { data } = await cmsFetch<{ data: CmsArticle[] }>("/blog/posts", {
+      limit,
+      sort: "latest",
+    });
+    // Sorted again on our side: `sort=latest` is the API's ordering, and the
+    // listing page relies on newest-first to pick its lead article.
+    return data.map((article) => toPost(article)).sort(byNewest);
+  });
 }
 
 export async function getRecentPosts(limit = 3): Promise<BlogPost[]> {
@@ -197,32 +214,25 @@ export async function getRecentPosts(limit = 3): Promise<BlogPost[]> {
 }
 
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {
-  const fallback = () => staticPosts.find((post) => post.slug === slug) ?? null;
-
-  if (!cmsEnabled) return fallback();
+  if (!cmsEnabled) return null;
   try {
     const article = await cmsFetch<CmsArticleDetail>(`/blog/posts/${encodeURIComponent(slug)}`);
     return toPost(article, article.content, article.blocks);
   } catch {
-    // Deliberately not warned: a 404 here is the ordinary case for a static
-    // post the CMS has never heard of, not a fault worth a log line.
-    return fallback();
+    // Deliberately not warned: a 404 here is the ordinary case for any slug
+    // somebody guessed or an old link, and the caller turns null into the
+    // site's own 404 page.
+    return null;
   }
 }
 
 export async function getRelatedPosts(slug: string, limit = 3): Promise<BlogPost[]> {
-  return orStatic(
-    "related posts",
-    async () => {
-      const data = await cmsFetch<CmsArticle[]>(
-        `/blog/posts/${encodeURIComponent(slug)}/related`,
-        { limit },
-      );
-      if (data.length === 0) throw new Error("no related posts");
-      return data.map((article) => toPost(article));
-    },
-    () => staticPosts.filter((post) => post.slug !== slug).slice(0, limit),
-  );
+  return orNothing("related posts", async () => {
+    const data = await cmsFetch<CmsArticle[]>(`/blog/posts/${encodeURIComponent(slug)}/related`, {
+      limit,
+    });
+    return data.map((article) => toPost(article));
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -242,24 +252,19 @@ export async function getFaqs(
 ): Promise<Faq[]> {
   const { limit = 100, featured } = options;
 
-  return orStatic(
-    "faqs",
-    async () => {
-      const { items } = await cmsFetch<{ items: CmsFaq[] }>("/faqs", {
-        limit,
-        featured: featured ? "true" : undefined,
-      });
-      if (items.length === 0) return staticFaqs.slice(0, limit);
-      // The category travels with the question now — the FAQ page groups by it,
-      // and dropping it here was why every question landed in one flat list.
-      return items.map((faq) => ({
-        question: faq.question,
-        answer: faq.answer,
-        category: faq.category,
-      }));
-    },
-    () => staticFaqs.slice(0, limit),
-  );
+  return orNothing("faqs", async () => {
+    const { items } = await cmsFetch<{ items: CmsFaq[] }>("/faqs", {
+      limit,
+      featured: featured ? "true" : undefined,
+    });
+    // The category travels with the question — the FAQ page groups by it, and
+    // dropping it here was why every question landed in one flat list.
+    return items.map((faq) => ({
+      question: faq.question,
+      answer: faq.answer,
+      category: faq.category,
+    }));
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -313,18 +318,13 @@ export async function getReviews(
 ): Promise<Testimonial[]> {
   const { limit = 50, featured } = options;
 
-  return orStatic(
-    "reviews",
-    async () => {
-      const { items } = await cmsFetch<{ items: CmsReview[] }>("/reviews", {
-        limit,
-        featured: featured ? "true" : undefined,
-      });
-      if (items.length === 0) return staticTestimonials.slice(0, limit);
-      return items.map(toTestimonial);
-    },
-    () => staticTestimonials.slice(0, limit),
-  );
+  return orNothing("reviews", async () => {
+    const { items } = await cmsFetch<{ items: CmsReview[] }>("/reviews", {
+      limit,
+      featured: featured ? "true" : undefined,
+    });
+    return items.map(toTestimonial);
+  });
 }
 
 /* ------------------------------------------------------------------ */

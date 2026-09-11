@@ -11,6 +11,7 @@ import { FeaturedShowcase } from "@/components/sections/FeaturedShowcase";
 import { TechBurst } from "@/components/sections/TechBurst";
 import { Accordion } from "@/components/Accordion";
 import { QuickDemoForm } from "@/components/EnquiryForm";
+import { EmptyState } from "@/components/EmptyState";
 import { ButtonLink, cx, Eyebrow, Icon, Rail, SectionHeading } from "@/components/ui";
 import { CountUp, Reveal } from "@/components/motion/Reveal";
 
@@ -203,6 +204,20 @@ export async function TestimonialsSection() {
           </div>
         </div>
 
+        {testimonials.length === 0 ? (
+          <EmptyState
+            className="mt-14"
+            icon="quote"
+            title="No reviews published yet"
+            body="Nothing has been added to the review wall so far. The Google rating above is the students' own — read them there, or book a demo and ask the batch directly."
+            action={
+              <ButtonLink href="/contact" variant="primary">
+                Book a demo class
+                <Icon name="arrow-right" className="size-4" />
+              </ButtonLink>
+            }
+          />
+        ) : (
         <Reveal stagger className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {testimonials.map((testimonial) => (
             <figure
@@ -225,13 +240,21 @@ export async function TestimonialsSection() {
             </figure>
           ))}
         </Reveal>
+        )}
 
-        <div className="mt-12 text-center">
-          <ButtonLink href="/reviews" variant="secondary">
-            Read all reviews
-            <Icon name="arrow-right" className="size-4" />
-          </ButtonLink>
-        </div>
+        {/*
+          * The link out is only worth showing when there is a wall to link to —
+          * "Read all reviews" under a panel saying there are none is a dead end
+          * dressed up as a next step.
+          */}
+        {testimonials.length > 0 ? (
+          <div className="mt-12 text-center">
+            <ButtonLink href="/reviews" variant="secondary">
+              Read all reviews
+              <Icon name="arrow-right" className="size-4" />
+            </ButtonLink>
+          </div>
+        ) : null}
       </Rail>
     </section>
   );
@@ -295,16 +318,36 @@ export async function FaqSection({
               title="Questions we get every week"
               body="If yours is not here, call us — counselling is free and there is no obligation to enrol."
             />
-            <ButtonLink
-              href="/faq"
-              variant={onDark ? "onDarkGhost" : "secondary"}
-              className="mt-8"
-            >
-              All FAQs
-              <Icon name="arrow-right" className="size-4" />
-            </ButtonLink>
+            {questions.length > 0 ? (
+              <ButtonLink
+                href="/faq"
+                variant={onDark ? "onDarkGhost" : "secondary"}
+                className="mt-8"
+              >
+                All FAQs
+                <Icon name="arrow-right" className="size-4" />
+              </ButtonLink>
+            ) : (
+              <ButtonLink
+                href={site.contact.phoneHref}
+                variant={onDark ? "onDarkGhost" : "secondary"}
+                className="mt-8"
+              >
+                Call {site.contact.phone}
+                <Icon name="arrow-right" className="size-4" />
+              </ButtonLink>
+            )}
           </div>
-          <Accordion items={questions} onDark={onDark} />
+          {questions.length === 0 ? (
+            <EmptyState
+              tone={tone}
+              icon="quote"
+              title="No questions published yet"
+              body="Nothing has been added to the FAQ so far. Ask us directly instead — counselling is free, there is no obligation to enrol, and most questions are answered in five minutes."
+            />
+          ) : (
+            <Accordion items={questions} onDark={onDark} />
+          )}
         </div>
       </Rail>
     </section>
@@ -325,12 +368,28 @@ export async function BlogSection() {
             title="Notes from the classroom and the codebase"
             body="Course guides, career scope and honest takes on what is actually changing."
           />
-          <ButtonLink href="/blogs" variant="secondary">
-            All articles
-            <Icon name="arrow-right" className="size-4" />
-          </ButtonLink>
+          {recentPosts.length > 0 ? (
+            <ButtonLink href="/blogs" variant="secondary">
+              All articles
+              <Icon name="arrow-right" className="size-4" />
+            </ButtonLink>
+          ) : null}
         </div>
 
+        {recentPosts.length === 0 ? (
+          <EmptyState
+            className="mt-14"
+            icon="list"
+            title="No articles published yet"
+            body="There is nothing on the blog at the moment. Course guides and career notes are written by the trainers who teach the course, and go up here as they land."
+            action={
+              <ButtonLink href="/contact" variant="primary">
+                Talk to a counsellor
+                <Icon name="arrow-right" className="size-4" />
+              </ButtonLink>
+            }
+          />
+        ) : (
         <Reveal stagger className="mt-14 grid gap-4 lg:grid-cols-3">
           {recentPosts.map((post) => (
             <article
@@ -361,6 +420,7 @@ export async function BlogSection() {
             </article>
           ))}
         </Reveal>
+        )}
       </Rail>
     </section>
   );

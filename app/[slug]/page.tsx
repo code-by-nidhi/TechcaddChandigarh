@@ -13,7 +13,7 @@ import { site } from "@/data/site";
 import { courseSlug } from "@/data/courses";
 import { findCourse, getCourses } from "@/lib/catalogue";
 import { trainingFormats } from "@/data/programs";
-import { faqs } from "@/data/content";
+import { getFaqs } from "@/lib/cms";
 import { courseSchema, faqPageSchema } from "@/lib/schema";
 
 export const dynamicParams = false;
@@ -128,7 +128,9 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
       description: format.summary,
       url: `${site.url}/${slug}`,
     });
-    const faqSchema = faqPageSchema(faqs.slice(0, 6));
+    // Managed in the CMS like every other FAQ on the site.
+    const faqs = await getFaqs({ limit: 6 });
+    const faqSchema = faqs.length > 0 ? faqPageSchema(faqs) : null;
 
     return (
       <>
@@ -255,16 +257,19 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
           </Rail>
         </section>
 
-        <FaqSection items={faqs.slice(0, 6)} />
+        <FaqSection items={faqs} />
         <CtaSection />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
+        {/* An FAQPage with no questions in it is invalid structured data. */}
+        {faqSchema ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          />
+        ) : null}
       </>
     );
   }
@@ -277,7 +282,8 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
     url: `${site.url}/${slug}`,
     priceInr: course.fee?.offer,
   });
-  const afterFaqSchema = faqPageSchema(faqs.slice(0, 6));
+  const afterFaqs = await getFaqs({ limit: 6 });
+  const afterFaqSchema = afterFaqs.length > 0 ? faqPageSchema(afterFaqs) : null;
 
   return (
     <>
@@ -349,16 +355,18 @@ export default async function SlugPage({ params }: { params: Promise<{ slug: str
         }
       />
 
-      <FaqSection items={faqs.slice(0, 6)} />
+      <FaqSection items={afterFaqs} />
       <CtaSection />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(afterCourseSchema) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(afterFaqSchema) }}
-      />
+      {afterFaqSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(afterFaqSchema) }}
+        />
+      ) : null}
     </>
   );
 }

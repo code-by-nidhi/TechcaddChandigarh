@@ -8,7 +8,7 @@ import { EnquiryForm } from "@/components/EnquiryForm";
 import { ButtonLink, Icon, Rail, SectionHeading } from "@/components/ui";
 import { branchFor, serviceAreas, serviceAreasBySlug } from "@/data/branches";
 import { coursesInCategory, getCourseCategories, getCourses } from "@/lib/catalogue";
-import { faqs } from "@/data/content";
+import { getFaqs } from "@/lib/cms";
 import { site } from "@/data/site";
 import { faqPageSchema } from "@/lib/schema";
 
@@ -45,6 +45,10 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
 
   const branch = branchFor(area);
   const otherAreas = serviceAreas.filter((a) => a.slug !== area.slug).slice(0, 8);
+
+  // The questions under this page come from the CMS like every other FAQ on
+  // the site, so an editor changing one changes it everywhere it appears.
+  const faqs = await getFaqs({ limit: 6 });
 
   return (
     <>
@@ -193,12 +197,16 @@ export default async function AreaPage({ params }: { params: Promise<{ area: str
         </Rail>
       </section>
 
-      <FaqSection items={faqs.slice(0, 6)} />
+      <FaqSection items={faqs} />
       <CtaSection />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs.slice(0, 6))) }}
-      />
+      {/* An FAQPage with no questions in it is invalid structured data, so the
+          block is only emitted when the CMS actually returned some. */}
+      {faqs.length > 0 ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs)) }}
+        />
+      ) : null}
     </>
   );
 }

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection } from "@/components/sections/Home";
-import { Icon, Rail } from "@/components/ui";
+import { EmptyState } from "@/components/EmptyState";
+import { ButtonLink, Icon, Rail } from "@/components/ui";
 import { formatDate } from "@/data/blog";
 import { getBlogPosts } from "@/lib/cms";
 import { site } from "@/data/site";
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogsPage() {
-  // Already newest-first, from the CMS when one is configured and from the
-  // static posts otherwise.
+  // Newest-first, and from the CMS alone — an empty list means nothing is
+  // published rather than that something went wrong fetching it.
   const posts = await getBlogPosts();
   const [lead, ...rest] = posts;
 
@@ -49,14 +50,36 @@ export default async function BlogsPage() {
         eyebrow="Blog"
         title="Notes from the classroom and the codebase"
         body="Course guides, career scope and honest assessments of what is actually changing — written by the people teaching it, not a content agency."
+        // The article count is dropped when there are none: "Articles 0" beside
+        // the heading announces the gap twice, and the panel below says it
+        // better.
         meta={[
-          { label: "Articles", value: String(posts.length) },
+          ...(posts.length > 0 ? [{ label: "Articles", value: String(posts.length) }] : []),
           { label: "Written by", value: "techcadd trainers" },
         ]}
       />
 
       <section className="py-16 lg:py-20">
         <Rail>
+          {/*
+            * Nothing published yet. Returned early rather than wrapped around
+            * the markup below, which destructures `posts` into a lead article
+            * and would have nothing to put in it.
+            */}
+          {!lead ? (
+            <EmptyState
+              icon="list"
+              title="No articles published yet"
+              body="There is nothing on the blog at the moment. New course guides and career notes are written by the trainers themselves and go up here as they land — check back shortly, or ask us directly in the meantime."
+              action={
+                <ButtonLink href="/contact" variant="primary">
+                  Talk to a counsellor
+                  <Icon name="arrow-right" className="size-4" />
+                </ButtonLink>
+              }
+            />
+          ) : (
+          <>
           {/* Lead article */}
           <article className="card-hover relative grid gap-8 rounded-3xl border border-line bg-white p-8 lg:grid-cols-[1.4fr_1fr] lg:p-10">
             <div>
@@ -149,6 +172,8 @@ export default async function BlogsPage() {
               </div>
             </section>
           ))}
+          </>
+          )}
         </Rail>
       </section>
 

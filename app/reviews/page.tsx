@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { CmsPageHeader } from "@/components/CmsPageHeader";
 import { CtaSection } from "@/components/sections/Home";
-import { Icon, Rail, SectionHeading, Stat } from "@/components/ui";
+import { ButtonLink, Icon, Rail, SectionHeading, Stat } from "@/components/ui";
+import { EmptyState } from "@/components/EmptyState";
 import { getReviews, getTestimonials } from "@/lib/cms";
 import { TestimonialWall } from "@/components/sections/TestimonialWall";
 import { GoogleMark } from "@/components/GoogleMark";
@@ -102,14 +103,27 @@ export default async function ReviewsPage() {
               </div>
             </div>
 
+            {allReviews.length === 0 ? (
+              <EmptyState
+                icon="quote"
+                title="No written reviews published yet"
+                body="None have been added to the site so far. The rating beside this is what students have left on Google, and you can read every one of them there — or book a demo and ask the batch yourself."
+                action={
+                  <ButtonLink href="/contact" variant="primary">
+                    Book a demo class
+                    <Icon name="arrow-right" className="size-4" />
+                  </ButtonLink>
+                }
+              />
+            ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {allReviews.map((review) => (
                 <figure
                   key={`${review.name}-${review.quote.slice(0, 24)}`}
                   className="flex flex-col rounded-2xl border border-line bg-white p-6"
                 >
-                  {/* A CMS review carries the stars the student actually gave;
-                      the static ones carry none and show five, as before. */}
+                  {/* The stars the student actually gave. A review saved before
+                      the rating field existed carries none and shows five. */}
                   <div className="flex items-center gap-1 text-accent-yellow">
                     {Array.from({ length: review.rating ?? 5 }).map((_, i) => (
                       <Icon key={i} name="star" className="size-4" />
@@ -151,6 +165,7 @@ export default async function ReviewsPage() {
                 </figure>
               ))}
             </div>
+            )}
           </div>
         </Rail>
       </section>

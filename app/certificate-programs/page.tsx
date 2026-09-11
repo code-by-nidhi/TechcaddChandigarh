@@ -7,7 +7,7 @@ import { site } from "@/data/site";
 import { programDurations, programTracks, programsForTrack, trainingFormats } from "@/data/programs";
 import { courseSlug } from "@/data/courses";
 import { findCourse, getCourses } from "@/lib/catalogue";
-import { faqs } from "@/data/content";
+import { getFaqs } from "@/lib/cms";
 import { faqPageSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
@@ -18,6 +18,10 @@ export const metadata: Metadata = {
 
 export default async function CertificateProgramsPage() {
   const courses = await getCourses();
+  // The questions under this page come from the CMS like every other FAQ on
+  // the site, so an editor changing one changes it everywhere it appears.
+  const faqs = await getFaqs({ limit: 6 });
+
   return (
     <>
       <CmsPageHeader
@@ -184,12 +188,16 @@ export default async function CertificateProgramsPage() {
         </Rail>
       </section>
 
-      <FaqSection items={faqs.slice(0, 6)} />
+      <FaqSection items={faqs} />
       <CtaSection />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs.slice(0, 6))) }}
-      />
+      {/* An FAQPage with no questions in it is invalid structured data, so the
+          block is only emitted when the CMS actually returned some. */}
+      {faqs.length > 0 ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema(faqs)) }}
+        />
+      ) : null}
     </>
   );
 }
