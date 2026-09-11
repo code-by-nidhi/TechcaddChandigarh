@@ -55,6 +55,7 @@ export const courseCategories: CourseCategory[] = [
     blurb:
       "Generative AI, agents, machine learning, analytics and the data stack that sits underneath all of it.",
     icon: "sparkles",
+    image: "/images/categories/ai.webp",
   },
   {
     id: "programming",
@@ -63,6 +64,7 @@ export const courseCategories: CourseCategory[] = [
     blurb:
       "The fundamentals every other track builds on — syntax, data structures and problem solving.",
     icon: "code",
+    image: "/images/categories/programming.webp",
   },
   {
     id: "web",
@@ -71,6 +73,7 @@ export const courseCategories: CourseCategory[] = [
     blurb:
       "Ship real products: front-end, back-end, databases, deployment and mobile apps.",
     icon: "layers",
+    image: "/images/categories/web.webp",
   },
   {
     id: "marketing",
@@ -79,6 +82,7 @@ export const courseCategories: CourseCategory[] = [
     blurb:
       "Run live campaigns with real budgets — SEO, ads, social, analytics and AI-assisted content.",
     icon: "megaphone",
+    image: "/images/categories/marketing.webp",
   },
   {
     id: "cyber-cloud",
@@ -87,6 +91,7 @@ export const courseCategories: CourseCategory[] = [
     blurb:
       "Pentest labs, blue-team tooling, AWS/Azure and the DevOps pipeline that ties them together.",
     icon: "shield",
+    image: "/images/categories/cyber-cloud.webp",
   },
   {
     id: "cad",
@@ -94,7 +99,7 @@ export const courseCategories: CourseCategory[] = [
     short: "CAD & Design",
     blurb: "Drafting and modelling for civil, mechanical and architectural roles.",
     icon: "compass",
-    image: "/images/cad-design.jpeg",
+    image: "/images/categories/cad.webp",
   },
   {
     id: "office",
@@ -103,6 +108,7 @@ export const courseCategories: CourseCategory[] = [
     blurb:
       "Computer fundamentals, accounting and productivity skills for immediate office roles.",
     icon: "monitor",
+    image: "/images/categories/office.webp",
   },
 ];
 

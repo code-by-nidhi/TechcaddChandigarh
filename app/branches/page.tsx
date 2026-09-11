@@ -7,8 +7,10 @@ import { site } from "@/data/site";
 import { branches, serviceAreas } from "@/data/branches";
 
 export const metadata: Metadata = {
-  title: `Our Centres — techcadd Branches Across the Tricity`,
-  description: `${branches.length} techcadd centres across Chandigarh, Mohali, Panchkula, Zirakpur, Kharar and Ambala. Same syllabus, same assessments, local batch timings.`,
+  title: `Our Centres — techcadd Branches Across Punjab`,
+  // Names are derived from `branches` so the list cannot drift out of step with
+  // the centres the page actually renders, the way the hard-coded one did.
+  description: `${branches.length} techcadd centres across ${branches.map((b) => b.name).join(", ")}. Same syllabus, same assessments, local batch timings.`,
   alternates: { canonical: `${site.url}/branches` },
 };
 
@@ -19,7 +21,7 @@ export default async function BranchesPage() {
         route="branches"
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Branches" }]}
         eyebrow="Our centres"
-        title={`${branches.length} campuses across the tricity`}
+        title={`${branches.length} campuses across Punjab`}
         body="Every centre runs the same syllabus, the same assessments and the same placement process. What differs is the specialisation each one has built around the companies nearby."
         meta={[
           { label: "Centres", value: String(branches.length) },
@@ -67,6 +69,27 @@ export default async function BranchesPage() {
                     <Icon name="monitor" className="size-4 shrink-0 text-brand-600" />
                     <dd className="text-muted">{branch.labs}</dd>
                   </div>
+                  {branch.website ? (
+                    <div className="flex gap-2.5">
+                      <Icon name="globe" className="size-4 shrink-0 text-brand-600" />
+                      <dd>
+                        {/*
+                          `relative` lifts this above the stretched overlay the
+                          branch-name link paints across the whole card; without
+                          it the card link swallows the click and this is dead.
+                        */}
+                        <a
+                          href={branch.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="relative inline-flex items-center gap-1 font-medium text-brand-600 hover:underline"
+                        >
+                          {new URL(branch.website).host.replace(/^www\./, "")}
+                          <Icon name="arrow-up-right" className="size-3.5" />
+                        </a>
+                      </dd>
+                    </div>
+                  ) : null}
                 </dl>
               </article>
             ))}

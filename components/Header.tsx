@@ -167,16 +167,24 @@ function SimplePanel({ links }: { links: NavLink[] }) {
   return (
     <div className="menu-panel-in w-56 rounded-3xl border border-white/60 bg-[#f3f5f9] p-3 shadow-[0_32px_80px_-24px_rgba(6,14,43,0.45)] ring-1 ring-hero-950/5">
       <ul className="max-h-[70vh] overflow-y-auto">
-        {links.map((item) => (
-          <li key={item.href}>
-            <Link
-              href={item.href}
-              className="block rounded-lg px-3 py-2.5 text-sm font-medium text-hero-950/85 transition-colors hover:bg-white hover:text-brand-600"
-            >
-              {item.label}
-            </Link>
-          </li>
-        ))}
+        {links.map((item) => {
+          const className =
+            "flex items-center justify-between gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-hero-950/85 transition-colors hover:bg-white hover:text-brand-600";
+          return (
+            <li key={item.href}>
+              {item.external ? (
+                <a href={item.href} target="_blank" rel="noopener noreferrer" className={className}>
+                  {item.label}
+                  <Icon name="arrow-up-right" className="size-3.5 shrink-0 opacity-60" />
+                </a>
+              ) : (
+                <Link href={item.href} className={className}>
+                  {item.label}
+                </Link>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -250,14 +258,26 @@ function CardsPanel({
                     treatment,
                   )}
                 >
-                  <span
-                    aria-hidden="true"
-                    className="absolute inset-0 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.6)_1px,transparent_1.5px)] [background-size:16px_16px]"
-                  />
-                  <Icon
-                    name={card.icon}
-                    className="relative size-9 text-white/90 transition-transform duration-500 group-hover:scale-110"
-                  />
+                  {card.image ? (
+                    // Decorative: the tile's title is real text directly below.
+                    <img
+                      src={card.image}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <>
+                      <span
+                        aria-hidden="true"
+                        className="absolute inset-0 opacity-20 [background-image:radial-gradient(rgba(255,255,255,0.6)_1px,transparent_1.5px)] [background-size:16px_16px]"
+                      />
+                      <Icon
+                        name={card.icon}
+                        className="relative size-9 text-white/90 transition-transform duration-500 group-hover:scale-110"
+                      />
+                    </>
+                  )}
                 </span>
                 <span className="mt-3 block font-display text-sm font-bold tracking-tight text-hero-950">
                   {card.title}
@@ -820,21 +840,47 @@ function MobileMenu({
                             </p>
                           ) : null}
                           <div className="grid gap-0.5 sm:grid-cols-2">
-                            {group.links.map((linkItem) => (
-                              <Link
-                                key={linkItem.href + linkItem.label}
-                                href={linkItem.href}
-                                onClick={onNavigate}
-                                className="flex items-center justify-between gap-3 rounded-lg py-2 pl-3 text-sm text-muted transition-colors hover:text-brand-600"
-                              >
-                                <span className="truncate">{linkItem.label}</span>
-                                {linkItem.badge ? (
-                                  <Badge tone={badgeTone(linkItem.badge)} className="shrink-0">
-                                    {linkItem.badge}
-                                  </Badge>
-                                ) : null}
-                              </Link>
-                            ))}
+                            {group.links.map((linkItem) => {
+                              const linkClass =
+                                "flex items-center justify-between gap-3 rounded-lg py-2 pl-3 text-sm text-muted transition-colors hover:text-brand-600";
+                              const body = (
+                                <>
+                                  <span className="truncate">{linkItem.label}</span>
+                                  {linkItem.badge ? (
+                                    <Badge tone={badgeTone(linkItem.badge)} className="shrink-0">
+                                      {linkItem.badge}
+                                    </Badge>
+                                  ) : null}
+                                  {linkItem.external ? (
+                                    <Icon
+                                      name="arrow-up-right"
+                                      className="size-3.5 shrink-0 opacity-60"
+                                    />
+                                  ) : null}
+                                </>
+                              );
+                              return linkItem.external ? (
+                                <a
+                                  key={linkItem.href + linkItem.label}
+                                  href={linkItem.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={onNavigate}
+                                  className={linkClass}
+                                >
+                                  {body}
+                                </a>
+                              ) : (
+                                <Link
+                                  key={linkItem.href + linkItem.label}
+                                  href={linkItem.href}
+                                  onClick={onNavigate}
+                                  className={linkClass}
+                                >
+                                  {body}
+                                </Link>
+                              );
+                            })}
                           </div>
                         </div>
                       ))}

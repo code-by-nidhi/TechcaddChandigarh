@@ -8,6 +8,11 @@ export interface NavLink {
   href: string;
   badge?: "Hot" | "New" | "Trending";
   description?: string;
+  /**
+   * Points off this site, so it renders as a plain anchor in a new tab rather
+   * than a prefetching `next/link` that would try to client-route to it.
+   */
+  external?: boolean;
 }
 
 /** A numbered column in the wide mega panel. */
@@ -32,6 +37,12 @@ export interface NavCard {
   badge: string;
   meta: string;
   icon: string;
+  /**
+   * Artwork for the tile. Optional, and `icon` stays required as the fallback:
+   * a card with no image keeps the gradient-and-icon treatment rather than
+   * rendering an empty box.
+   */
+  image?: string;
 }
 
 /** Quote strip along the bottom of a mega panel. */
@@ -350,6 +361,7 @@ export const navItems: NavItem[] = [
           badge: "Free tool",
           meta: "4 questions",
           icon: "target",
+          image: "/images/resources/career-tracker.webp",
         },
         {
           title: "Training Matcher",
@@ -357,6 +369,7 @@ export const navItems: NavItem[] = [
           badge: "Free tool",
           meta: "Instant match",
           icon: "refresh",
+          image: "/images/resources/training-matcher.webp",
         },
         {
           title: "Salary Estimator",
@@ -364,6 +377,7 @@ export const navItems: NavItem[] = [
           badge: "Free tool",
           meta: "Tricity market",
           icon: "chart",
+          image: "/images/resources/salary-estimator.webp",
         },
       ],
     },
@@ -373,10 +387,21 @@ export const navItems: NavItem[] = [
     href: "/branches",
     panel: {
       kind: "simple",
-      links: branches.map((branch) => ({
-        label: branch.name,
-        href: `/branches/${branch.slug}`,
-      })),
+      /*
+       * The head campus is left out: this site *is* the Chandigarh centre, so
+       * listing it among "other branches" sends visitors in a circle. It stays
+       * in `branches` for the /branches page, which is about the whole network.
+       *
+       * A centre that runs its own site links straight there; the rest fall
+       * back to their page here.
+       */
+      links: branches
+        .filter((branch) => !branch.isHead)
+        .map((branch) => ({
+          label: branch.name,
+          href: branch.website ?? `/branches/${branch.slug}`,
+          external: Boolean(branch.website),
+        })),
     },
   },
   { label: "Contact", href: "/contact" },

@@ -86,7 +86,7 @@ const founderStory = [
     label: "Today",
     icon: "globe",
     title: "A network across Punjab and the tricity",
-    body: "techcadd now runs across Chandigarh, Mohali, Panchkula, Zirakpur, Kharar and Ambala, alongside its earlier centres in Jalandhar, Ludhiana, Hoshiarpur, Phagwara, Amritsar, Patiala, Bathinda and Mukerian. It works with universities on industrial training and placement drives, and continues under Mr. Gourav Gupta as Founder and CEO.",
+    body: "techcadd now runs across Chandigarh, Mohali, Ludhiana, Jalandhar, Hoshiarpur, Phagwara and Amritsar. It works with universities on industrial training and placement drives, and continues under Mr. Gourav Gupta as Founder and CEO.",
   },
 ];
 

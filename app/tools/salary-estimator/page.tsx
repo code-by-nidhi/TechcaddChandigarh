@@ -8,7 +8,7 @@ import { site } from "@/data/site";
 export const metadata: Metadata = {
   title: "Salary Estimator — Tech Salary Bands in the Tricity",
   description:
-    "Indicative monthly and annual salary ranges for technology roles across Chandigarh, Mohali and Panchkula — adjusted for experience, employer type and portfolio strength.",
+    "Indicative monthly and annual salary ranges for technology roles across Chandigarh, Mohali and the wider Punjab market — adjusted for experience, employer type and portfolio strength.",
   alternates: { canonical: `${site.url}/tools/salary-estimator` },
 };
 

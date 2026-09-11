@@ -48,6 +48,9 @@ export default async function BranchPage({ params }: { params: Promise<{ branch:
     "@type": "EducationalOrganization",
     name: `techcadd ${branch.name}`,
     telephone: branch.phone,
+    // Only emitted for centres that run their own site — an empty `url` is
+    // worse than none, and it ties this entity to the right domain for search.
+    ...(branch.website ? { url: branch.website } : {}),
     address: { "@type": "PostalAddress", streetAddress: branch.address },
     parentOrganization: { "@type": "EducationalOrganization", name: site.name },
   };
@@ -137,6 +140,19 @@ export default async function BranchPage({ params }: { params: Promise<{ branch:
                       <Icon name="clock" className="size-4 shrink-0 text-brand-600" />
                       <span className="text-muted">{site.contact.hours}</span>
                     </p>
+                    {branch.website ? (
+                      <p className="flex gap-3">
+                        <Icon name="globe" className="size-4 shrink-0 text-brand-600" />
+                        <a
+                          href={branch.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-muted hover:text-brand-600"
+                        >
+                          {new URL(branch.website).host.replace(/^www\./, "")}
+                        </a>
+                      </p>
+                    ) : null}
                   </address>
                   <a
                     href={branch.mapUrl}

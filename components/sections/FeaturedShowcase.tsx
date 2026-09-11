@@ -35,6 +35,13 @@ interface Slot {
   /** Course id from `data/courses`. Every card is a real link to that course. */
   course: string;
   variant: Variant;
+  /**
+   * Real artwork for this card, replacing the CSS poster `variant` would draw.
+   *
+   * `variant` stays required even when this is set, so a card whose file is
+   * removed falls back to a designed poster rather than a blank rectangle.
+   */
+  image?: string;
 }
 
 /**
@@ -44,16 +51,16 @@ interface Slot {
  * poster sits further out where it would otherwise vanish into the background.
  */
 const DECK: Slot[] = [
-  { course: "cloud-computing", variant: "minimal" },
-  { course: "cyber-security", variant: "typoDark" },
-  { course: "full-stack-development", variant: "blocks" },
-  { course: "agentic-ai", variant: "neon" },
-  { course: "data-science", variant: "gradient" },
-  { course: "artificial-intelligence", variant: "screen" },
-  { course: "digital-marketing", variant: "photo" },
-  { course: "generative-ai", variant: "mono" },
-  { course: "mern-stack-development", variant: "editorial" },
-  { course: "python", variant: "typo" },
+  { course: "cloud-computing", variant: "minimal", image: "/images/featured/cloud-computing.webp" },
+  { course: "cyber-security", variant: "typoDark", image: "/images/featured/cyber-security.webp" },
+  { course: "full-stack-development", variant: "blocks", image: "/images/featured/full-stack-development.webp" },
+  { course: "agentic-ai", variant: "neon", image: "/images/featured/agentic-ai.webp" },
+  { course: "data-science", variant: "gradient", image: "/images/featured/data-science.webp" },
+  { course: "artificial-intelligence", variant: "screen", image: "/images/featured/artificial-intelligence.webp" },
+  { course: "digital-marketing", variant: "photo", image: "/images/featured/digital-marketing.webp" },
+  { course: "generative-ai", variant: "mono", image: "/images/featured/generative-ai.webp" },
+  { course: "mern-stack-development", variant: "editorial", image: "/images/featured/mern-stack-development.webp" },
+  { course: "python", variant: "typo", image: "/images/featured/python.webp" },
 ];
 
 const byId = new Map(courses.map((c) => [c.id, c]));
@@ -598,7 +605,18 @@ function CardFace({
       aria-current={isActive ? "true" : undefined}
       tabIndex={isActive ? 0 : -1}
     >
-      <Art course={course} />
+      {slot.image ? (
+        // Decorative: the course name and duration are already in `aria-label`,
+        // `CardLabel` and the visually-hidden text below.
+        <img
+          src={slot.image}
+          alt=""
+          draggable={false}
+          className="pointer-events-none absolute inset-0 size-full object-cover"
+        />
+      ) : (
+        <Art course={course} />
+      )}
       <CardLabel course={course} isActive={isActive} />
       <span className="sr-only">
         {course.name}. {course.duration}. {course.level}.
